@@ -1,0 +1,7 @@
+# Optional: enables multi-threaded WASM codecs (SharedArrayBuffer) on hosts
+# that honor a _headers file (Netlify, Cloudflare Pages). Not required — the
+# app works single-threaded without these. Safe to delete if your CDN
+# doesn't support this file format or you don't want cross-origin isolation.
+/*
+  Cross-Origin-Opener-Policy: same-origin
+  Cross-Origin-Embedder-Policy: require-corp

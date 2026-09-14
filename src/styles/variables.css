@@ -1,0 +1,102 @@
+:root {
+  /* Brand palette — Image Converter Brand Book */
+  --color-bg: #eff6ff;
+  --color-surface: #ffffff;
+  --color-surface-raised: #ffffff;
+  --color-border: #e2e8f0;
+  --color-border-strong: #c7d2e3;
+  --color-text: #0f172a;
+  --color-text-muted: #6f748b;
+  --color-text-faint: #94a3b8;
+
+  --color-accent: #2563ff; /* Primary Blue */
+  --color-accent-hover: #3bb2f6; /* Light Blue */
+  --color-accent-contrast: #ffffff;
+  --color-accent-soft: #eff6ff; /* Pale Blue */
+
+  --color-danger: #ef4444;
+  --color-danger-soft: #fef2f2;
+  --color-danger-border: #fecaca;
+
+  --color-success: #16a34a;
+  --color-success-soft: #f0fdf4;
+  --color-success-border: #bbf7d0;
+
+  --color-focus: #2563ff;
+  --gradient-primary: linear-gradient(135deg, #2563ff, #3b82f6);
+  --pattern-dot: rgba(37, 99, 255, 0.17);
+
+  --radius-sm: 6px;
+  --radius-md: 10px;
+  --radius-lg: 16px;
+  --radius-xl: 22px;
+
+  --space-1: 4px;
+  --space-2: 8px;
+  --space-3: 12px;
+  --space-4: 16px;
+  --space-5: 24px;
+  --space-6: 32px;
+  --space-7: 48px;
+  --space-8: 64px;
+
+  --font-sans:
+    -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif,
+    'Apple Color Emoji', 'Segoe UI Emoji';
+  --font-mono: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+
+  --content-max: 1140px;
+  --shadow-sm: 0 1px 2px rgba(15, 23, 42, 0.06);
+  --shadow-md: 0 4px 16px rgba(15, 23, 42, 0.08);
+  --shadow-lg: 0 12px 40px rgba(15, 23, 42, 0.12);
+
+  --transition-fast: 120ms ease;
+  --transition-base: 200ms ease;
+  --reveal-duration: 650ms;
+  --float-duration: 6s;
+
+  color-scheme: light dark;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    --color-bg: #0b1220;
+    --color-surface: #121a2b;
+    --color-surface-raised: #16213a;
+    --color-border: #253352;
+    --color-border-strong: #34456b;
+    --color-text: #eef2ff;
+    --color-text-muted: #a9b3c9;
+    --color-text-faint: #7c88a3;
+
+    --color-accent: #5b8dff;
+    --color-accent-hover: #7fb4ff;
+    --color-accent-contrast: #0b1220;
+    --color-accent-soft: #16233d;
+
+    --color-danger: #ff8a80;
+    --color-danger-soft: #3a1c1c;
+    --color-danger-border: #5c2c2c;
+
+    --color-success: #4ade80;
+    --color-success-soft: #123321;
+    --color-success-border: #1e4d31;
+
+    --color-focus: #5b8dff;
+    --gradient-primary: linear-gradient(135deg, #2563ff, #5b8dff);
+    --pattern-dot: rgba(91, 141, 255, 0.13);
+
+    --shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.3);
+    --shadow-md: 0 4px 16px rgba(0, 0, 0, 0.35);
+    --shadow-lg: 0 12px 40px rgba(0, 0, 0, 0.45);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  :root {
+    --transition-fast: 0ms;
+    --transition-base: 0ms;
+    --reveal-duration: 0ms;
+    --float-duration: 0s;
+  }
+}

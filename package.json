@@ -1,0 +1,28 @@
+{
+  "name": "image-converter",
+  "private": true,
+  "version": "0.1.0",
+  "type": "module",
+  "description": "Fast, private, browser-only image converter. Upload, convert, download — no server, no accounts.",
+  "scripts": {
+    "dev": "vite",
+    "build": "tsc --noEmit && vite build",
+    "preview": "vite preview",
+    "test": "vitest run",
+    "test:watch": "vitest"
+  },
+  "dependencies": {
+    "@huggingface/transformers": "^4.2.0",
+    "@jsquash/avif": "^2.1.1",
+    "@jsquash/jpeg": "^1.4.0",
+    "@jsquash/png": "^3.1.1",
+    "@jsquash/webp": "^1.4.0",
+    "libheif-js": "^1.23.2",
+    "utif": "^3.1.0"
+  },
+  "devDependencies": {
+    "typescript": "^5.6.3",
+    "vite": "^8.3.0",
+    "vitest": "^5.0.0"
+  }
+}

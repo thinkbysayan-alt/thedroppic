@@ -1,0 +1,44 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>thedroppic — Convert JPG, PNG, WebP, AVIF, TIFF &amp; HEIC Online</title>
+    <meta
+      name="description"
+      content="Free online image converter that runs entirely in your browser. Convert JPG, PNG, WebP, AVIF, TIFF and HEIC photos instantly. No upload, no signup — your image never leaves your device."
+    />
+    <link rel="canonical" href="https://example.com/" />
+
+    <meta property="og:type" content="website" />
+    <meta property="og:title" content="thedroppic — Convert images instantly, privately" />
+    <meta
+      property="og:description"
+      content="Fast, private image conversion that runs entirely in your browser. JPG, PNG, WebP, AVIF, TIFF, HEIC."
+    />
+    <!-- TODO before launch: add a real public/og-image.png (1200x630) and uncomment.
+    <meta property="og:image" content="/og-image.png" /> -->
+    <meta property="og:url" content="https://example.com/" />
+    <meta name="twitter:card" content="summary_large_image" />
+
+    <meta name="theme-color" content="#2563ff" />
+    <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
+
+    <script type="application/ld+json">
+      {
+        "@context": "https://schema.org",
+        "@type": "WebApplication",
+        "name": "thedroppic",
+        "applicationCategory": "MultimediaApplication",
+        "operatingSystem": "Any (runs in browser)",
+        "offers": { "@type": "Offer", "price": "0", "priceCurrency": "USD" },
+        "description": "Free browser-based image converter supporting JPG, PNG, WebP, AVIF, TIFF and HEIC. All processing happens locally on-device."
+      }
+    </script>
+  </head>
+  <body>
+    <div id="bg-pattern" aria-hidden="true"></div>
+    <div id="app"></div>
+    <script type="module" src="/src/main.ts"></script>
+  </body>
+</html>
