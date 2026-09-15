@@ -55,41 +55,12 @@
   --reveal-duration: 650ms;
   --float-duration: 6s;
 
-  color-scheme: light dark;
-}
-
-@media (prefers-color-scheme: dark) {
-  :root {
-    --color-bg: #0b1220;
-    --color-surface: #121a2b;
-    --color-surface-raised: #16213a;
-    --color-border: #253352;
-    --color-border-strong: #34456b;
-    --color-text: #eef2ff;
-    --color-text-muted: #a9b3c9;
-    --color-text-faint: #7c88a3;
-
-    --color-accent: #5b8dff;
-    --color-accent-hover: #7fb4ff;
-    --color-accent-contrast: #0b1220;
-    --color-accent-soft: #16233d;
-
-    --color-danger: #ff8a80;
-    --color-danger-soft: #3a1c1c;
-    --color-danger-border: #5c2c2c;
-
-    --color-success: #4ade80;
-    --color-success-soft: #123321;
-    --color-success-border: #1e4d31;
-
-    --color-focus: #5b8dff;
-    --gradient-primary: linear-gradient(135deg, #2563ff, #5b8dff);
-    --pattern-dot: rgba(91, 141, 255, 0.13);
-
-    --shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.3);
-    --shadow-md: 0 4px 16px rgba(0, 0, 0, 0.35);
-    --shadow-lg: 0 12px 40px rgba(0, 0, 0, 0.45);
-  }
+  /* Light only, deliberately — the site has one designed look and should
+     render identically regardless of the visitor's OS/browser dark-mode
+     setting. (A `prefers-color-scheme: dark` block used to override these
+     tokens automatically; removed because it made the site look different
+     — effectively broken — for anyone whose device is set to dark mode.) */
+  color-scheme: light;
 }
 
 @media (prefers-reduced-motion: reduce) {
