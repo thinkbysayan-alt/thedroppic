@@ -7,14 +7,23 @@ function flatAlpha(width: number, height: number, value: number): Uint8ClampedAr
 }
 
 describe('cleanupMask', () => {
-  it('leaves confidently-opaque and confidently-transparent regions untouched', () => {
+  it('leaves large flat regions untouched even at a mid alpha value far from 0/255 (regression: large upsampled photos legitimately have huge flat non-extreme regions)', () => {
+    // This is the exact bug this test guards against: an earlier version
+    // gated purely on "alpha isn't exactly 0 or 255," which treated large,
+    // perfectly flat interior regions (common once a small model mask is
+    // upsampled onto a big photo) as "edge" and blurred them into a
+    // visible haze. A flat region has zero local variance anywhere, so it
+    // must be left completely alone regardless of its absolute value.
+    const alpha = flatAlpha(9, 9, 200);
+    const out = cleanupMask(alpha, 9, 9);
+    expect(Array.from(out)).toEqual(Array.from(alpha));
+  });
+
+  it('removes a single confidently-transparent speckle inside an otherwise-opaque region (a real edge case)', () => {
     const alpha = flatAlpha(5, 5, 255);
-    alpha[12] = 0; // center pixel confidently transparent — still below the edge-band threshold, not "noise" to clean up here
+    alpha[12] = 0; // one-pixel dropout in the middle of solid foreground — this genuinely is noise to clean up
     const out = cleanupMask(alpha, 5, 5);
-    // Every pixel outside the edge band (0 or 255) must be bit-for-bit identical.
-    for (let i = 0; i < alpha.length; i++) {
-      expect(out[i]).toBe(alpha[i]);
-    }
+    expect(out[12]).toBe(255);
   });
 
   it('removes a single-pixel speckle inside the edge band via the median of its neighborhood', () => {
@@ -40,10 +49,15 @@ describe('antiAliasEdges', () => {
     expect(out[2]).toBeGreaterThan(alpha[2]!);
   });
 
-  it('leaves confidently opaque/transparent pixels untouched', () => {
+  it('smooths pixels right at a hard step but leaves pixels further from it untouched', () => {
+    // A hard 0->255 step really is a boundary and should be smoothed right
+    // at the transition — but pixels a couple of steps away from it, in
+    // flat 0 or flat 255 regions, have zero local variance and must be
+    // left completely alone.
     const alpha = new Uint8ClampedArray([0, 0, 0, 255, 255, 255]);
     const out = antiAliasEdges(alpha, 6, 1);
-    expect(Array.from(out)).toEqual(Array.from(alpha));
+    expect(out[0]).toBe(0);
+    expect(out[5]).toBe(255);
   });
 });
 

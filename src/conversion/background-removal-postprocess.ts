@@ -26,13 +26,43 @@
  * module works identically on the main thread or inside a Worker.
  */
 
-/** Pixels at or below this alpha are treated as "confidently background" — left untouched by every stage. */
-const CONFIDENT_BG = 4;
-/** Pixels at or above this alpha are treated as "confidently foreground" — left untouched by cleanup/anti-alias, and used as the trusted color source for halo reduction. */
+/** Pixels at or above this alpha are used as the trusted color source for halo reduction. */
 const CONFIDENT_FG = 250;
+/**
+ * How much an alpha value has to vary within a pixel's immediate
+ * neighborhood before that pixel counts as "near a real edge."
+ *
+ * A pixel's *absolute* alpha value is not a reliable signal for this on
+ * its own: a low-resolution model's mask, upsampled onto a large photo,
+ * legitimately produces huge, smoothly-varying interior regions sitting
+ * at alpha values like 180-249 that are nowhere near an actual boundary
+ * — a much larger fraction of the image the bigger the photo is relative
+ * to the model's small native resolution. Gating purely on "is alpha not
+ * exactly 0 or 255" (an earlier version of this file did) treated most of
+ * a large photo's confident foreground as "edge," and repeatedly
+ * median-filtering/blurring it produced a visible ghosting/haze over
+ * large flat areas instead of the intended edge-only cleanup — this
+ * local-variance check instead asks "does alpha actually change nearby,"
+ * which is true only near a genuine boundary regardless of image size.
+ */
+const EDGE_VARIANCE_THRESHOLD = 10;
 
-function isEdgePixel(alpha: number): boolean {
-  return alpha > CONFIDENT_BG && alpha < CONFIDENT_FG;
+/** True if `alpha`'s value varies meaningfully within its 3x3 neighborhood — i.e. this pixel sits near a real matte boundary, not just anywhere with a non-extreme value. */
+function isNearEdge(alpha: Uint8ClampedArray, x: number, y: number, width: number, height: number): boolean {
+  let min = 255;
+  let max = 0;
+  for (let dy = -1; dy <= 1; dy++) {
+    const ny = y + dy;
+    if (ny < 0 || ny >= height) continue;
+    for (let dx = -1; dx <= 1; dx++) {
+      const nx = x + dx;
+      if (nx < 0 || nx >= width) continue;
+      const v = alpha[ny * width + nx]!;
+      if (v < min) min = v;
+      if (v > max) max = v;
+    }
+  }
+  return max - min > EDGE_VARIANCE_THRESHOLD;
 }
 
 /** Extracts just the alpha channel (index 3 of every RGBA pixel) into its own array. */
@@ -43,11 +73,10 @@ function extractAlpha(rgba: Uint8ClampedArray, pixelCount: number): Uint8Clamped
 }
 
 /**
- * 3x3 median filter on the alpha channel, restricted to the "edge band"
- * (neither confidently opaque nor confidently transparent) — that band is
- * where a low-resolution model's upsampled mask actually shows noise, so
- * skipping confident regions keeps this fast on large photos without
- * changing the result there.
+ * 3x3 median filter on the alpha channel, restricted to pixels near a real
+ * boundary (see `isNearEdge`) — that's where a low-resolution model's
+ * upsampled mask actually shows noise, so skipping flat/confident regions
+ * keeps this fast on large photos without touching them at all.
  */
 export function cleanupMask(alpha: Uint8ClampedArray, width: number, height: number): Uint8ClampedArray {
   const out = new Uint8ClampedArray(alpha);
@@ -55,8 +84,7 @@ export function cleanupMask(alpha: Uint8ClampedArray, width: number, height: num
   for (let y = 0; y < height; y++) {
     for (let x = 0; x < width; x++) {
       const i = y * width + x;
-      const a = alpha[i]!;
-      if (!isEdgePixel(a)) continue;
+      if (!isNearEdge(alpha, x, y, width, height)) continue;
 
       let n = 0;
       for (let dy = -1; dy <= 1; dy++) {
@@ -91,8 +119,8 @@ function median(values: Uint8ClampedArray, n: number): number {
 
 /**
  * Small weighted blur (1-2-1 separable-equivalent 3x3 kernel) on the alpha
- * channel, again restricted to the edge band, to turn jagged upsampled
- * boundaries into a properly anti-aliased soft transition.
+ * channel, again restricted to pixels near a real boundary, to turn
+ * jagged upsampled edges into a properly anti-aliased soft transition.
  */
 export function antiAliasEdges(alpha: Uint8ClampedArray, width: number, height: number): Uint8ClampedArray {
   const out = new Uint8ClampedArray(alpha);
@@ -103,7 +131,7 @@ export function antiAliasEdges(alpha: Uint8ClampedArray, width: number, height: 
     for (let x = 0; x < width; x++) {
       const i = y * width + x;
       const a = alpha[i]!;
-      if (!isEdgePixel(a)) continue;
+      if (!isNearEdge(alpha, x, y, width, height)) continue;
 
       let sum = 0;
       let weight = 0;
@@ -145,7 +173,7 @@ export function reduceHalo(rgba: Uint8ClampedArray, alpha: Uint8ClampedArray, wi
     for (let x = 0; x < width; x++) {
       const i = y * width + x;
       const a = alpha[i]!;
-      if (!isEdgePixel(a)) continue;
+      if (!isNearEdge(alpha, x, y, width, height)) continue;
 
       let sumR = 0;
       let sumG = 0;
