@@ -87,25 +87,7 @@ export type View =
   | { kind: 'error'; error: AppError; recoverable: boolean }
   | { kind: 'batch'; items: BatchItem[] };
 
-type Listener = (view: View) => void;
-
-class Store {
-  private view: View = { kind: 'idle' };
-  private listeners = new Set<Listener>();
-
-  get(): View {
-    return this.view;
-  }
-
-  set(next: View): void {
-    this.view = next;
-    for (const listener of this.listeners) listener(this.view);
-  }
-
-  subscribe(listener: Listener): () => void {
-    this.listeners.add(listener);
-    return () => this.listeners.delete(listener);
-  }
-}
-
-export const store = new Store();
+// The Store class itself now lives per-instance in tool-workspace.ts and
+// optimize-workspace.ts (each tool page gets its own, so switching tools via
+// the router never leaks state between them) — this file keeps only the
+// shared data shapes those modules import.

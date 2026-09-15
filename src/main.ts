@@ -11,5 +11,5 @@ if (root) {
   initPatternParallax();
 } else {
   // Should be unreachable — index.html always provides #app — but fail loudly in dev rather than silently no-op.
-  console.error('Image Converter: #app mount point not found.');
+  console.error('thedroppic: #app mount point not found.');
 }
