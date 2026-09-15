@@ -148,6 +148,22 @@ a {
   transform: none;
 }
 
+/* Scroll-reveal "card" treatment — a slightly more deliberate settle
+   (scale + lift) than the plain fade above, used for the one premium
+   card per tool page (formats / use-cases). Still just transform+opacity
+   (GPU-composited, no layout cost) and still governed by the same
+   --reveal-duration (zeroed under prefers-reduced-motion, see variables.css). */
+[data-reveal-card] {
+  opacity: 0;
+  transform: translateY(28px) scale(0.98);
+  transition: opacity var(--reveal-duration) ease, transform var(--reveal-duration) ease;
+}
+
+[data-reveal-card].is-visible {
+  opacity: 1;
+  transform: none;
+}
+
 /* Safety net: anyone who prefers reduced motion gets every animation and
    transition on the site collapsed to effectively instant, not just the
    ones we remembered to gate with a --duration custom property. */

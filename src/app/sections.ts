@@ -8,16 +8,29 @@ export interface IconItem {
   description: string;
 }
 
-/** Compact 4-6 item benefit row (icon + title + one-line description). Used on every page — homepage's full benefits grid and each tool page's shorter "why use it" strip. */
+/**
+ * Compact benefit grid (icon + title + one-line description). Used by the
+ * homepage's "Why people choose thedroppic" panel — the tool pages' own
+ * shorter strips now render as a carousel instead, see feature-carousel.ts.
+ *
+ * `className` may be a space-separated list (a base class plus a layout
+ * modifier, e.g. "feature-strip feature-strip--four") — only the FIRST
+ * token is the real BEM block name used for children's `__item`/`__icon`
+ * classes; naively appending the whole (possibly multi-class) string here
+ * previously produced classes like "feature-strip--four__item" that never
+ * matched any CSS rule, silently losing all of the item spacing/icon
+ * styling and falling back to the browser's raw default <p> margins.
+ */
 export function renderFeatureStrip(items: IconItem[], className = 'feature-strip'): HTMLElement {
   const wrap = document.createElement('div');
   wrap.className = className;
+  const block = className.split(' ')[0]!;
   items.forEach((item, index) => {
     const el = document.createElement('div');
-    el.className = `${className}__item`;
+    el.className = `${block}__item`;
     el.setAttribute('data-reveal', '');
     setRevealDelay(el, index, 80);
-    el.innerHTML = `<span class="icon-badge ${className}__icon">${item.icon}</span><h3></h3><p></p>`;
+    el.innerHTML = `<span class="icon-badge ${block}__icon">${item.icon}</span><h3></h3><p></p>`;
     el.querySelector('h3')!.textContent = item.title;
     el.querySelector('p')!.textContent = item.description;
     wrap.appendChild(el);
@@ -137,6 +150,42 @@ export function renderCtaBand(
   actionWrap.appendChild(note);
 
   section.appendChild(actionWrap);
+  return section;
+}
+
+/**
+ * A single premium "scroll-reveal" card — the shared shell behind the
+ * Formats, Use Cases, and Optimize-use-cases sections. Each page has
+ * exactly one of these (they're on separate routes, so there's no
+ * cross-page pinned/stacking sequence to build); the "reveal" is a single
+ * IntersectionObserver-triggered entrance (subtle translate+scale+fade,
+ * see `.scroll-card` in components.css) rather than a scroll-scrubbed
+ * animation — deliberately simple per the "if it feels forced, simplify"
+ * guidance: a real scroll-scrubbed multi-card stack doesn't fit three
+ * single-card sections living on three different pages.
+ */
+export function renderScrollCard(
+  eyebrow: string,
+  heading: string,
+  description: string,
+  content: HTMLElement,
+  accentClass: string,
+): HTMLElement {
+  const section = document.createElement('section');
+  section.className = `section scroll-card ${accentClass}`;
+  section.setAttribute('data-reveal-card', '');
+
+  const header = document.createElement('div');
+  header.className = 'scroll-card__header';
+  header.innerHTML = `<p class="eyebrow eyebrow--center"></p><h2></h2><p class="section-sub"></p>`;
+  header.querySelector('.eyebrow')!.textContent = eyebrow;
+  header.querySelector('h2')!.textContent = heading;
+  header.querySelector('.section-sub')!.textContent = description;
+  section.appendChild(header);
+
+  content.classList.add('scroll-card__content');
+  section.appendChild(content);
+
   return section;
 }
 

@@ -683,7 +683,7 @@
 /* ---------- Marketing sections (landing page) ---------- */
 .section {
   max-width: 960px;
-  margin: clamp(56px, 9vw, 112px) auto 0;
+  margin: var(--space-8) auto 0;
   text-align: center;
 }
 
@@ -982,7 +982,7 @@
 /* ---------- FAQ / SEO content (accordion) ---------- */
 .faq {
   max-width: 720px;
-  margin: clamp(48px, 8vw, 96px) auto 0;
+  margin: var(--space-8) auto 0;
 }
 
 .faq h2 {
@@ -1111,8 +1111,8 @@
 /* ---------- Footer ---------- */
 .site-footer {
   border-top: 1px solid var(--color-border);
-  margin-top: clamp(48px, 8vw, 96px);
-  padding-block: var(--space-7);
+  margin-top: var(--space-8);
+  padding-block: var(--space-6);
   text-align: center;
   color: var(--color-text-faint);
   font-size: 0.85rem;
@@ -1546,12 +1546,12 @@
   background: var(--color-surface-raised);
   border: 1px solid var(--color-border);
   border-radius: var(--radius-lg);
-  padding: var(--space-6) var(--space-5);
+  padding: var(--space-5);
 }
 .benefits-compact__heading {
   text-align: center;
   font-weight: 700;
-  margin: 0 0 var(--space-5);
+  margin: 0 0 var(--space-4);
 }
 
 /* ---------- CTA band ---------- */
@@ -1564,7 +1564,8 @@
   align-items: center;
   justify-content: space-between;
   gap: var(--space-5);
-  margin-bottom: var(--space-8);
+  margin: var(--space-7) auto 0;
+  max-width: 960px;
 }
 .cta-band__text h2 {
   margin: 0 0 var(--space-1);
@@ -1585,64 +1586,175 @@
   margin: 0;
 }
 
-/* ---------- Format cards (Convert page) ---------- */
-.format-cards {
+/* ---------- Feature carousel (tool pages' short "why use it" strip) ---------- */
+.feature-carousel {
+  position: relative;
+  max-width: 960px;
+  margin: var(--space-8) auto 0;
+  padding-inline: var(--space-7);
+}
+.feature-carousel__track {
+  display: flex;
+  gap: var(--space-4);
+  overflow-x: auto;
+  scroll-snap-type: x mandatory;
+  scrollbar-width: none;
+  padding-block: var(--space-2);
+}
+.feature-carousel__track::-webkit-scrollbar {
+  display: none;
+}
+.feature-carousel__item {
+  flex: 0 0 auto;
+  scroll-snap-align: start;
+  width: clamp(180px, 40vw, 220px);
+  padding: var(--space-4);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-md);
+  background: var(--color-surface);
+  text-align: left;
+}
+.feature-carousel__icon {
+  background: var(--tool-accent-soft, var(--color-accent-soft));
+  color: var(--tool-accent, var(--color-accent));
+  margin-bottom: var(--space-3);
+}
+.feature-carousel__item h3 {
+  margin: 0 0 var(--space-1);
+  font-size: 1rem;
+}
+.feature-carousel__item p {
+  margin: 0;
+  color: var(--color-text-muted);
+  font-size: 0.9rem;
+}
+.feature-carousel__arrow {
+  position: absolute;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  border: 1px solid var(--color-border-strong);
+  background: var(--color-surface);
+  color: var(--tool-accent, var(--color-accent));
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: var(--shadow-sm);
+  transition: opacity var(--transition-fast), box-shadow var(--transition-fast);
+}
+.feature-carousel__arrow svg {
+  width: 18px;
+  height: 18px;
+}
+.feature-carousel__arrow:hover:not(:disabled) {
+  box-shadow: var(--shadow-md);
+}
+.feature-carousel__arrow:disabled {
+  opacity: 0.35;
+  cursor: default;
+}
+.feature-carousel__arrow--prev {
+  left: 0;
+}
+.feature-carousel__arrow--next {
+  right: 0;
+}
+.feature-carousel--no-overflow .feature-carousel__arrow {
+  display: none;
+}
+.feature-carousel--no-overflow {
+  padding-inline: 0;
+}
+@media (max-width: 640px) {
+  .feature-carousel {
+    padding-inline: var(--space-6);
+  }
+  .feature-carousel__arrow {
+    width: 32px;
+    height: 32px;
+  }
+}
+
+/* ---------- Scroll-reveal card shell (Formats / Use Cases) ---------- */
+.scroll-card {
+  max-width: 1100px;
+  background: var(--tool-accent-soft);
+  border: 1px solid color-mix(in srgb, var(--tool-accent) 14%, transparent);
+  border-radius: var(--radius-xl);
+  padding: var(--space-7) var(--space-6);
+  box-shadow: var(--shadow-md);
+}
+.scroll-card__header .eyebrow {
+  color: var(--tool-accent);
+}
+.scroll-card__header h2 {
+  margin: 0 0 var(--space-2);
+}
+.scroll-card__header .section-sub {
+  margin-bottom: 0;
+}
+.scroll-card__content {
+  margin-top: var(--space-6);
+}
+
+/* ---------- Format chips (inside the Formats scroll-card) ---------- */
+.format-chips-grid {
   display: grid;
   grid-template-columns: repeat(2, 1fr);
-  gap: var(--space-3);
+  gap: var(--space-2) var(--space-5);
 }
-@media (min-width: 720px) {
-  .format-cards {
+@media (min-width: 640px) {
+  .format-chips-grid {
     grid-template-columns: repeat(3, 1fr);
   }
 }
-.format-card {
-  border: 1px solid var(--color-border);
-  border-radius: var(--radius-md);
-  padding: var(--space-4);
-  background: var(--color-surface);
+.format-chip-item {
+  display: flex;
+  align-items: baseline;
+  gap: var(--space-3);
+  padding: var(--space-3) 0;
+  border-bottom: 1px solid color-mix(in srgb, var(--tool-accent) 12%, transparent);
+  text-align: left;
 }
-.format-card__label {
-  display: inline-block;
+.format-chip-item__name {
+  flex: none;
   font-weight: 700;
-  padding: 2px 10px;
-  border-radius: 999px;
-  margin-bottom: var(--space-2);
-  color: #fff;
+  color: var(--tool-accent);
+  min-width: 3.2em;
 }
-.format-card p {
+.format-chip-item p {
   margin: 0;
   color: var(--color-text-muted);
-  font-size: 0.85rem;
+  font-size: 0.88rem;
 }
-.fmt-jpg .format-card__label { background: #ef4444; }
-.fmt-png .format-card__label { background: #3b82f6; }
-.fmt-webp .format-card__label { background: #16a34a; }
-.fmt-avif .format-card__label { background: #7c3aed; }
-.fmt-tiff .format-card__label { background: #f97316; }
-.fmt-heic .format-card__label { background: #0891b2; }
 
-/* ---------- Use cases (Remove BG / Optimize) ---------- */
-.use-cases {
-  text-align: center;
-  background: var(--tool-accent-soft);
-  border-radius: var(--radius-xl);
-  padding: var(--space-6) var(--space-5);
-}
+/* ---------- Use cases (Remove BG / Optimize) — nested inside a .scroll-card ---------- */
 .use-cases__grid {
   display: grid;
   grid-template-columns: repeat(2, 1fr);
-  gap: var(--space-5);
+  gap: var(--space-6) var(--space-4);
 }
-@media (min-width: 720px) {
+@media (min-width: 640px) {
   .use-cases__grid {
-    grid-template-columns: repeat(5, 1fr);
+    grid-template-columns: repeat(3, 1fr);
   }
 }
+@media (min-width: 900px) {
+  .use-cases__grid {
+    grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+  }
+}
+.use-case {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
 .use-case__icon {
-  display: block;
-  font-size: 1.6rem;
-  margin-bottom: var(--space-2);
+  background: var(--color-surface);
+  color: var(--tool-accent);
+  margin-bottom: var(--space-3);
 }
 .use-case h3 {
   margin: 0 0 4px;

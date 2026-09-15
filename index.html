@@ -24,6 +24,69 @@
     <meta name="theme-color" content="#2563ff" />
     <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
 
+    <!--
+      Boot loader critical CSS — inlined so it paints before the bundled
+      stylesheet arrives (the whole point of this screen is to cover that
+      gap). Kept deliberately tiny and self-contained: no external fonts,
+      no image assets, just the cat SVG below and these few rules.
+    -->
+    <style>
+      #boot-loader {
+        position: fixed;
+        inset: 0;
+        z-index: 9999;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        background: #ffffff;
+        transition: opacity 220ms ease;
+      }
+      #boot-loader.is-hiding {
+        opacity: 0;
+        pointer-events: none;
+      }
+      #boot-loader__cat {
+        width: min(220px, 55vw);
+        height: auto;
+      }
+      #boot-loader__tail {
+        transform-origin: 128px 74px;
+        animation: boot-tail-sway 1.6s ease-in-out infinite;
+      }
+      #boot-loader__fill {
+        animation: boot-bar-sweep 1.4s ease-in-out infinite;
+      }
+      @keyframes boot-tail-sway {
+        0%,
+        100% {
+          transform: rotate(-6deg);
+        }
+        50% {
+          transform: rotate(8deg);
+        }
+      }
+      @keyframes boot-bar-sweep {
+        0% {
+          transform: translateX(-60%);
+        }
+        100% {
+          transform: translateX(160%);
+        }
+      }
+      @media (prefers-reduced-motion: reduce) {
+        #boot-loader {
+          transition: none;
+        }
+        #boot-loader__tail {
+          animation: none;
+        }
+        #boot-loader__fill {
+          animation: none;
+          opacity: 0.55;
+        }
+      }
+    </style>
+
     <script type="application/ld+json">
       {
         "@context": "https://schema.org",
@@ -37,6 +100,38 @@
     </script>
   </head>
   <body>
+    <!--
+      Boot loader — shown only for the very first paint of a fresh page
+      load, never during in-app navigation (the router only ever touches
+      #view-root inside #app, which this sits on top of and is removed
+      from the DOM entirely once the app has mounted — see main.ts).
+      Lives in the raw HTML, not a component, specifically so it can paint
+      before any JS has run.
+    -->
+    <div id="boot-loader" role="status" aria-live="polite" aria-label="Loading thedroppic">
+      <svg id="boot-loader__cat" viewBox="0 0 220 110" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+        <rect x="10" y="78" width="200" height="20" rx="10" fill="#eff6ff" stroke="#c7d2e3" stroke-width="1" />
+        <clipPath id="boot-bar-clip"><rect x="10" y="78" width="200" height="20" rx="10" /></clipPath>
+        <g clip-path="url(#boot-bar-clip)">
+          <rect id="boot-loader__fill" x="10" y="78" width="70" height="20" fill="#2563ff" opacity="0.22" />
+        </g>
+        <g id="boot-loader__tail">
+          <path d="M128,74 Q150,38 178,55 Q188,63 176,72" fill="none" stroke="#0f172a" stroke-width="9" stroke-linecap="round" />
+        </g>
+        <ellipse cx="95" cy="72" rx="46" ry="15" fill="#0f172a" />
+        <polygon points="36,46 40,28 47,46" fill="#0f172a" />
+        <polygon points="45,46 52,26 58,46" fill="#0f172a" />
+        <circle cx="46" cy="56" r="14" fill="#0f172a" />
+        <circle cx="41" cy="55" r="1.7" fill="#ffffff" />
+        <circle cx="50" cy="55" r="1.7" fill="#ffffff" />
+      </svg>
+    </div>
+    <script>
+      // Timestamped the instant the loader itself is parsed/painted, so
+      // boot-loader.ts can measure real elapsed time rather than guessing —
+      // see MIN_VISIBLE_MS there.
+      window.__bootStart = Date.now();
+    </script>
     <div id="bg-pattern" aria-hidden="true"></div>
     <div id="app"></div>
     <script type="module" src="/src/main.ts"></script>

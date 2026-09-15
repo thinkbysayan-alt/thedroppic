@@ -7,7 +7,7 @@
  * (the app re-renders its whole view on each state change).
  */
 export function initScrollReveal(root: ParentNode): void {
-  const items = root.querySelectorAll<HTMLElement>('[data-reveal]');
+  const items = root.querySelectorAll<HTMLElement>('[data-reveal], [data-reveal-card]');
   if (items.length === 0) return;
 
   const reducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;

@@ -1,5 +1,6 @@
 import { createToolWorkspace } from '../tool-workspace';
-import { renderBreadcrumb, renderFeatureStrip, renderHowItWorks, renderCtaBand, renderToolFaq } from '../sections';
+import { renderBreadcrumb, renderHowItWorks, renderCtaBand, renderToolFaq, renderScrollCard } from '../sections';
+import { renderFeatureCarousel } from '../feature-carousel';
 import { takePendingHandoffFiles } from './home';
 
 const ICON_SHIELD = `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" aria-hidden="true"><path d="M12 3 4.5 6v6c0 4.5 3.2 7.7 7.5 9 4.3-1.3 7.5-4.5 7.5-9V6L12 3Z" stroke-linejoin="round"/></svg>`;
@@ -50,7 +51,7 @@ export function renderConvertPage(): HTMLElement {
   }
 
   wrap.appendChild(
-    renderFeatureStrip(
+    renderFeatureCarousel(
       [
         { icon: ICON_SHIELD, title: 'Completely private', description: 'Nothing is uploaded. Everything runs locally in your browser.' },
         { icon: ICON_BOLT, title: 'Fast & simple', description: 'Convert images in seconds. No queues. No fuss.' },
@@ -58,7 +59,7 @@ export function renderConvertPage(): HTMLElement {
         { icon: ICON_STACK, title: 'Batch support', description: 'Convert up to 5 images at once without the clutter.' },
         { icon: ICON_DOWNLOAD, title: 'Direct downloads', description: 'One image, one download. No zip files required.' },
       ],
-      'feature-strip feature-strip--five',
+      'accent-blue',
     ),
   );
 
@@ -103,22 +104,24 @@ function renderHero(): HTMLElement {
 }
 
 function renderFormatsSection(): HTMLElement {
-  const section = document.createElement('section');
-  section.className = 'section formats-section';
-  section.innerHTML = `<p class="eyebrow eyebrow--center">FORMATS SUPPORTED</p><h2>Works with the formats you need</h2><p class="section-sub">Convert between all popular image formats.</p>`;
-
   const grid = document.createElement('div');
-  grid.className = 'format-cards';
+  grid.className = 'format-chips-grid';
   FORMAT_CARDS.forEach((f) => {
-    const card = document.createElement('div');
-    card.className = `format-card ${f.color}`;
-    card.innerHTML = `<span class="format-card__label"></span><p></p>`;
-    card.querySelector('.format-card__label')!.textContent = f.label;
-    card.querySelector('p')!.textContent = f.note;
-    grid.appendChild(card);
+    const item = document.createElement('div');
+    item.className = 'format-chip-item';
+    item.innerHTML = `<span class="format-chip-item__name"></span><p></p>`;
+    item.querySelector('.format-chip-item__name')!.textContent = f.label;
+    item.querySelector('p')!.textContent = f.note;
+    grid.appendChild(item);
   });
-  section.appendChild(grid);
-  return section;
+
+  return renderScrollCard(
+    'FORMATS SUPPORTED',
+    'Works with the formats you need',
+    'Convert between all popular image formats.',
+    grid,
+    'accent-blue',
+  );
 }
 
 const CONVERT_FAQ = [

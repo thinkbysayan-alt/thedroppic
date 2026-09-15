@@ -1,5 +1,6 @@
 import { createOptimizeWorkspace } from '../optimize-workspace';
-import { renderBreadcrumb, renderFeatureStrip, renderHowItWorks, renderCtaBand, renderToolFaq } from '../sections';
+import { renderBreadcrumb, renderHowItWorks, renderCtaBand, renderToolFaq, renderScrollCard } from '../sections';
+import { renderFeatureCarousel } from '../feature-carousel';
 
 const ICON_CHART = `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" aria-hidden="true"><path d="M5 19V9M12 19V5M19 19v-7" stroke-linecap="round"/></svg>`;
 const ICON_IMAGES = `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" aria-hidden="true"><rect x="3" y="5" width="14" height="14" rx="2"/><path d="m7 15 3-4 2.5 3L15 11l4 5" stroke-linecap="round" stroke-linejoin="round"/></svg>`;
@@ -7,14 +8,20 @@ const ICON_BOLT = `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" st
 const ICON_SLIDERS = `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" aria-hidden="true"><path d="M5 6h9M5 12h5M5 18h11" stroke-linecap="round"/><circle cx="17" cy="6" r="2"/><circle cx="13" cy="12" r="2"/><circle cx="19" cy="18" r="2"/></svg>`;
 const ICON_GEAR = `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" aria-hidden="true"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.6a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1Z"/></svg>`;
 const ICON_DOWNLOAD = `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" aria-hidden="true"><path d="M4 15.5V17a3 3 0 0 0 3 3h10a3 3 0 0 0 3-3v-1.5" stroke-linecap="round" stroke-linejoin="round"/><path d="M12 4v11m0 0-4-4m4 4 4-4" stroke-linecap="round" stroke-linejoin="round"/></svg>`;
+const ICON_GLOBE = `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M3 12h18M12 3c2.5 2.5 4 6 4 9s-1.5 6.5-4 9c-2.5-2.5-4-6-4-9s1.5-6.5 4-9Z" stroke-linejoin="round"/></svg>`;
+const ICON_MAIL = `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" aria-hidden="true"><rect x="3" y="5" width="18" height="14" rx="2"/><path d="m4 6.5 8 6 8-6" stroke-linecap="round" stroke-linejoin="round"/></svg>`;
+const ICON_PHONE = `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" aria-hidden="true"><rect x="7" y="2" width="10" height="20" rx="2"/><path d="M11 18h2" stroke-linecap="round"/></svg>`;
+const ICON_CART = `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" aria-hidden="true"><circle cx="9" cy="20" r="1.3"/><circle cx="18" cy="20" r="1.3"/><path d="M2.5 3h2.5l2.3 12.1a2 2 0 0 0 2 1.6h8a2 2 0 0 0 2-1.6L21 7H6" stroke-linecap="round" stroke-linejoin="round"/></svg>`;
+const ICON_FOLDER = `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" aria-hidden="true"><path d="M3 6a2 2 0 0 1 2-2h4l2 2h8a2 2 0 0 1 2 2v9a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V6Z" stroke-linejoin="round"/></svg>`;
+const ICON_FRAME = `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" aria-hidden="true"><rect x="3" y="4" width="18" height="16" rx="2"/><circle cx="9" cy="10" r="2"/><path d="m4 18 5-5 4 4 3-3 4 4" stroke-linecap="round" stroke-linejoin="round"/></svg>`;
 
 const USE_CASES = [
-  { icon: '🌐', title: 'Websites', description: 'Faster loading pages.' },
-  { icon: '✉️', title: 'Email', description: 'Easier sharing.' },
-  { icon: '📱', title: 'Social Media', description: 'Meet size limits.' },
-  { icon: '🛒', title: '3-commerce', description: 'Smaller product images.' },
-  { icon: '📁', title: 'Documents', description: 'Smaller attachments.' },
-  { icon: '🖼️', title: 'Portfolio', description: 'High-quality visuals.' },
+  { icon: ICON_GLOBE, title: 'Websites', description: 'Faster loading pages.' },
+  { icon: ICON_MAIL, title: 'Email', description: 'Easier sharing.' },
+  { icon: ICON_PHONE, title: 'Social Media', description: 'Meet size limits.' },
+  { icon: ICON_CART, title: 'E-commerce', description: 'Smaller product images.' },
+  { icon: ICON_FOLDER, title: 'Documents', description: 'Smaller attachments.' },
+  { icon: ICON_FRAME, title: 'Portfolio', description: 'High-quality visuals.' },
 ];
 
 export function renderOptimizePage(): HTMLElement {
@@ -33,14 +40,14 @@ export function renderOptimizePage(): HTMLElement {
   workspace.mount(workspaceHost);
 
   wrap.appendChild(
-    renderFeatureStrip(
+    renderFeatureCarousel(
       [
         { icon: ICON_CHART, title: 'Smaller file sizes', description: 'Reduce file size without losing visible quality.' },
         { icon: ICON_IMAGES, title: 'All major formats', description: 'JPG, PNG, WebP, AVIF, TIFF, HEIC and more.' },
         { icon: ICON_BOLT, title: 'Fast & private', description: 'Optimized in seconds. Nothing is uploaded.' },
         { icon: ICON_SLIDERS, title: 'Simple controls', description: 'Choose quality, see the difference, and download.' },
       ],
-      'feature-strip feature-strip--four',
+      'accent-lavender',
     ),
   );
 
@@ -85,22 +92,24 @@ function renderHero(): HTMLElement {
 }
 
 function renderUseCases(): HTMLElement {
-  const section = document.createElement('section');
-  section.className = 'section use-cases accent-lavender';
-  section.innerHTML = `<p class="eyebrow eyebrow--center">PERFECT FOR EVERY USE CASE</p><h2>Optimize for what matters.</h2><p class="section-sub">Smaller images, bigger possibilities.</p>`;
-
   const grid = document.createElement('div');
   grid.className = 'use-cases__grid';
   USE_CASES.forEach((u) => {
     const card = document.createElement('div');
     card.className = 'use-case';
-    card.innerHTML = `<span class="use-case__icon" aria-hidden="true">${u.icon}</span><h3></h3><p></p>`;
+    card.innerHTML = `<span class="icon-badge use-case__icon">${u.icon}</span><h3></h3><p></p>`;
     card.querySelector('h3')!.textContent = u.title;
     card.querySelector('p')!.textContent = u.description;
     grid.appendChild(card);
   });
-  section.appendChild(grid);
-  return section;
+
+  return renderScrollCard(
+    'PERFECT FOR EVERY USE CASE',
+    'Optimize for what matters.',
+    'Smaller images, bigger possibilities.',
+    grid,
+    'accent-lavender',
+  );
 }
 
 const OPTIMIZE_FAQ = [
