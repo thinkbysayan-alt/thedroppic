@@ -1,6 +1,7 @@
 import { createToolWorkspace } from '../tool-workspace';
 import { renderBreadcrumb, renderHowItWorks, renderCtaBand, renderToolFaq, renderScrollCard } from '../sections';
 import { renderFeatureCarousel } from '../feature-carousel';
+import { renderToolHeroVisual } from '../tool-hero-visual';
 import { takePendingHandoffFiles } from './home';
 
 const ICON_SHIELD = `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" aria-hidden="true"><path d="M12 3 4.5 6v6c0 4.5 3.2 7.7 7.5 9 4.3-1.3 7.5-4.5 7.5-9V6L12 3Z" stroke-linejoin="round"/></svg>`;
@@ -100,6 +101,8 @@ function renderHero(): HTMLElement {
     <h1>Convert images<br /><span class="tool-hero__accent">in seconds.</span></h1>
     <p>Change image formats directly in your browser. Nothing is uploaded. Your images stay on your device.</p>
   `;
+  const ICON_SWAP = `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" aria-hidden="true"><path d="M17 2.5 21 6.5m0 0-4 4m4-4H8a5 5 0 0 0-5 5" stroke-linecap="round" stroke-linejoin="round"/><path d="M7 21.5 3 17.5m0 0 4-4m-4 4h13a5 5 0 0 0 5-5" stroke-linecap="round" stroke-linejoin="round"/></svg>`;
+  hero.appendChild(renderToolHeroVisual([ICON_IMAGES, ICON_SWAP, ICON_DOWNLOAD]));
   return hero;
 }
 

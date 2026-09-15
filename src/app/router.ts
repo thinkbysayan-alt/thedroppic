@@ -1,19 +1,34 @@
 /**
  * Minimal client-side router — no framework, matches the rest of this app's
- * vanilla-TS style. Four routes total; each maps to one page module that
- * renders into the shared shell's #view-root (see chrome.ts / app.ts).
+ * vanilla-TS style. Each route maps to one page module that renders into
+ * the shared shell's #view-root (see chrome.ts / app.ts). No dynamic/slug
+ * routes — the two articles are each just their own fixed named route,
+ * which keeps this file a plain lookup table instead of needing a real
+ * path-matching layer for what is currently only two posts.
  *
  * Uses the History API (real paths, not #hashes) so links look like
  * `/tools/convert` — this needs a host-level rewrite so refreshing a
  * sub-route doesn't 404 on a static host; see vercel.json's `rewrites`.
  */
-export type Route = 'home' | 'convert' | 'remove-background' | 'optimize';
+export type Route =
+  | 'home'
+  | 'convert'
+  | 'remove-background'
+  | 'optimize'
+  | 'about'
+  | 'learn'
+  | 'article-formats'
+  | 'article-browser-processing';
 
 const ROUTE_PATHS: Record<Route, string> = {
   home: '/',
   convert: '/tools/convert',
   'remove-background': '/tools/remove-background',
   optimize: '/tools/optimize',
+  about: '/about',
+  learn: '/learn',
+  'article-formats': '/learn/which-image-format-should-you-use',
+  'article-browser-processing': '/learn/how-browser-based-image-processing-works',
 };
 
 const PATH_ROUTES: Record<string, Route> = {
@@ -21,6 +36,10 @@ const PATH_ROUTES: Record<string, Route> = {
   '/tools/convert': 'convert',
   '/tools/remove-background': 'remove-background',
   '/tools/optimize': 'optimize',
+  '/about': 'about',
+  '/learn': 'learn',
+  '/learn/which-image-format-should-you-use': 'article-formats',
+  '/learn/how-browser-based-image-processing-works': 'article-browser-processing',
 };
 
 export function pathForRoute(route: Route): string {

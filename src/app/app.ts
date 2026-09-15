@@ -4,6 +4,10 @@ import { renderHomePage } from './pages/home';
 import { renderConvertPage } from './pages/convert';
 import { renderRemoveBackgroundPage } from './pages/remove-background';
 import { renderOptimizePage } from './pages/optimize';
+import { renderAboutPage } from './pages/about';
+import { renderLearnPage } from './pages/learn';
+import { renderArticleFormatsPage } from './pages/article-formats';
+import { renderArticleBrowserProcessingPage } from './pages/article-browser-processing';
 import { initScrollReveal } from '../utils/reveal';
 
 /**
@@ -28,6 +32,18 @@ export function mountApp(root: HTMLElement): void {
         break;
       case 'optimize':
         page = renderOptimizePage();
+        break;
+      case 'about':
+        page = renderAboutPage();
+        break;
+      case 'learn':
+        page = renderLearnPage();
+        break;
+      case 'article-formats':
+        page = renderArticleFormatsPage();
+        break;
+      case 'article-browser-processing':
+        page = renderArticleBrowserProcessingPage();
         break;
       case 'home':
       default:

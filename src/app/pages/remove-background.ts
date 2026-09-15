@@ -1,6 +1,7 @@
 import { createToolWorkspace } from '../tool-workspace';
 import { renderBreadcrumb, renderHowItWorks, renderCtaBand, renderToolFaq, renderScrollCard } from '../sections';
 import { renderFeatureCarousel } from '../feature-carousel';
+import { renderToolHeroVisual } from '../tool-hero-visual';
 
 const ICON_SPARKLE = `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" aria-hidden="true"><path d="M12 3v4M12 17v4M3 12h4M17 12h4M5.6 5.6l2.8 2.8M15.6 15.6l2.8 2.8M5.6 18.4l2.8-2.8M15.6 8.4l2.8-2.8" stroke-linecap="round"/></svg>`;
 const ICON_LOCK = `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" aria-hidden="true"><rect x="4" y="10" width="16" height="10" rx="2"/><path d="M8 10V7a4 4 0 0 1 8 0v3" stroke-linecap="round"/></svg>`;
@@ -92,6 +93,8 @@ function renderHero(): HTMLElement {
     <p>Get clean, professional cutouts with AI — directly in your browser. Nothing is uploaded. Your images stay on your device.</p>
     <p class="tool-hero__note">Works best on people and portraits — the on-device model is trained for portrait subjects, so results on other objects may vary.</p>
   `;
+  const ICON_CHECK = `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" aria-hidden="true"><path d="m5 13 4.5 4.5L19 8" stroke-linecap="round" stroke-linejoin="round"/></svg>`;
+  hero.appendChild(renderToolHeroVisual([ICON_IMAGES, ICON_SPARKLE, ICON_CHECK]));
   return hero;
 }
 

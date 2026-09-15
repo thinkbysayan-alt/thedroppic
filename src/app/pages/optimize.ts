@@ -1,6 +1,7 @@
 import { createOptimizeWorkspace } from '../optimize-workspace';
 import { renderBreadcrumb, renderHowItWorks, renderCtaBand, renderToolFaq, renderScrollCard } from '../sections';
 import { renderFeatureCarousel } from '../feature-carousel';
+import { renderToolHeroVisual } from '../tool-hero-visual';
 
 const ICON_CHART = `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" aria-hidden="true"><path d="M5 19V9M12 19V5M19 19v-7" stroke-linecap="round"/></svg>`;
 const ICON_IMAGES = `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" aria-hidden="true"><rect x="3" y="5" width="14" height="14" rx="2"/><path d="m7 15 3-4 2.5 3L15 11l4 5" stroke-linecap="round" stroke-linejoin="round"/></svg>`;
@@ -88,6 +89,7 @@ function renderHero(): HTMLElement {
     <h1>Smaller files.<br /><span class="tool-hero__accent">Same quality.</span></h1>
     <p>Reduce image file size directly in your browser. No upload. Your images stay on your device.</p>
   `;
+  hero.appendChild(renderToolHeroVisual([ICON_IMAGES, ICON_CHART, ICON_DOWNLOAD]));
   return hero;
 }
 

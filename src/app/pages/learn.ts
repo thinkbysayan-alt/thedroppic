@@ -1,0 +1,64 @@
+import { pathForRoute } from '../router';
+import type { ArticleMeta } from '../article';
+import { ARTICLE_FORMATS_META } from './article-formats';
+import { ARTICLE_BROWSER_META } from './article-browser-processing';
+
+const ARTICLES: ArticleMeta[] = [ARTICLE_FORMATS_META, ARTICLE_BROWSER_META];
+
+export function renderLearnPage(): HTMLElement {
+  document.title = 'Learn — Guides on Image Formats & Browser-Based Processing | thedroppic';
+  setMetaDescription(
+    'Practical guides on image formats and browser-based image processing — how thedroppic converts, removes backgrounds, and optimizes images entirely on your device.',
+  );
+
+  const wrap = document.createElement('div');
+
+  const hero = document.createElement('section');
+  hero.className = 'tool-hero accent-blue';
+  hero.innerHTML = `
+    <span class="eyebrow">LEARN</span>
+    <h1>Guides on images<br /><span class="tool-hero__accent">and how thedroppic works.</span></h1>
+    <p>Practical, no-jargon reading on image formats and browser-based processing.</p>
+  `;
+  wrap.appendChild(hero);
+
+  const grid = document.createElement('div');
+  grid.className = 'learn-grid';
+  ARTICLES.forEach((article, index) => {
+    const card = document.createElement('a');
+    card.href = pathForRoute(article.route);
+    card.className = `learn-card ${article.accent}`;
+    card.setAttribute('data-reveal', '');
+    card.style.setProperty('--reveal-delay', `${index * 100}ms`);
+
+    card.appendChild(article.thumbnail());
+
+    const body = document.createElement('div');
+    body.className = 'learn-card__body';
+    body.innerHTML = `
+      <span class="eyebrow"></span>
+      <h2></h2>
+      <p></p>
+      <span class="learn-card__meta"></span>
+    `;
+    body.querySelector('.eyebrow')!.textContent = article.category.toUpperCase();
+    body.querySelector('h2')!.textContent = article.title;
+    body.querySelector('p')!.textContent = article.excerpt;
+    body.querySelector('.learn-card__meta')!.textContent = `${article.readTime} read · Read article →`;
+    card.appendChild(body);
+
+    grid.appendChild(card);
+  });
+
+  const section = document.createElement('section');
+  section.className = 'section';
+  section.appendChild(grid);
+  wrap.appendChild(section);
+
+  return wrap;
+}
+
+function setMetaDescription(text: string): void {
+  const el = document.querySelector('meta[name="description"]');
+  if (el) el.setAttribute('content', text);
+}

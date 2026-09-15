@@ -33,8 +33,8 @@ export function mountChrome(root: HTMLElement): { viewRoot: HTMLElement } {
                 <a href="${pathForRoute('optimize')}" role="menuitem">Optimize / Compress</a>
               </div>
             </div>
-            <a href="/#how-it-works">Learn</a>
-            <a href="/#privacy">About</a>
+            <a href="${pathForRoute('learn')}">Learn</a>
+            <a href="${pathForRoute('about')}">About</a>
           </nav>
           <a href="/#upload" class="btn btn-primary btn-sm site-header__cta">Try It Now</a>
           <button type="button" class="mobile-nav-toggle" id="mobile-nav-toggle" aria-label="Open menu" aria-expanded="false" aria-controls="mobile-nav-panel">
@@ -45,8 +45,8 @@ export function mountChrome(root: HTMLElement): { viewRoot: HTMLElement } {
           <a href="${pathForRoute('convert')}">Convert Images</a>
           <a href="${pathForRoute('remove-background')}">Remove Background</a>
           <a href="${pathForRoute('optimize')}">Optimize / Compress</a>
-          <a href="/#how-it-works">Learn</a>
-          <a href="/#privacy">About</a>
+          <a href="${pathForRoute('learn')}">Learn</a>
+          <a href="${pathForRoute('about')}">About</a>
           <a href="/#upload" class="btn btn-primary btn-block">Try It Now</a>
         </div>
       </header>
@@ -59,8 +59,8 @@ export function mountChrome(root: HTMLElement): { viewRoot: HTMLElement } {
           <p class="site-footer__tagline">Private image tools for everyone.</p>
           <ul class="site-footer__links">
             <li><a href="${pathForRoute('convert')}">Tools</a></li>
-            <li><a href="/#how-it-works">Learn</a></li>
-            <li><a href="/#privacy">About</a></li>
+            <li><a href="${pathForRoute('learn')}">Learn</a></li>
+            <li><a href="${pathForRoute('about')}">About</a></li>
             <li><a href="#">Privacy</a></li>
             <li><a href="#">Contact</a></li>
           </ul>

@@ -64,7 +64,7 @@ export function renderHowItWorks(
   section.querySelector('.section-sub')!.textContent = supporting;
 
   const row = document.createElement('div');
-  row.className = 'steps steps--connected';
+  row.className = `steps steps--connected steps--${steps.length}`;
   steps.forEach((step, index) => {
     const card = document.createElement('div');
     card.className = 'step step--simple';
@@ -177,10 +177,10 @@ export function renderScrollCard(
 
   const header = document.createElement('div');
   header.className = 'scroll-card__header';
-  header.innerHTML = `<p class="eyebrow eyebrow--center"></p><h2></h2><p class="section-sub"></p>`;
+  header.innerHTML = `<p class="eyebrow eyebrow--center"></p><h2></h2>${description ? '<p class="section-sub"></p>' : ''}`;
   header.querySelector('.eyebrow')!.textContent = eyebrow;
   header.querySelector('h2')!.textContent = heading;
-  header.querySelector('.section-sub')!.textContent = description;
+  if (description) header.querySelector('.section-sub')!.textContent = description;
   section.appendChild(header);
 
   content.classList.add('scroll-card__content');
