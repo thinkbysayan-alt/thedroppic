@@ -100,11 +100,11 @@ function renderHero(): HTMLElement {
 
 function renderUseCases(): HTMLElement {
   const grid = document.createElement('div');
-  grid.className = 'use-cases__grid';
+  grid.className = 'scroll-card-items';
   USE_CASES.forEach((u) => {
     const card = document.createElement('div');
-    card.className = 'use-case';
-    card.innerHTML = `<span class="icon-badge use-case__icon">${u.icon}</span><h3></h3><p></p>`;
+    card.className = 'scroll-card-item';
+    card.innerHTML = `<span class="icon-badge scroll-card-item__icon">${u.icon}</span><h3></h3><p></p>`;
     card.querySelector('h3')!.textContent = u.title;
     card.querySelector('p')!.textContent = u.description;
     grid.appendChild(card);

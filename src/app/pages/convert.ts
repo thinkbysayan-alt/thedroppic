@@ -108,12 +108,12 @@ function renderHero(): HTMLElement {
 
 function renderFormatsSection(): HTMLElement {
   const grid = document.createElement('div');
-  grid.className = 'format-chips-grid';
+  grid.className = 'scroll-card-items';
   FORMAT_CARDS.forEach((f) => {
     const item = document.createElement('div');
-    item.className = 'format-chip-item';
-    item.innerHTML = `<span class="format-chip-item__name"></span><p></p>`;
-    item.querySelector('.format-chip-item__name')!.textContent = f.label;
+    item.className = 'scroll-card-item';
+    item.innerHTML = `<span class="scroll-card-item__label"></span><p></p>`;
+    item.querySelector('.scroll-card-item__label')!.textContent = f.label;
     item.querySelector('p')!.textContent = f.note;
     grid.appendChild(item);
   });

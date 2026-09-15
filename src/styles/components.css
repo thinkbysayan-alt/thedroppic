@@ -309,7 +309,11 @@
 
 @media (min-width: 640px) {
   .batch-grid {
-    grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+    /* auto-fit (not auto-fill) so a single item's column stretches to fill
+       the row instead of staying pinned at 280px with empty invisible
+       tracks beside it — that's what made a lone Optimize result look
+       shrunk and shoved to the left. */
+    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
   }
 }
 
@@ -1706,71 +1710,57 @@
   margin-top: var(--space-6);
 }
 
-/* ---------- Format chips (inside the Formats scroll-card) ---------- */
-.format-chips-grid {
+/* ---------- Mini item cards inside a .scroll-card (Formats / Use Cases) ----------
+   Shared by the Formats grid and both Use-Cases grids — each item gets its
+   own bordered white card (icon or colored label + title/description)
+   rather than a bare row or a floating icon, so it reads as a real grid of
+   cards sitting on the pastel panel instead of a plain list/icon row. */
+.scroll-card-items {
   display: grid;
   grid-template-columns: repeat(2, 1fr);
-  gap: var(--space-2) var(--space-5);
-}
-@media (min-width: 640px) {
-  .format-chips-grid {
-    grid-template-columns: repeat(3, 1fr);
-  }
-}
-.format-chip-item {
-  display: flex;
-  align-items: baseline;
   gap: var(--space-3);
-  padding: var(--space-3) 0;
-  border-bottom: 1px solid color-mix(in srgb, var(--tool-accent) 12%, transparent);
   text-align: left;
 }
-.format-chip-item__name {
-  flex: none;
-  font-weight: 700;
-  color: var(--tool-accent);
-  min-width: 3.2em;
-}
-.format-chip-item p {
-  margin: 0;
-  color: var(--color-text-muted);
-  font-size: 0.88rem;
-}
-
-/* ---------- Use cases (Remove BG / Optimize) — nested inside a .scroll-card ---------- */
-.use-cases__grid {
-  display: grid;
-  grid-template-columns: repeat(2, 1fr);
-  gap: var(--space-6) var(--space-4);
-}
-@media (min-width: 640px) {
-  .use-cases__grid {
+@media (min-width: 560px) {
+  .scroll-card-items {
     grid-template-columns: repeat(3, 1fr);
   }
 }
-@media (min-width: 900px) {
-  .use-cases__grid {
-    grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
-  }
-}
-.use-case {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-}
-.use-case__icon {
+.scroll-card-item {
   background: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-md);
+  padding: var(--space-4);
+  box-shadow: var(--shadow-sm);
+  transition: transform var(--transition-fast), box-shadow var(--transition-fast);
+}
+.scroll-card-item:hover {
+  transform: translateY(-2px);
+  box-shadow: var(--shadow-md);
+}
+.scroll-card-item__icon {
+  background: var(--tool-accent-soft);
   color: var(--tool-accent);
   margin-bottom: var(--space-3);
 }
-.use-case h3 {
+.scroll-card-item__label {
+  display: inline-block;
+  font-weight: 700;
+  color: var(--tool-accent);
+  background: var(--tool-accent-soft);
+  padding: 3px 10px;
+  border-radius: var(--radius-sm);
+  font-size: 0.85rem;
+  margin-bottom: var(--space-3);
+}
+.scroll-card-item h3 {
   margin: 0 0 4px;
   font-size: 0.95rem;
 }
-.use-case p {
+.scroll-card-item p {
   margin: 0;
   color: var(--color-text-muted);
-  font-size: 0.82rem;
+  font-size: 0.85rem;
 }
 
 /* ---------- Compression slider (Optimizer) ---------- */
