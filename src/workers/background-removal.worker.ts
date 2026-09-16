@@ -22,13 +22,18 @@ import type { BackgroundRemovalRequest, BackgroundRemovalResponse } from './back
  *
  * WebGPU is tried first (device: 'webgpu', dtype: 'fp16'); if that fails for
  * any reason (no WebGPU support, an unsupported op, a driver limit) this
- * falls back to WASM using the *same* fp16 weights. This export ships no
- * int8-quantized or fp32 build — its fp32 build is 183MB, over GitHub's
- * 100MB per-file push limit, so only the 94MB fp16 file is self-hosted here
- * for either execution provider. WASM + fp16 is slower on CPU than a
- * quantized model would be, but it's correct and never crashes. The chosen
- * path is cached for the lifetime of this worker so a failed WebGPU attempt
- * is never retried on every image.
+ * falls back to WASM using the *same* fp16 weights (this export ships no
+ * int8-quantized build). WASM + fp16 is slower on CPU than a quantized
+ * model would be, but it's correct and never crashes. The chosen path is
+ * cached for the lifetime of this worker so a failed WebGPU attempt is
+ * never retried on every image.
+ *
+ * Unlike MODNet before it, this model's weights are fetched from Hugging
+ * Face's CDN at runtime (browser-cached after the first load) rather than
+ * self-hosted — its fp16 build alone is 94MB and its fp32 build is 183MB,
+ * over both GitHub's 100MB push limit and Vercel's deployment file-size
+ * limit. This only affects where the *model* comes from; user images are
+ * still never uploaded anywhere — inference still runs entirely on-device.
  */
 const MODEL_ID = 'studioludens/birefnet-lite-512';
 const SEGMENT_TIMEOUT_MS = 90_000; // Larger budget than MODNet's: this model is a much bigger download/graph.
@@ -59,11 +64,11 @@ async function hasWorkingWebGpu(): Promise<boolean> {
 async function loadSegmenter(): Promise<Segmenter> {
   const { pipeline, env } = await import('@huggingface/transformers');
 
-  // Self-hosted only — never fetch the model or the ONNX Runtime WASM
-  // binary from Hugging Face's CDN or anywhere else at runtime.
-  env.allowRemoteModels = false;
-  env.allowLocalModels = true;
-  env.localModelPath = '/models/';
+  // The ONNX Runtime WASM binary is still self-hosted (small, and lets us
+  // pin the WebGPU-capable build) — only the model weights themselves come
+  // from Hugging Face's CDN, browser-cached after the first fetch.
+  env.allowRemoteModels = true;
+  env.allowLocalModels = false;
   env.backends.onnx.wasm!.wasmPaths = '/ort/';
 
   if (await hasWorkingWebGpu()) {
