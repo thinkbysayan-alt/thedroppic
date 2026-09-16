@@ -4,29 +4,57 @@ import { refineMatte } from '../conversion/background-removal-postprocess';
 import type { BackgroundRemovalRequest, BackgroundRemovalResponse } from './background-removal-protocol';
 
 /**
- * MODNet background removal, running entirely inside its own dedicated
- * Worker so the UI thread never blocks during model load or inference.
- * This is possible because `RawImage` can be built from and read back to
- * a plain `Uint8ClampedArray` directly (no canvas needed at all — verified
- * against transformers.js's own source) — the main thread never sends
- * this worker anything but raw pixel bytes, and never needs a DOM canvas
- * here to get them back out.
+ * BiRefNet Lite background removal (ZhengPeng7/BiRefNet_lite, MIT — a
+ * dichotomous-image-segmentation model, distilled/lite variant of BiRefNet),
+ * exported for the web by `studioludens/birefnet-lite-512`. This export was
+ * chosen specifically because the "official" onnx-community/BiRefNet_lite
+ * export exceeds WebGPU's MaxStorageBuffersPerShaderStage (16) limit on
+ * most devices; this one is pre-split/optimized for onnxruntime-web and
+ * loads and runs correctly under both WebGPU and WASM (verified locally
+ * before wiring in).
  *
- * WebGPU is tried first (device: 'webgpu', dtype: 'fp16' — a small,
- * GPU-friendly build); if that fails for any reason (no WebGPU support,
- * an unsupported op, a driver limit) this falls back to the
- * proven-working WASM + int8-quantized build. The chosen path is cached
- * for the lifetime of this worker so a failed WebGPU attempt is never
- * retried on every image.
+ * Runs entirely inside its own dedicated Worker so the UI thread never
+ * blocks during model load or inference. This is possible because
+ * `RawImage` can be built from and read back to a plain `Uint8ClampedArray`
+ * directly (no canvas needed at all — verified against transformers.js's
+ * own source) — the main thread never sends this worker anything but raw
+ * pixel bytes, and never needs a DOM canvas here to get them back out.
+ *
+ * WebGPU is tried first (device: 'webgpu', dtype: 'fp16'); if that fails for
+ * any reason (no WebGPU support, an unsupported op, a driver limit) this
+ * falls back to WASM using the *same* fp16 weights. This export ships no
+ * int8-quantized or fp32 build — its fp32 build is 183MB, over GitHub's
+ * 100MB per-file push limit, so only the 94MB fp16 file is self-hosted here
+ * for either execution provider. WASM + fp16 is slower on CPU than a
+ * quantized model would be, but it's correct and never crashes. The chosen
+ * path is cached for the lifetime of this worker so a failed WebGPU attempt
+ * is never retried on every image.
  */
-const MODEL_ID = 'onnx-community/modnet-webnn';
-const SEGMENT_TIMEOUT_MS = 60_000;
+const MODEL_ID = 'studioludens/birefnet-lite-512';
+const SEGMENT_TIMEOUT_MS = 90_000; // Larger budget than MODNet's: this model is a much bigger download/graph.
 
 const ctx = self as unknown as DedicatedWorkerGlobalScope;
 
 type Segmenter = (images: unknown[]) => Promise<Array<{ data: Uint8ClampedArray; width: number; height: number; channels: number }>>;
 
 let segmenterPromise: Promise<Segmenter> | null = null;
+
+/**
+ * Actually requests a WebGPU adapter rather than just checking for the
+ * `navigator.gpu` property — some browsers expose the API but have no
+ * usable adapter (disabled in settings, no compatible GPU, etc.), which
+ * would otherwise only surface as a confusing failure deep inside model
+ * loading.
+ */
+async function hasWorkingWebGpu(): Promise<boolean> {
+  if (!('gpu' in ctx.navigator)) return false;
+  try {
+    const adapter = await (ctx.navigator as unknown as { gpu: { requestAdapter: () => Promise<unknown> } }).gpu.requestAdapter();
+    return adapter != null;
+  } catch {
+    return false;
+  }
+}
 
 async function loadSegmenter(): Promise<Segmenter> {
   const { pipeline, env } = await import('@huggingface/transformers');
@@ -38,20 +66,18 @@ async function loadSegmenter(): Promise<Segmenter> {
   env.localModelPath = '/models/';
   env.backends.onnx.wasm!.wasmPaths = '/ort/';
 
-  const hasWebGpu = 'gpu' in ctx.navigator;
-  if (hasWebGpu) {
+  if (await hasWorkingWebGpu()) {
     try {
       const segmenter = await pipeline('background-removal', MODEL_ID, { device: 'webgpu', dtype: 'fp16' });
       return segmenter as unknown as Segmenter;
     } catch {
       // Fall through to the WASM path below — a WebGPU failure here can be
-      // anything from "no adapter" to a driver-specific shader limit (as
-      // seen with other models); it isn't worth surfacing to the user when
-      // a proven-working fallback exists.
+      // anything from an unsupported op to a driver-specific shader limit;
+      // it isn't worth surfacing to the user when a working fallback exists.
     }
   }
 
-  const segmenter = await pipeline('background-removal', MODEL_ID, { device: 'wasm', dtype: 'q8' });
+  const segmenter = await pipeline('background-removal', MODEL_ID, { device: 'wasm', dtype: 'fp16' });
   return segmenter as unknown as Segmenter;
 }
 

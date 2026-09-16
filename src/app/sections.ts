@@ -189,6 +189,131 @@ export function renderScrollCard(
   return section;
 }
 
+const ARROW_LEFT = `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M15 5 8 12l7 7" stroke-linecap="round" stroke-linejoin="round"/></svg>`;
+const ARROW_RIGHT = `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="m9 5 7 7-7 7" stroke-linecap="round" stroke-linejoin="round"/></svg>`;
+
+/**
+ * Tinder-style swipeable card stack — an alternative to a flat grid for a
+ * handful of short cards (Formats / Use Cases). Only the top card is
+ * interactive: drag it (pointer events, mouse+touch+pen) left or right past
+ * a threshold to send it to the back of the stack, or use the prev/next
+ * buttons / arrow keys. Cards cycle endlessly rather than "running out."
+ *
+ * `cards` should already carry their content classes (e.g. `scroll-card-item`
+ * from the shared mini-card styles) — this only adds the stacking/drag
+ * behavior on top, it doesn't own their inner markup.
+ */
+export function renderSwipeStack(cards: HTMLElement[], accentClass: string): HTMLElement {
+  const root = document.createElement('div');
+  root.className = `swipe-stack ${accentClass}`;
+  root.tabIndex = 0;
+
+  const viewport = document.createElement('div');
+  viewport.className = 'swipe-stack__viewport';
+  root.appendChild(viewport);
+
+  const controls = document.createElement('div');
+  controls.className = 'swipe-stack__controls';
+  const prevBtn = document.createElement('button');
+  prevBtn.type = 'button';
+  prevBtn.className = 'swipe-stack__btn';
+  prevBtn.setAttribute('aria-label', 'Previous card');
+  prevBtn.innerHTML = ARROW_LEFT;
+  const hint = document.createElement('span');
+  hint.className = 'swipe-stack__hint';
+  hint.textContent = 'Drag or use the arrows';
+  const nextBtn = document.createElement('button');
+  nextBtn.type = 'button';
+  nextBtn.className = 'swipe-stack__btn';
+  nextBtn.setAttribute('aria-label', 'Next card');
+  nextBtn.innerHTML = ARROW_RIGHT;
+  controls.append(prevBtn, hint, nextBtn);
+  root.appendChild(controls);
+
+  const MAX_LAYERS = Math.min(4, cards.length);
+  let order = cards.map((_, i) => i);
+
+  function layout(): void {
+    viewport.replaceChildren();
+    for (let pos = MAX_LAYERS - 1; pos >= 0; pos--) {
+      const card = cards[order[pos]!]!;
+      card.classList.add('swipe-stack__card');
+      card.style.setProperty('--pos', String(pos));
+      card.style.transform = '';
+      card.style.opacity = '';
+      viewport.appendChild(card);
+    }
+  }
+
+  function advance(dir: 1 | -1): void {
+    if (dir === 1) order.push(order.shift()!);
+    else order.unshift(order.pop()!);
+    layout();
+  }
+
+  let dragging = false;
+  let pointerId: number | null = null;
+  let startX = 0;
+  let dx = 0;
+
+  viewport.addEventListener('pointerdown', (e) => {
+    const target = (e.target as HTMLElement).closest('.swipe-stack__card');
+    if (!target || target !== cards[order[0]!]) return;
+    dragging = true;
+    pointerId = e.pointerId;
+    startX = e.clientX;
+    dx = 0;
+    (target as HTMLElement).setPointerCapture(e.pointerId);
+    target.classList.add('swipe-stack__card--dragging');
+  });
+
+  viewport.addEventListener('pointermove', (e) => {
+    if (!dragging || e.pointerId !== pointerId) return;
+    const top = cards[order[0]!]!;
+    dx = e.clientX - startX;
+    top.style.transform = `translateX(${dx}px) rotate(${dx / 14}deg)`;
+    top.style.opacity = String(Math.max(0.4, 1 - Math.abs(dx) / 400));
+  });
+
+  function endDrag(e: PointerEvent): void {
+    if (!dragging || e.pointerId !== pointerId) return;
+    dragging = false;
+    const top = cards[order[0]!]!;
+    top.classList.remove('swipe-stack__card--dragging');
+    const SWIPE_THRESHOLD = 90;
+    if (Math.abs(dx) > SWIPE_THRESHOLD) {
+      const dir = dx > 0 ? 1 : -1;
+      top.style.transition = 'transform 0.3s ease, opacity 0.3s ease';
+      top.style.transform = `translateX(${dir * 480}px) rotate(${dir * 26}deg)`;
+      top.style.opacity = '0';
+      window.setTimeout(() => {
+        top.style.transition = '';
+        advance(1);
+      }, 240);
+    } else {
+      top.style.transition = 'transform 0.25s ease, opacity 0.25s ease';
+      top.style.transform = '';
+      top.style.opacity = '';
+      window.setTimeout(() => {
+        top.style.transition = '';
+      }, 250);
+    }
+    dx = 0;
+  }
+  viewport.addEventListener('pointerup', endDrag);
+  viewport.addEventListener('pointercancel', endDrag);
+
+  prevBtn.addEventListener('click', () => advance(-1));
+  nextBtn.addEventListener('click', () => advance(1));
+  root.addEventListener('keydown', (e) => {
+    if (e.key === 'ArrowLeft') advance(-1);
+    else if (e.key === 'ArrowRight') advance(1);
+  });
+
+  layout();
+  return root;
+}
+
 /** "Home > Tools > Convert Images" style breadcrumb at the top of each tool page. */
 export function renderBreadcrumb(toolLabel: string, toolRoute: Route): HTMLElement {
   const nav = document.createElement('nav');

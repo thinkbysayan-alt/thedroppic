@@ -1,5 +1,5 @@
 import { createToolWorkspace } from '../tool-workspace';
-import { renderBreadcrumb, renderHowItWorks, renderCtaBand, renderToolFaq, renderScrollCard } from '../sections';
+import { renderBreadcrumb, renderHowItWorks, renderCtaBand, renderToolFaq, renderScrollCard, renderSwipeStack } from '../sections';
 import { renderFeatureCarousel } from '../feature-carousel';
 import { renderToolHeroVisual } from '../tool-hero-visual';
 import { takePendingHandoffFiles } from './home';
@@ -107,22 +107,20 @@ function renderHero(): HTMLElement {
 }
 
 function renderFormatsSection(): HTMLElement {
-  const grid = document.createElement('div');
-  grid.className = 'scroll-card-items';
-  FORMAT_CARDS.forEach((f) => {
+  const cards = FORMAT_CARDS.map((f) => {
     const item = document.createElement('div');
     item.className = 'scroll-card-item';
     item.innerHTML = `<span class="scroll-card-item__label"></span><p></p>`;
     item.querySelector('.scroll-card-item__label')!.textContent = f.label;
     item.querySelector('p')!.textContent = f.note;
-    grid.appendChild(item);
+    return item;
   });
 
   return renderScrollCard(
     'FORMATS SUPPORTED',
     'Works with the formats you need',
     'Convert between all popular image formats.',
-    grid,
+    renderSwipeStack(cards, 'accent-blue'),
     'accent-blue',
   );
 }

@@ -1,5 +1,5 @@
 import { createOptimizeWorkspace } from '../optimize-workspace';
-import { renderBreadcrumb, renderHowItWorks, renderCtaBand, renderToolFaq, renderScrollCard } from '../sections';
+import { renderBreadcrumb, renderHowItWorks, renderCtaBand, renderToolFaq, renderScrollCard, renderSwipeStack } from '../sections';
 import { renderFeatureCarousel } from '../feature-carousel';
 import { renderToolHeroVisual } from '../tool-hero-visual';
 
@@ -94,22 +94,20 @@ function renderHero(): HTMLElement {
 }
 
 function renderUseCases(): HTMLElement {
-  const grid = document.createElement('div');
-  grid.className = 'scroll-card-items';
-  USE_CASES.forEach((u) => {
+  const cards = USE_CASES.map((u) => {
     const card = document.createElement('div');
     card.className = 'scroll-card-item';
     card.innerHTML = `<span class="icon-badge scroll-card-item__icon">${u.icon}</span><h3></h3><p></p>`;
     card.querySelector('h3')!.textContent = u.title;
     card.querySelector('p')!.textContent = u.description;
-    grid.appendChild(card);
+    return card;
   });
 
   return renderScrollCard(
     'PERFECT FOR EVERY USE CASE',
     'Optimize for what matters.',
     'Smaller images, bigger possibilities.',
-    grid,
+    renderSwipeStack(cards, 'accent-lavender'),
     'accent-lavender',
   );
 }
