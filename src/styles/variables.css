@@ -1,35 +1,35 @@
 :root {
-  /* Brand palette — Image Converter Brand Book */
-  --color-bg: #ffffff;
+  /* One accent (the brand blue), a cool neutral ground, off-black ink. */
+  --color-bg: #f8f8f9;
   --color-surface: #ffffff;
   --color-surface-raised: #ffffff;
-  --color-border: #e2e8f0;
-  --color-border-strong: #c7d2e3;
-  --color-text: #0f172a;
-  --color-text-muted: #6f748b;
-  --color-text-faint: #94a3b8;
+  --color-border: #e4e4e8;
+  --color-border-strong: #cfcfd6;
+  --color-text: #16161a;
+  --color-text-muted: #5b5e6b;
+  --color-text-faint: #6b6e7c;
 
-  --color-accent: #2563ff; /* Primary Blue */
-  --color-accent-hover: #3bb2f6; /* Light Blue */
+  --color-accent: #2563ff;
+  --color-accent-hover: #1a4fd6;
   --color-accent-contrast: #ffffff;
-  --color-accent-soft: #eff6ff; /* Pale Blue */
+  --color-accent-soft: #eef3ff;
 
-  --color-danger: #ef4444;
-  --color-danger-soft: #fef2f2;
-  --color-danger-border: #fecaca;
+  --color-danger: #d92d20;
+  --color-danger-soft: #fef3f2;
+  --color-danger-border: #fecdca;
 
   --color-success: #16a34a;
   --color-success-soft: #f0fdf4;
   --color-success-border: #bbf7d0;
 
   --color-focus: #2563ff;
-  --gradient-primary: linear-gradient(135deg, #2563ff, #3b82f6);
-  --pattern-dot: rgba(37, 99, 255, 0.17);
+  --gradient-primary: none;
 
+  /* One shape system: chips 6, controls 10, panels 14. */
   --radius-sm: 6px;
   --radius-md: 10px;
-  --radius-lg: 16px;
-  --radius-xl: 22px;
+  --radius-lg: 14px;
+  --radius-xl: 14px;
 
   --space-1: 4px;
   --space-2: 8px;
@@ -39,27 +39,23 @@
   --space-6: 32px;
   --space-7: 48px;
   --space-8: 64px;
+  --space-9: 96px;
 
-  --font-sans:
-    -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif,
-    'Apple Color Emoji', 'Segoe UI Emoji';
-  --font-mono: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+  --font-sans: 'Geist Variable', ui-sans-serif, system-ui, -apple-system, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+  --font-mono: 'Geist Mono Variable', ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
 
-  --content-max: 1140px;
-  --shadow-sm: 0 1px 2px rgba(15, 23, 42, 0.06);
-  --shadow-md: 0 4px 16px rgba(15, 23, 42, 0.08);
-  --shadow-lg: 0 12px 40px rgba(15, 23, 42, 0.12);
+  --content-max: 1120px;
+  --shadow-sm: 0 1px 2px rgba(22, 22, 26, 0.05);
+  --shadow-md: 0 6px 20px rgba(22, 22, 26, 0.06);
+  --shadow-lg: 0 16px 40px rgba(22, 22, 26, 0.09);
 
   --transition-fast: 120ms ease;
   --transition-base: 200ms ease;
-  --reveal-duration: 650ms;
+  --reveal-duration: 500ms;
   --float-duration: 6s;
 
-  /* Light only, deliberately — the site has one designed look and should
-     render identically regardless of the visitor's OS/browser dark-mode
-     setting. (A `prefers-color-scheme: dark` block used to override these
-     tokens automatically; removed because it made the site look different
-     — effectively broken — for anyone whose device is set to dark mode.) */
+  /* Light only, deliberately: one designed look regardless of the visitor's
+     OS/browser dark-mode setting. */
   color-scheme: light;
 }
 

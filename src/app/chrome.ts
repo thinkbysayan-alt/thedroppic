@@ -12,7 +12,7 @@ export function mountChrome(root: HTMLElement): { viewRoot: HTMLElement } {
     <div class="app-shell">
       <header class="site-header">
         <div class="container site-header__bar">
-          <a href="/" class="brand" aria-label="TheDropPic — home">
+          <a href="/" class="brand" aria-label="TheDropPic home">
             <span class="brand__mark" aria-hidden="true">
               <svg width="30" height="30" viewBox="0 0 32 32">
                 <rect x="3" y="11" width="17" height="17" rx="5.5" fill="#2563ff" />
@@ -36,7 +36,7 @@ export function mountChrome(root: HTMLElement): { viewRoot: HTMLElement } {
             <a href="${pathForRoute('learn')}">Learn</a>
             <a href="${pathForRoute('about')}">About</a>
           </nav>
-          <a href="/#upload" class="btn btn-primary btn-sm site-header__cta">Try It Now</a>
+          <a href="/#upload" class="btn btn-primary btn-sm site-header__cta">Choose images</a>
           <button type="button" class="mobile-nav-toggle" id="mobile-nav-toggle" aria-label="Open menu" aria-expanded="false" aria-controls="mobile-nav-panel">
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" aria-hidden="true"><path d="M4 6h16M4 12h16M4 18h16" stroke-linecap="round"/></svg>
           </button>
@@ -47,7 +47,7 @@ export function mountChrome(root: HTMLElement): { viewRoot: HTMLElement } {
           <a href="${pathForRoute('optimize')}">Optimize / Compress</a>
           <a href="${pathForRoute('learn')}">Learn</a>
           <a href="${pathForRoute('about')}">About</a>
-          <a href="/#upload" class="btn btn-primary btn-block">Try It Now</a>
+          <a href="/#upload" class="btn btn-primary btn-block">Choose images</a>
         </div>
       </header>
       <main id="main" class="app-main">
@@ -64,7 +64,6 @@ export function mountChrome(root: HTMLElement): { viewRoot: HTMLElement } {
             <li><a href="#">Privacy</a></li>
             <li><a href="#">Contact</a></li>
           </ul>
-          <p class="site-footer__made-with">Made with <span aria-hidden="true">❤️</span> for a more private web.</p>
           <p>&copy; ${new Date().getFullYear()} thedroppic</p>
         </div>
       </footer>

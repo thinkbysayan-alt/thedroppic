@@ -53,7 +53,7 @@ export function renderCompressionSlider(
   if (losslessFormat) {
     const note = document.createElement('p');
     note.className = 'lossless-note';
-    note.textContent = "This format is lossless, so file size depends on the image itself — the slider won't shrink it further.";
+    note.textContent = "This format is lossless, so file size depends on the image itself. The slider won't shrink it further.";
     field.appendChild(note);
   }
 

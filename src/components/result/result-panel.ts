@@ -32,7 +32,7 @@ export function renderResultPanel(info: ResultInfo, handlers: ResultPanelHandler
     <span></span>
   `;
   badge.querySelector('span')!.textContent =
-    `Your image is ready — ${OUTPUT_FORMAT_LABEL[info.outputFormat]}, ${formatFileSize(info.byteLength)}`;
+    `Your image is ready: ${OUTPUT_FORMAT_LABEL[info.outputFormat]}, ${formatFileSize(info.byteLength)}`;
   panel.appendChild(badge);
 
   panel.appendChild(

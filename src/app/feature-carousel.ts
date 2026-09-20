@@ -21,7 +21,7 @@ export function renderFeatureCarousel(items: IconItem[], accentClass: string): H
     const el = document.createElement('div');
     el.className = 'feature-carousel__item';
     el.setAttribute('role', 'listitem');
-    el.innerHTML = `<span class="icon-badge feature-carousel__icon">${item.icon}</span><h3></h3><p></p>`;
+    el.innerHTML = `${item.icon ? `<span class="icon-badge feature-carousel__icon">${item.icon}</span>` : ''}<h3></h3><p></p>`;
     el.querySelector('h3')!.textContent = item.title;
     el.querySelector('p')!.textContent = item.description;
     track.appendChild(el);

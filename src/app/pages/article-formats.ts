@@ -1,20 +1,5 @@
 import { renderArticlePage, type ArticleBlock, type ArticleMeta } from '../article';
 
-/** Small cover graphic for the listing card and article header — six colored format chips, reusing the same per-format colors as the Convert page's format cards. */
-function renderThumbnail(): HTMLElement {
-  const el = document.createElement('div');
-  el.className = 'article-thumb article-thumb--formats';
-  el.innerHTML = `
-    <span class="article-thumb__chip fmt-jpg">JPG</span>
-    <span class="article-thumb__chip fmt-png">PNG</span>
-    <span class="article-thumb__chip fmt-webp">WebP</span>
-    <span class="article-thumb__chip fmt-avif">AVIF</span>
-    <span class="article-thumb__chip fmt-tiff">TIFF</span>
-    <span class="article-thumb__chip fmt-heic">HEIC</span>
-  `;
-  return el;
-}
-
 export const ARTICLE_FORMATS_META: ArticleMeta = {
   route: 'article-formats',
   category: 'Image Basics',
@@ -23,7 +8,6 @@ export const ARTICLE_FORMATS_META: ArticleMeta = {
     'JPG, PNG, WebP, AVIF, TIFF, or HEIC? A practical, no-jargon guide to choosing the right image format for photos, graphics, websites, and professional workflows.',
   readTime: '7 min',
   accent: 'accent-blue',
-  thumbnail: renderThumbnail,
 };
 
 const BLOCKS: ArticleBlock[] = [
@@ -49,7 +33,7 @@ const BLOCKS: ArticleBlock[] = [
     type: 'p',
     text: 'There isn’t one format that is best for every situation. Your choice depends on image type, transparency, quality, file size, and compatibility.',
   },
-  { type: 'h2', text: '1. JPG — best for photographs and everyday images' },
+  { type: 'h2', text: '1. JPG: best for photographs and everyday images' },
   {
     type: 'p',
     text: 'JPG, also known as JPEG, is one of the most widely supported image formats. It is particularly well suited to photographs because it can store complex images with lots of colors while keeping the resulting file relatively small.',
@@ -67,7 +51,7 @@ const BLOCKS: ArticleBlock[] = [
     text: "One limitation: JPG doesn't support transparency. If you need an image with a transparent background, another format such as PNG or WebP may be more appropriate.",
   },
   { type: 'callout', text: 'Simple rule: Photo → JPG' },
-  { type: 'h2', text: '2. PNG — best for transparency and graphics' },
+  { type: 'h2', text: '2. PNG: best for transparency and graphics' },
   {
     type: 'p',
     text: 'PNG is a popular choice for graphics that need sharp edges or transparent areas. Unlike JPG, PNG supports transparency, making it particularly useful for logos, icons, illustrations, and graphics that need to be placed over different backgrounds. PNG also uses lossless compression, meaning the image data is preserved rather than intentionally discarded during compression.',
@@ -78,7 +62,7 @@ const BLOCKS: ArticleBlock[] = [
     text: 'One limitation: PNG files can be considerably larger than JPG files, especially when used for detailed photographs.',
   },
   { type: 'callout', text: 'Simple rule: Transparency or graphics → PNG' },
-  { type: 'h2', text: '3. WebP — best for modern web use' },
+  { type: 'h2', text: '3. WebP: best for modern web use' },
   {
     type: 'p',
     text: 'WebP was developed as a modern image format designed to provide efficient compression while supporting features such as transparency. It can be useful when you want good visual quality without unnecessarily large image files. For websites, smaller image files can help reduce the amount of data that needs to be transferred to visitors.',
@@ -89,7 +73,7 @@ const BLOCKS: ArticleBlock[] = [
     text: 'WebP can support both lossy and lossless compression, giving it flexibility across different types of images. One limitation: although WebP is widely supported today, you may still encounter workflows, applications, or older systems that expect more traditional formats.',
   },
   { type: 'callout', text: 'Simple rule: Modern website → WebP' },
-  { type: 'h2', text: '4. AVIF — best for efficient modern image delivery' },
+  { type: 'h2', text: '4. AVIF: best for efficient modern image delivery' },
   {
     type: 'p',
     text: 'AVIF is a newer image format based on the AV1 image format. One of its major advantages is its ability to provide highly efficient compression while maintaining good image quality. This can make AVIF particularly interesting for websites and applications where reducing image transfer size is important.',
@@ -100,7 +84,7 @@ const BLOCKS: ArticleBlock[] = [
     text: "One limitation: AVIF isn't as universally supported across older software and workflows as JPG or PNG. If compatibility with a wide range of applications is your priority, JPG or PNG may still be more convenient.",
   },
   { type: 'callout', text: 'Simple rule: Modern web + efficient compression → AVIF' },
-  { type: 'h2', text: '5. TIFF — best for professional image workflows' },
+  { type: 'h2', text: '5. TIFF: best for professional image workflows' },
   {
     type: 'p',
     text: 'TIFF is commonly associated with high-quality imaging and professional workflows. It can store images with substantial detail and is often used where preserving image information is more important than keeping files small. TIFF is commonly encountered in areas such as photography, scanning, publishing, printing, and professional image processing.',
@@ -111,7 +95,7 @@ const BLOCKS: ArticleBlock[] = [
     text: 'One limitation: TIFF files can be very large compared with formats designed specifically for web delivery. That makes TIFF generally unsuitable when your primary goal is a small, fast-loading web image.',
   },
   { type: 'callout', text: 'Simple rule: Professional/high-quality workflow → TIFF' },
-  { type: 'h2', text: '6. HEIC — best for photos in Apple-focused workflows' },
+  { type: 'h2', text: '6. HEIC: best for photos in Apple-focused workflows' },
   {
     type: 'p',
     text: "HEIC is an image container commonly associated with Apple's modern photo ecosystem. It can store high-quality photographs efficiently, which helps reduce storage requirements compared with some traditional formats. You may encounter HEIC files when transferring photographs from iPhones, iPads, or other Apple devices.",
@@ -179,7 +163,7 @@ const BLOCKS: ArticleBlock[] = [
   { type: 'h2', text: 'Need to convert your image?' },
   {
     type: 'p',
-    text: "Sometimes you already have the right image — just in the wrong format. That's where an image converter can help. With thedroppic, you can convert images between supported formats directly in your browser, making it easier to prepare files for websites, design projects, sharing, and everyday use.",
+    text: "Sometimes you already have the right image, just in the wrong format. That's where an image converter can help. With thedroppic, you can convert images between supported formats directly in your browser, making it easier to prepare files for websites, design projects, sharing, and everyday use.",
   },
   { type: 'flow', steps: ['Choose your image', 'Select a format', 'Convert', 'Download'] },
   { type: 'tool-links', routes: ['convert'] },
@@ -198,7 +182,7 @@ const BLOCKS: ArticleBlock[] = [
   },
   {
     type: 'callout',
-    text: 'When in doubt, think about the purpose first — then choose the format that gives you the right balance of quality, size, features, and compatibility.',
+    text: 'When in doubt, think about the purpose first, then choose the format that gives you the right balance of quality, size, features, and compatibility.',
   },
 ];
 

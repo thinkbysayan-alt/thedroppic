@@ -6,9 +6,9 @@ import { ARTICLE_BROWSER_META } from './article-browser-processing';
 const ARTICLES: ArticleMeta[] = [ARTICLE_FORMATS_META, ARTICLE_BROWSER_META];
 
 export function renderLearnPage(): HTMLElement {
-  document.title = 'Learn — Guides on Image Formats & Browser-Based Processing | thedroppic';
+  document.title = 'Learn: Guides on Image Formats & Browser-Based Processing | thedroppic';
   setMetaDescription(
-    'Practical guides on image formats and browser-based image processing — how thedroppic converts, removes backgrounds, and optimizes images entirely on your device.',
+    'Practical guides on image formats and browser-based image processing: how thedroppic converts, removes backgrounds, and optimizes images entirely on your device.',
   );
 
   const wrap = document.createElement('div');
@@ -16,7 +16,6 @@ export function renderLearnPage(): HTMLElement {
   const hero = document.createElement('section');
   hero.className = 'tool-hero accent-blue';
   hero.innerHTML = `
-    <span class="eyebrow">LEARN</span>
     <h1>Guides on images<br /><span class="tool-hero__accent">and how thedroppic works.</span></h1>
     <p>Practical, no-jargon reading on image formats and browser-based processing.</p>
   `;
@@ -31,20 +30,18 @@ export function renderLearnPage(): HTMLElement {
     card.setAttribute('data-reveal', '');
     card.style.setProperty('--reveal-delay', `${index * 100}ms`);
 
-    card.appendChild(article.thumbnail());
-
     const body = document.createElement('div');
     body.className = 'learn-card__body';
     body.innerHTML = `
-      <span class="eyebrow"></span>
+      <span class="learn-card__category"></span>
       <h2></h2>
       <p></p>
       <span class="learn-card__meta"></span>
     `;
-    body.querySelector('.eyebrow')!.textContent = article.category.toUpperCase();
+    body.querySelector('.learn-card__category')!.textContent = article.category;
     body.querySelector('h2')!.textContent = article.title;
     body.querySelector('p')!.textContent = article.excerpt;
-    body.querySelector('.learn-card__meta')!.textContent = `${article.readTime} read · Read article →`;
+    body.querySelector('.learn-card__meta')!.textContent = `${article.readTime} read`;
     card.appendChild(body);
 
     grid.appendChild(card);

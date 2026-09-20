@@ -197,7 +197,7 @@ export function createOptimizeWorkspace() {
         ? doneCount === 1
           ? 'Optimized'
           : 'Ready to optimize'
-        : `${view.items.length} images — ${doneCount} of ${view.items.length} optimized`;
+        : `${view.items.length} images: ${doneCount} of ${view.items.length} optimized`;
     wrap.appendChild(heading);
 
     const grid = document.createElement('div');

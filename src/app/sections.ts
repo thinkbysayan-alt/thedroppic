@@ -3,7 +3,8 @@ import type { Route } from './router';
 import { pathForRoute } from './router';
 
 export interface IconItem {
-  icon: string;
+  /** Kept for callers that still pass one; the redesigned layouts are text-only. */
+  icon?: string;
   title: string;
   description: string;
 }
@@ -30,7 +31,7 @@ export function renderFeatureStrip(items: IconItem[], className = 'feature-strip
     el.className = `${block}__item`;
     el.setAttribute('data-reveal', '');
     setRevealDelay(el, index, 80);
-    el.innerHTML = `<span class="icon-badge ${block}__icon">${item.icon}</span><h3></h3><p></p>`;
+    el.innerHTML = `${item.icon ? `<span class="icon-badge ${block}__icon">${item.icon}</span>` : ''}<h3></h3><p></p>`;
     el.querySelector('h3')!.textContent = item.title;
     el.querySelector('p')!.textContent = item.description;
     wrap.appendChild(el);
@@ -41,7 +42,7 @@ export function renderFeatureStrip(items: IconItem[], className = 'feature-strip
 export interface Step {
   title: string;
   description: string;
-  icon: string;
+  icon?: string;
 }
 
 /** The "Three simple steps" section — same shape on every page, different copy/accent per tool. */
@@ -56,7 +57,6 @@ export function renderHowItWorks(
   section.setAttribute('aria-labelledby', 'how-it-works-heading');
 
   section.innerHTML = `
-    <p class="eyebrow eyebrow--center">HOW IT WORKS</p>
     <h2 id="how-it-works-heading"></h2>
     <p class="section-sub"></p>
   `;
@@ -70,8 +70,8 @@ export function renderHowItWorks(
     card.className = 'step step--simple';
     card.setAttribute('data-reveal', '');
     setRevealDelay(card, index, 120);
-    card.innerHTML = `<span class="icon-badge step__icon">${step.icon}</span><h3></h3><p></p>`;
-    card.querySelector('h3')!.textContent = `${index + 1}. ${step.title}`;
+    card.innerHTML = `${step.icon ? `<span class="icon-badge step__icon">${step.icon}</span>` : ''}<h3></h3><p></p>`;
+    card.querySelector('h3')!.textContent = step.title;
     card.querySelector('p')!.textContent = step.description;
     row.appendChild(card);
   });
@@ -90,7 +90,7 @@ export function renderToolFaq(items: FaqItem[]): HTMLElement {
   section.className = 'faq';
   section.setAttribute('aria-labelledby', 'faq-heading');
 
-  section.innerHTML = `<p class="eyebrow">FAQ</p><h2 id="faq-heading">Frequently asked questions</h2>`;
+  section.innerHTML = `<h2 id="faq-heading">Frequently asked questions</h2>`;
 
   items.forEach((item, index) => {
     const details = document.createElement('details');
@@ -115,7 +115,7 @@ export function renderToolFaq(items: FaqItem[]): HTMLElement {
   return section;
 }
 
-/** The pastel closing CTA band every page ends with. */
+/** The closing call to action every page ends with. */
 export function renderCtaBand(
   heading: string,
   supporting: string,
@@ -165,7 +165,6 @@ export function renderCtaBand(
  * single-card sections living on three different pages.
  */
 export function renderScrollCard(
-  eyebrow: string,
   heading: string,
   description: string,
   content: HTMLElement,
@@ -177,8 +176,7 @@ export function renderScrollCard(
 
   const header = document.createElement('div');
   header.className = 'scroll-card__header';
-  header.innerHTML = `<p class="eyebrow eyebrow--center"></p><h2></h2>${description ? '<p class="section-sub"></p>' : ''}`;
-  header.querySelector('.eyebrow')!.textContent = eyebrow;
+  header.innerHTML = `<h2></h2>${description ? '<p class="section-sub"></p>' : ''}`;
   header.querySelector('h2')!.textContent = heading;
   if (description) header.querySelector('.section-sub')!.textContent = description;
   section.appendChild(header);
@@ -187,6 +185,26 @@ export function renderScrollCard(
   section.appendChild(content);
 
   return section;
+}
+
+export interface MediaCardItem {
+  title: string;
+  description: string;
+  image: string;
+  alt: string;
+}
+
+/** A card with a photo on top and a title + one line below it (used inside the swipe stack). */
+export function renderMediaCard(item: MediaCardItem): HTMLElement {
+  const card = document.createElement('div');
+  card.className = 'scroll-card-item scroll-card-item--media';
+  card.innerHTML = `<img class="scroll-card-item__photo" width="380" height="220" draggable="false" /><div class="scroll-card-item__body"><h3></h3><p></p></div>`;
+  const img = card.querySelector('img')!;
+  img.src = item.image;
+  img.alt = item.alt;
+  card.querySelector('h3')!.textContent = item.title;
+  card.querySelector('p')!.textContent = item.description;
+  return card;
 }
 
 const ARROW_LEFT = `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M15 5 8 12l7 7" stroke-linecap="round" stroke-linejoin="round"/></svg>`;
@@ -206,6 +224,7 @@ const ARROW_RIGHT = `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" 
 export function renderSwipeStack(cards: HTMLElement[], accentClass: string): HTMLElement {
   const root = document.createElement('div');
   root.className = `swipe-stack ${accentClass}`;
+  if (cards.some((c) => c.classList.contains('scroll-card-item--media'))) root.classList.add('swipe-stack--media');
   root.tabIndex = 0;
 
   const viewport = document.createElement('div');

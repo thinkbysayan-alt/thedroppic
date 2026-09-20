@@ -3,15 +3,15 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <title>thedroppic — Convert JPG, PNG, WebP, AVIF, TIFF &amp; HEIC Online</title>
+    <title>thedroppic: Convert JPG, PNG, WebP, AVIF, TIFF &amp; HEIC Online</title>
     <meta
       name="description"
-      content="Free online image converter that runs entirely in your browser. Convert JPG, PNG, WebP, AVIF, TIFF and HEIC photos instantly. No upload, no signup — your image never leaves your device."
+      content="Free online image converter that runs entirely in your browser. Convert JPG, PNG, WebP, AVIF, TIFF and HEIC photos instantly. No upload, no signup: your image never leaves your device."
     />
     <link rel="canonical" href="https://example.com/" />
 
     <meta property="og:type" content="website" />
-    <meta property="og:title" content="thedroppic — Convert images instantly, privately" />
+    <meta property="og:title" content="thedroppic: Convert images instantly, privately" />
     <meta
       property="og:description"
       content="Fast, private image conversion that runs entirely in your browser. JPG, PNG, WebP, AVIF, TIFF, HEIC."
@@ -25,7 +25,7 @@
     <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
 
     <!--
-      Boot loader critical CSS — inlined so it paints before the bundled
+      Boot loader critical CSS: inlined so it paints before the bundled
       stylesheet arrives (the whole point of this screen is to cover that
       gap). Kept deliberately tiny and self-contained: no external fonts,
       no image assets, just the cat SVG below and these few rules.
@@ -38,7 +38,7 @@
         display: flex;
         align-items: center;
         justify-content: center;
-        background: #ffffff;
+        background: #f8f8f9;
         transition: opacity 220ms ease;
       }
       #boot-loader.is-hiding {
@@ -101,10 +101,10 @@
   </head>
   <body>
     <!--
-      Boot loader — shown only for the very first paint of a fresh page
+      Boot loader: shown only for the very first paint of a fresh page
       load, never during in-app navigation (the router only ever touches
       #view-root inside #app, which this sits on top of and is removed
-      from the DOM entirely once the app has mounted — see main.ts).
+      from the DOM entirely once the app has mounted, see main.ts).
       Lives in the raw HTML, not a component, specifically so it can paint
       before any JS has run.
     -->
@@ -132,7 +132,6 @@
       // see MIN_VISIBLE_MS there.
       window.__bootStart = Date.now();
     </script>
-    <div id="bg-pattern" aria-hidden="true"></div>
     <div id="app"></div>
     <script type="module" src="/src/main.ts"></script>
   </body>

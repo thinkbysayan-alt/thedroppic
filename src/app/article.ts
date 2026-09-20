@@ -3,7 +3,7 @@ import { navigate, pathForRoute, type Route } from './router';
 /**
  * A tiny content-block model shared by both Learn articles, so the actual
  * long-form copy (converted from the supplied PDFs) can live as plain data
- * next to each article's title/thumbnail, and this one renderer handles
+ * next to each article's title, and this one renderer handles
  * turning it into consistent, on-brand markup — headings, paragraphs,
  * bullet lists, a comparison table, an arrow-connected flow diagram, a
  * highlighted callout line, and inline links to the actual tool routes.
@@ -25,7 +25,6 @@ export interface ArticleMeta {
   excerpt: string;
   readTime: string;
   accent: string;
-  thumbnail: () => HTMLElement;
 }
 
 const TOOL_LABEL: Record<string, string> = {

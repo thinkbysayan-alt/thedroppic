@@ -534,7 +534,7 @@ export function createToolWorkspace(config: ToolWorkspaceConfig) {
     const heading = document.createElement('p');
     heading.className = 'batch-heading';
     const doneCount = view.items.filter((it) => it.state.status === 'result').length;
-    heading.textContent = `${view.items.length} images — ${doneCount} of ${view.items.length} converted`;
+    heading.textContent = `${view.items.length} images: ${doneCount} of ${view.items.length} converted`;
     wrap.appendChild(heading);
 
     const grid = document.createElement('div');
@@ -629,7 +629,7 @@ export function createToolWorkspace(config: ToolWorkspaceConfig) {
         <svg viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
           <path fill-rule="evenodd" d="M16.7 5.3a1 1 0 0 1 0 1.4l-7.5 7.5a1 1 0 0 1-1.4 0l-3.5-3.5a1 1 0 1 1 1.4-1.4l2.8 2.8 6.8-6.8a1 1 0 0 1 1.4 0Z" clip-rule="evenodd"/>
         </svg>
-        <span>${formatFileSize(resultState.resultByteLength)} — ready</span>
+        <span>${formatFileSize(resultState.resultByteLength)}, ready</span>
       `;
       card.appendChild(badge);
 

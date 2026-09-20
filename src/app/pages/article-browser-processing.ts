@@ -1,20 +1,5 @@
 import { renderArticlePage, type ArticleBlock, type ArticleMeta } from '../article';
 
-/** Small cover graphic — a simplified browser window with a "processed locally" badge, echoing the About page's illustration language without duplicating it. */
-function renderThumbnail(): HTMLElement {
-  const el = document.createElement('div');
-  el.className = 'article-thumb article-thumb--browser';
-  el.innerHTML = `
-    <div class="article-thumb__window">
-      <span class="article-thumb__dot"></span>
-      <span class="article-thumb__dot"></span>
-      <span class="article-thumb__dot"></span>
-    </div>
-    <svg class="article-thumb__icon" viewBox="0 0 24 24" fill="none" stroke="#2563ff" stroke-width="1.75" aria-hidden="true"><rect x="3" y="5" width="14" height="14" rx="2"/><path d="m7 15 3-4 2.5 3L15 11l4 5" stroke-linecap="round" stroke-linejoin="round"/></svg>
-  `;
-  return el;
-}
-
 export const ARTICLE_BROWSER_META: ArticleMeta = {
   route: 'article-browser-processing',
   category: 'Behind the Tool',
@@ -23,7 +8,6 @@ export const ARTICLE_BROWSER_META: ArticleMeta = {
     'What actually happens when you convert, optimize, or remove the background from an image without uploading it to a server? Here’s how browser-based image processing works.',
   readTime: '8 min',
   accent: 'accent-mint',
-  thumbnail: renderThumbnail,
 };
 
 const BLOCKS: ArticleBlock[] = [
@@ -38,10 +22,10 @@ const BLOCKS: ArticleBlock[] = [
   },
   { type: 'flow', steps: ['Select image', 'Browser reads file', 'Processing happens locally', 'Result is created', 'Download'] },
   { type: 'p', text: 'No traditional upload is required for processing that is designed to run locally.' },
-  { type: 'h2', text: '“Browser-based” — what does that actually mean?' },
+  { type: 'h2', text: 'What does “browser-based” actually mean?' },
   {
     type: 'p',
-    text: "A web browser is more than a tool for viewing websites. Modern browsers can perform increasingly sophisticated tasks using your computer or phone's processing resources — including working with files, manipulating images, running calculations, and even executing machine-learning models. When an image tool is designed for local processing, the browser becomes the environment where that work happens.",
+    text: "A web browser is more than a tool for viewing websites. Modern browsers can perform increasingly sophisticated tasks using your computer or phone's processing resources, including working with files, manipulating images, running calculations, and even executing machine-learning models. When an image tool is designed for local processing, the browser becomes the environment where that work happens.",
   },
   { type: 'h3', text: 'Instead of this' },
   { type: 'flow', steps: ['Your device', 'Upload', 'Remote server', 'Processing', 'Download'] },
@@ -113,7 +97,7 @@ const BLOCKS: ArticleBlock[] = [
   { type: 'h2', text: 'What about background removal?' },
   {
     type: 'p',
-    text: 'Background removal can be more computationally demanding. Simple image conversion and compression can often be handled with traditional browser image-processing capabilities. AI-powered background removal is different — a machine-learning model can analyze an image and estimate which parts belong to the main subject and which parts belong to the background. When that model is designed to run locally, the browser can load the model and perform the inference on the user’s device.',
+    text: 'Background removal can be more computationally demanding. Simple image conversion and compression can often be handled with traditional browser image-processing capabilities. AI-powered background removal is different, a machine-learning model can analyze an image and estimate which parts belong to the main subject and which parts belong to the background. When that model is designed to run locally, the browser can load the model and perform the inference on the user’s device.',
   },
   { type: 'flow', steps: ['Image', 'AI model', 'Subject detection', 'Foreground mask', 'Clean cutout'] },
   { type: 'p', text: 'The resulting mask can then be used to create an image with a transparent background.' },
@@ -121,12 +105,12 @@ const BLOCKS: ArticleBlock[] = [
   { type: 'h3', text: 'Privacy' },
   {
     type: 'p',
-    text: "If an image doesn't need to be uploaded to a server, the original file can remain on your device during processing. This can be particularly useful when working with personal photos, private documents, product images, or other files you don't want to unnecessarily send elsewhere. However, privacy ultimately depends on how a particular website is built — a website can still communicate with servers for other purposes, so users should always check the site's privacy information.",
+    text: "If an image doesn't need to be uploaded to a server, the original file can remain on your device during processing. This can be particularly useful when working with personal photos, private documents, product images, or other files you don't want to unnecessarily send elsewhere. However, privacy ultimately depends on how a particular website is built, a website can still communicate with servers for other purposes, so users should always check the site's privacy information.",
   },
   { type: 'h3', text: 'Speed' },
   {
     type: 'p',
-    text: 'Local processing can eliminate the need to upload a large image before processing begins. For some tasks, this can make the experience feel much faster — there is no need to wait for a remote server to receive the file, process it, and send the result back. Actual performance still depends on the device, browser, image size, and complexity of the operation.',
+    text: 'Local processing can eliminate the need to upload a large image before processing begins. For some tasks, this can make the experience feel much faster. There is no need to wait for a remote server to receive the file, process it, and send the result back. Actual performance still depends on the device, browser, image size, and complexity of the operation.',
   },
   { type: 'h3', text: 'No file upload required' },
   { type: 'p', text: 'One of the biggest differences is the workflow itself. Instead of:' },
@@ -137,7 +121,7 @@ const BLOCKS: ArticleBlock[] = [
   { type: 'h2', text: "Does browser-based mean the internet isn't used?" },
   {
     type: 'p',
-    text: "Not necessarily — this is an important distinction. A website still needs to load in your browser, which normally requires an internet connection. But loading the website and uploading your image are two different things. A locally processed image can remain on your device even though the web application itself was downloaded from the internet. Some applications can also cache resources and support offline functionality, but that depends on how the application is designed.",
+    text: "Not necessarily, and the distinction matters. A website still needs to load in your browser, which normally requires an internet connection. But loading the website and uploading your image are two different things. A locally processed image can remain on your device even though the web application itself was downloaded from the internet. Some applications can also cache resources and support offline functionality, but that depends on how the application is designed.",
   },
   { type: 'h2', text: 'What are the limitations?' },
   {
@@ -191,7 +175,7 @@ const BLOCKS: ArticleBlock[] = [
   { type: 'h2', text: 'The future of browser-based image tools' },
   {
     type: 'p',
-    text: "Browsers continue to gain access to more powerful capabilities. As web technologies improve, increasingly sophisticated applications can run directly on users' devices — opening the door to tools that once required dedicated desktop applications or powerful backend infrastructure. Image conversion, optimization, editing, and AI-assisted processing are all areas where local browser computation can provide useful alternatives to traditional upload-and-process workflows.",
+    text: "Browsers continue to gain access to more powerful capabilities. As web technologies improve, increasingly sophisticated applications can run directly on users' devices, opening the door to tools that once required dedicated desktop applications or powerful backend infrastructure. Image conversion, optimization, editing, and AI-assisted processing are all areas where local browser computation can provide useful alternatives to traditional upload-and-process workflows.",
   },
   { type: 'h2', text: 'A simpler way to think about it' },
   {
@@ -207,7 +191,7 @@ const BLOCKS: ArticleBlock[] = [
       'Modern browsers can handle image conversion, compression, manipulation, and certain AI workloads.',
       'Local processing can offer privacy and eliminate upload/download delays for certain workflows.',
       'Performance depends on your device, browser, image size, and the complexity of the operation.',
-      "“Browser-based” doesn't automatically mean a website is completely offline or completely private — implementation matters.",
+      "“Browser-based” doesn't automatically mean a website is completely offline or completely private. Implementation matters.",
       'thedroppic is designed around keeping everyday image processing simple and browser-based.',
     ],
   },

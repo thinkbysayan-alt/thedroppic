@@ -31,7 +31,7 @@ export function renderBackgroundRemovalToggle(checked: boolean, handlers: Backgr
 
   const hint = document.createElement('p');
   hint.className = 'bg-removal__hint';
-  hint.textContent = 'AI-powered subject cutout with a transparent background — runs entirely in your browser. Works best on people/portraits.';
+  hint.textContent = 'AI-powered subject cutout with a transparent background. Runs entirely in your browser. Works best on people/portraits.';
   field.appendChild(hint);
 
   return field;

@@ -91,7 +91,7 @@ export function installLinkInterceptor(): void {
     const href = anchor.getAttribute('href');
     if (!href || !href.startsWith('/') || href.startsWith('//')) return;
     const route = PATH_ROUTES[href.split('#')[0]!];
-    if (!route) return; // not a known app route (e.g. an in-page #anchor) — let it behave normally
+    if (!route) return; // not a known app route (e.g. an in-page #anchor): let it behave normally
     e.preventDefault();
     navigate(route);
   });

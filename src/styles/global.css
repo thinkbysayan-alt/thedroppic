@@ -19,28 +19,21 @@ body {
   color: var(--color-text);
   font-family: var(--font-sans);
   font-size: 16px;
-  line-height: 1.5;
+  line-height: 1.55;
   -webkit-font-smoothing: antialiased;
+  font-feature-settings: 'ss01', 'cv11';
 }
 
-/*
- * Subtle dot-grid texture, deliberately low-contrast and purely decorative.
- * Lives on its own fixed, viewport-covering layer (not body's background)
- * specifically so the mouse-parallax effect (app/pattern-parallax.ts) can
- * nudge it with a GPU-composited `transform`, which never triggers layout
- * or repaint — animating `background-position` on body directly would
- * repaint the whole document's background on every mouse-move frame.
- * Sized larger than the viewport so that small parallax shifts never reveal
- * an edge. Behind all content and inert to input.
- */
-#bg-pattern {
-  position: fixed;
-  inset: -24px;
-  z-index: -1;
-  pointer-events: none;
-  background-image: radial-gradient(var(--pattern-dot) 1.3px, transparent 1.3px);
-  background-size: 22px 22px;
-  will-change: transform;
+h1,
+h2,
+h3 {
+  font-weight: 600;
+  letter-spacing: -0.02em;
+  text-wrap: balance;
+}
+
+p {
+  text-wrap: pretty;
 }
 
 img,

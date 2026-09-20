@@ -28,8 +28,8 @@ export function renderUploadCard(handlers: UploadCardHandlers): HTMLElement {
     </label>
     <input type="file" id="file-input" multiple accept="image/jpeg,image/png,image/webp,image/avif,image/tiff,image/heic,image/heif,.jpg,.jpeg,.png,.webp,.avif,.tif,.tiff,.heic,.heif" aria-describedby="upload-formats upload-limit" />
     <p class="upload-card__paste-hint">You can also paste an image from your clipboard.</p>
-    <p class="upload-card__limit" id="upload-limit">Up to ${MAX_FILES} images at once — each is converted and downloaded separately.</p>
-    <p class="upload-card__formats" id="upload-formats">JPG · PNG · WebP · AVIF · TIFF · HEIC</p>
+    <p class="upload-card__limit" id="upload-limit">Up to ${MAX_FILES} images at once. Each is converted and downloaded separately.</p>
+    <p class="upload-card__formats" id="upload-formats">JPG, PNG, WebP, AVIF, TIFF, HEIC</p>
     <p class="upload-card__notice" role="status" aria-live="polite" hidden></p>
     <p class="privacy-note">
       <svg viewBox="0 0 20 20" fill="currentColor" aria-hidden="true"><path fill-rule="evenodd" d="M10 1.5c-3.5 0-6 2-6 5.2 0 1.9.7 3.4 1.6 4.6C4.6 12.9 4 14.6 4 16c0 .6.4 1 1 1h10c.6 0 1-.4 1-1 0-1.4-.6-3.1-1.6-4.7.9-1.2 1.6-2.7 1.6-4.6 0-3.2-2.5-5.2-6-5.2ZM10 9a2 2 0 1 0 0-4 2 2 0 0 0 0 4Z" clip-rule="evenodd"/></svg>
@@ -46,7 +46,7 @@ export function renderUploadCard(handlers: UploadCardHandlers): HTMLElement {
     const files = all.slice(0, MAX_FILES);
     if (all.length > MAX_FILES) {
       notice.hidden = false;
-      notice.textContent = `You selected ${all.length} images — only the first ${MAX_FILES} were added.`;
+      notice.textContent = `You selected ${all.length} images. Only the first ${MAX_FILES} were added.`;
     } else {
       notice.hidden = true;
     }
