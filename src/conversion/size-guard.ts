@@ -1,4 +1,12 @@
-import { LOSSY_FORMATS, OUTPUT_FORMAT_MIME, type ConvertOptions, type ConvertResult, type SourceFormat } from '../types';
+import {
+  LOSSY_FORMATS,
+  OUTPUT_FORMAT_LABEL,
+  OUTPUT_FORMAT_MIME,
+  type ConvertOptions,
+  type ConvertResult,
+  type OutputFormat,
+  type SourceFormat,
+} from '../types';
 
 /** Quality never drops below this while chasing a smaller file, so the guard can't wreck an image. */
 const MIN_QUALITY = 40;
@@ -45,4 +53,13 @@ export async function enforceNoGrowth(
     return { blob: new Blob([file], { type }), width: best.width, height: best.height, byteLength: limit };
   }
   return best;
+}
+
+const LOSSY_SOURCES: ReadonlySet<SourceFormat> = new Set(['jpeg', 'webp', 'avif', 'heic']);
+
+/** Shown before converting: a compressed photo saved as PNG or TIFF stores every pixel and gets much bigger. */
+export function losslessGrowthWarning(source: SourceFormat, output: OutputFormat): string | null {
+  if (!LOSSY_SOURCES.has(source) || LOSSY_FORMATS.has(output)) return null;
+  const label = OUTPUT_FORMAT_LABEL[output];
+  return `${label} keeps every pixel, so a photo can end up many times larger than the original. Choose JPG, WebP or AVIF to keep it small.`;
 }

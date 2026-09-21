@@ -192,25 +192,33 @@ async function runSegmentation(req: BackgroundRemovalRequest): Promise<Backgroun
 }
 
 /**
- * Loads the model and runs one throwaway inference so the one-time work
- * (weight download, session creation, WebGPU shader compilation) is done
- * before the user's first real image. Failures are ignored here: a real
- * request retries the load and reports its own error.
+ * Starts loading the model and, once it is ready, runs one throwaway
+ * inference so the one-time work (weight download, session creation, WebGPU
+ * shader compilation) is done before the user's first real image.
+ *
+ * Deliberately NOT queued while loading: a real request must be able to time
+ * out on a stalled load by itself (see runSegmentation), so nothing here may
+ * sit ahead of it in the queue until the model actually exists. Failures are
+ * ignored: a real request retries the load and reports its own error.
  */
-async function warmUp(): Promise<void> {
-  try {
-    const segmenter = await getSegmenter();
-    const { RawImage } = await import('@huggingface/transformers');
-    await segmenter([new RawImage(new Uint8ClampedArray(modelSize * modelSize * 4), modelSize, modelSize, 4)]);
-  } catch {
-    // Ignored on purpose, see above.
-  }
+function warmUp(): void {
+  getSegmenter()
+    .then((segmenter) =>
+      enqueue(async () => {
+        const { RawImage } = await import('@huggingface/transformers');
+        const blank = new RawImage(new Uint8ClampedArray(modelSize * modelSize * 4), modelSize, modelSize, 4);
+        await withTimeout(segmenter([blank]), SEGMENT_TIMEOUT_MS, 'Warm-up timed out');
+      }),
+    )
+    .catch(() => {
+      // Ignored on purpose, see above.
+    });
 }
 
 ctx.onmessage = async (event: MessageEvent<BackgroundRemovalMessage>) => {
   const msg = event.data;
   if (msg.kind === 'warmup') {
-    void enqueue(warmUp);
+    warmUp();
     return;
   }
   const response = await enqueue(() => runSegmentation(msg));

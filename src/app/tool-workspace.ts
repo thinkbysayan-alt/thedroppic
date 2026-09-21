@@ -14,6 +14,7 @@ import { renderErrorBanner } from '../components/errors/error-banner';
 import { decodeToOrientedBitmap, bitmapToImageData, cropImageData, imageDataToBlob } from '../utils/image';
 import { closeBitmap, revokeObjectUrl, trackObjectUrl } from '../utils/memory';
 import { downloadBlob } from '../utils/download';
+import { losslessGrowthWarning } from '../conversion/size-guard';
 import { buildOutputFilename, describeSizeChange } from '../utils/file';
 import { AppError, type CropRegion, type OutputFormat } from '../types';
 import type { BatchItem, BatchItemState, UploadedImage, View } from './state';
@@ -361,6 +362,13 @@ export function createToolWorkspace(config: ToolWorkspaceConfig) {
         }),
       );
       controlsPanel.appendChild(controlsRow);
+      const warning = config.forceRemoveBackground || view.removeBackground ? null : losslessGrowthWarning(view.image.sourceFormat, view.outputFormat);
+      if (warning) {
+        const note = document.createElement('p');
+        note.className = 'result-note';
+        note.textContent = warning;
+        controlsPanel.appendChild(note);
+      }
     }
 
     if (config.showBackgroundToggle) {
