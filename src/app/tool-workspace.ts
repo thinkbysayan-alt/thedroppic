@@ -14,7 +14,7 @@ import { renderErrorBanner } from '../components/errors/error-banner';
 import { decodeToOrientedBitmap, bitmapToImageData, cropImageData, imageDataToBlob } from '../utils/image';
 import { closeBitmap, revokeObjectUrl, trackObjectUrl } from '../utils/memory';
 import { downloadBlob } from '../utils/download';
-import { buildOutputFilename, formatFileSize } from '../utils/file';
+import { buildOutputFilename, describeSizeChange } from '../utils/file';
 import { AppError, type CropRegion, type OutputFormat } from '../types';
 import type { BatchItem, BatchItemState, UploadedImage, View } from './state';
 
@@ -514,6 +514,7 @@ export function createToolWorkspace(config: ToolWorkspaceConfig) {
           width: view.resultWidth,
           height: view.resultHeight,
           outputFormat: view.outputFormat,
+          originalByteLength: view.image.file.size,
         },
         {
           onDownload: () => downloadBlob(view.resultBlob, view.resultFilename),
@@ -635,7 +636,7 @@ export function createToolWorkspace(config: ToolWorkspaceConfig) {
         <svg viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
           <path fill-rule="evenodd" d="M16.7 5.3a1 1 0 0 1 0 1.4l-7.5 7.5a1 1 0 0 1-1.4 0l-3.5-3.5a1 1 0 1 1 1.4-1.4l2.8 2.8 6.8-6.8a1 1 0 0 1 1.4 0Z" clip-rule="evenodd"/>
         </svg>
-        <span>${formatFileSize(resultState.resultByteLength)}, ready</span>
+        <span>${describeSizeChange(resultState.image.file.size, resultState.resultByteLength)}</span>
       `;
       card.appendChild(badge);
 

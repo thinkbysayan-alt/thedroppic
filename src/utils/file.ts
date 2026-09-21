@@ -42,3 +42,10 @@ export function formatFileSize(bytes: number): string {
   const rounded = value < 10 ? value.toFixed(1).replace(/\.0$/, '') : value.toFixed(0);
   return `${rounded} ${units[unitIndex]}`;
 }
+
+/** "55 KB to 40 KB (27% smaller)" style summary, or a plain size when the original is unknown. */
+export function describeSizeChange(originalBytes: number, resultBytes: number): string {
+  const base = `${formatFileSize(originalBytes)} to ${formatFileSize(resultBytes)}`;
+  if (resultBytes < originalBytes) return `${base} (${Math.round((1 - resultBytes / originalBytes) * 100)}% smaller)`;
+  return base;
+}

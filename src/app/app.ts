@@ -10,6 +10,7 @@ import { renderArticleFormatsPage } from './pages/article-formats';
 import { renderArticleBrowserProcessingPage } from './pages/article-browser-processing';
 import { renderNotFoundPage } from './pages/not-found';
 import { applySeo } from './seo';
+import { removePageListeners } from '../components/upload/upload';
 import { initScrollReveal } from '../utils/reveal';
 
 /**
@@ -23,6 +24,7 @@ export function mountApp(root: HTMLElement): void {
   const { viewRoot } = mountChrome(root);
 
   function renderRoute(route: Route): void {
+    removePageListeners(); // the previous page's paste-to-upload handlers must not outlive it
     viewRoot.replaceChildren();
     let page: HTMLElement;
     switch (route) {

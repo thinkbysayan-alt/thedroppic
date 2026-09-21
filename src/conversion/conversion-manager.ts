@@ -3,6 +3,7 @@ import type { WorkerRequest, WorkerResponse } from '../workers/protocol';
 import { decodeSource } from './decode';
 import { removeBackground } from './background-removal';
 import { cropImageData } from '../utils/image';
+import { enforceNoGrowth } from './size-guard';
 
 let worker: Worker | null = null;
 let nextId = 1;
@@ -60,6 +61,11 @@ export async function convertImage(
     return convertWithBackgroundRemoval(file, sourceFormat, options);
   }
 
+  const first = await runConvert(file, sourceFormat, options);
+  return enforceNoGrowth(file, sourceFormat, options, first, (o) => runConvert(file, sourceFormat, o));
+}
+
+async function runConvert(file: File, sourceFormat: SourceFormat, options: ConvertOptions): Promise<ConvertResult> {
   const buffer = await file.arrayBuffer();
   const id = nextId++;
   const response = await callWorker({ id, kind: 'convert', sourceFormat, buffer, options }, [buffer]);

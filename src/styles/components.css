@@ -1824,3 +1824,9 @@
 :root[data-theme='dark'] .scroll-card-item__photo {
   filter: brightness(0.9);
 }
+
+.result-note {
+  margin: var(--space-3) 0 0;
+  font-size: 0.9375rem;
+  color: var(--color-text-muted);
+}

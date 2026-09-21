@@ -82,6 +82,15 @@ export function renderUploadCard(handlers: UploadCardHandlers): HTMLElement {
   return card;
 }
 
+/** Paste listeners belong to the page that registered them; they're all dropped when the route changes. */
+const pageListeners = new Set<() => void>();
+
+/** Removes every paste listener registered by the page being navigated away from. */
+export function removePageListeners(): void {
+  for (const remove of pageListeners) remove();
+  pageListeners.clear();
+}
+
 /** Wires a document-level paste listener that treats a pasted image like an upload. Ignored gracefully if no image is present. */
 export function listenForClipboardPaste(onFile: (file: File) => void): () => void {
   const handler = (event: ClipboardEvent) => {
@@ -100,5 +109,10 @@ export function listenForClipboardPaste(onFile: (file: File) => void): () => voi
     // No image on the clipboard — ignore silently, don't interrupt normal paste behavior elsewhere.
   };
   document.addEventListener('paste', handler);
-  return () => document.removeEventListener('paste', handler);
+  const remove = () => {
+    document.removeEventListener('paste', handler);
+    pageListeners.delete(remove);
+  };
+  pageListeners.add(remove);
+  return remove;
 }

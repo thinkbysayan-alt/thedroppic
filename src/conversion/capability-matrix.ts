@@ -27,6 +27,9 @@ export function canConvert(source: SourceFormat, target: OutputFormat): boolean 
 /** A sensible default output pick for a given source (first non-self option). */
 export function getDefaultOutputFormat(source: SourceFormat): OutputFormat {
   const options = getAllowedOutputFormats(source);
-  const jpeg = options.find((f) => f === 'jpeg');
-  return jpeg ?? options[0]!;
+  // Prefer a lossy target (smallest files): JPG, then WebP, then AVIF. Lossless PNG/TIFF only when nothing lossy is allowed.
+  for (const preferred of ['jpeg', 'webp', 'avif'] as const) {
+    if (options.includes(preferred)) return preferred;
+  }
+  return options[0]!;
 }
