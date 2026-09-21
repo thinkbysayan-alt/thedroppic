@@ -1,4 +1,5 @@
-import { navigate, pathForRoute, type Route } from './router';
+import { navigate, pathForRoute, type PageRoute } from './router';
+import { renderRelatedLinks, type RelatedLink } from './sections';
 
 /**
  * A tiny content-block model shared by both Learn articles, so the actual
@@ -16,16 +17,29 @@ export type ArticleBlock =
   | { type: 'callout'; text: string }
   | { type: 'table'; headers: string[]; rows: string[][] }
   | { type: 'flow'; steps: string[] }
-  | { type: 'tool-links'; routes: Route[] };
+  | { type: 'tool-links'; routes: PageRoute[] };
 
 export interface ArticleMeta {
-  route: Route;
+  route: PageRoute;
   category: string;
   title: string;
   excerpt: string;
   readTime: string;
   accent: string;
 }
+
+const RELATED: Partial<Record<PageRoute, RelatedLink[]>> = {
+  'article-formats': [
+    { route: 'convert', label: 'Convert images to another format', description: 'Switch between JPG, PNG, WebP, AVIF and TIFF.' },
+    { route: 'optimize', label: 'Compress images', description: 'Reduce file size in your browser.' },
+    { route: 'article-browser-processing', label: 'How browser-based image processing works', description: 'What happens to your image, step by step.' },
+  ],
+  'article-browser-processing': [
+    { route: 'article-formats', label: 'Which image format should you use?', description: 'A short guide to choosing a format.' },
+    { route: 'remove-background', label: 'Remove an image background', description: 'AI cutouts that run in your browser.' },
+    { route: 'about', label: 'About thedroppic', description: 'Why the tools run in your browser.' },
+  ],
+};
 
 const TOOL_LABEL: Record<string, string> = {
   convert: 'Convert Images',
@@ -34,8 +48,6 @@ const TOOL_LABEL: Record<string, string> = {
 };
 
 export function renderArticlePage(meta: ArticleMeta, blocks: ArticleBlock[]): HTMLElement {
-  document.title = `${meta.title} | thedroppic Learn`;
-  setMetaDescription(meta.excerpt);
 
   const wrap = document.createElement('div');
   wrap.className = `article-page ${meta.accent}`;
@@ -70,10 +82,13 @@ export function renderArticlePage(meta: ArticleMeta, blocks: ArticleBlock[]): HT
   for (const block of blocks) body.appendChild(renderBlock(block));
   wrap.appendChild(body);
 
+  const related = RELATED[meta.route];
+  if (related) wrap.appendChild(renderRelatedLinks('Keep reading', related));
+
   const backLink = document.createElement('a');
   backLink.href = pathForRoute('learn');
   backLink.className = 'btn btn-secondary';
-  backLink.textContent = '← Back to Learn';
+  backLink.textContent = '← All guides';
   backLink.style.marginTop = 'var(--space-6)';
   wrap.appendChild(backLink);
 
@@ -175,11 +190,7 @@ function renderBlock(block: ArticleBlock): HTMLElement {
 }
 
 /** Not currently used by the block renderer itself, but kept available for a page module that wants a "Try this tool" button with a click handler instead of a plain link. */
-export function goToTool(route: Route): void {
+export function goToTool(route: PageRoute): void {
   navigate(route);
 }
 
-function setMetaDescription(text: string): void {
-  const el = document.querySelector('meta[name="description"]');
-  if (el) el.setAttribute('content', text);
-}

@@ -9,9 +9,13 @@ import type { IconItem } from './sections';
  * each moving by exactly one card, and disable themselves at the ends so
  * it's always obvious there's nothing more in that direction.
  */
-export function renderFeatureCarousel(items: IconItem[], accentClass: string): HTMLElement {
-  const wrap = document.createElement('div');
+export function renderFeatureCarousel(items: IconItem[], accentClass: string, heading: string): HTMLElement {
+  const wrap = document.createElement('section');
   wrap.className = `feature-carousel ${accentClass}`;
+  const title = document.createElement('h2');
+  title.className = 'visually-hidden';
+  title.textContent = heading;
+  wrap.appendChild(title);
 
   const track = document.createElement('div');
   track.className = 'feature-carousel__track';

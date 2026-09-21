@@ -1,0 +1,33 @@
+# thedroppic
+
+> thedroppic is a set of free image tools that run in the visitor's web browser. Visitors can convert image formats, remove image backgrounds with AI and reduce image file size. Images are processed on the visitor's device and are not uploaded to a server. No account is required.
+
+## Tools
+
+- [Image Converter](https://thedroppic.com/tools/convert): Convert between JPG, PNG, WebP, AVIF, TIFF and HEIC. Open any of the six formats and save as JPG, PNG, WebP, AVIF or TIFF. Up to 5 images at once.
+- [Background Remover](https://thedroppic.com/tools/remove-background): Remove an image background with an AI model that runs in the browser. Output is a transparent PNG. Works best on people and portraits.
+- [Image Optimizer](https://thedroppic.com/tools/optimize): Reduce image file size with Small, Medium or Original quality. Shows the exact file size before and after.
+
+## Guides and information
+
+- [Which image format to use](https://thedroppic.com/learn/best-image-format): A guide to choosing between JPG, PNG, WebP, AVIF, TIFF and HEIC.
+- [How browser-based image processing works](https://thedroppic.com/learn/browser-based-image-processing): What happens to an image when it is processed in the browser instead of on a server.
+- [Learn](https://thedroppic.com/learn): All guides.
+- [About thedroppic](https://thedroppic.com/about): What the site does and how it protects privacy.
+
+## Privacy model
+
+- Conversion and compression run in the browser using WebAssembly. Images are not sent to a server.
+- The background remover downloads an AI model to the browser once and the browser keeps it. That download contains no image data.
+- No account is needed. The site does not use analytics or advertising scripts.
+
+## Supported formats and limits
+
+- Input: JPG, PNG, WebP, AVIF, TIFF, HEIC.
+- Converted output: JPG, PNG, WebP, AVIF, TIFF. HEIC is input only.
+- Background removal output: PNG with transparency.
+- Up to 5 images per batch. Images over roughly 100 megapixels are rejected.
+
+## Site files
+
+- [Sitemap](https://thedroppic.com/sitemap.xml)

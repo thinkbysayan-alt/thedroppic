@@ -8,6 +8,8 @@ import { renderAboutPage } from './pages/about';
 import { renderLearnPage } from './pages/learn';
 import { renderArticleFormatsPage } from './pages/article-formats';
 import { renderArticleBrowserProcessingPage } from './pages/article-browser-processing';
+import { renderNotFoundPage } from './pages/not-found';
+import { applySeo } from './seo';
 import { initScrollReveal } from '../utils/reveal';
 
 /**
@@ -45,6 +47,9 @@ export function mountApp(root: HTMLElement): void {
       case 'article-browser-processing':
         page = renderArticleBrowserProcessingPage();
         break;
+      case 'not-found':
+        page = renderNotFoundPage();
+        break;
       case 'home':
       default:
         page = renderHomePage();
@@ -52,6 +57,7 @@ export function mountApp(root: HTMLElement): void {
     }
     viewRoot.appendChild(page);
     setActiveNavRoute(root, route);
+    applySeo(route, viewRoot);
     initScrollReveal(viewRoot);
   }
 

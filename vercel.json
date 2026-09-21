@@ -1,4 +1,6 @@
 {
+  "cleanUrls": true,
+  "trailingSlash": false,
   "headers": [
     {
       "source": "/(.*)",
@@ -8,5 +10,8 @@
       ]
     }
   ],
-  "rewrites": [{ "source": "/(.*)", "destination": "/index.html" }]
+  "redirects": [
+    { "source": "/learn/which-image-format-should-you-use", "destination": "/learn/best-image-format", "statusCode": 301 },
+    { "source": "/learn/how-browser-based-image-processing-works", "destination": "/learn/browser-based-image-processing", "statusCode": 301 }
+  ]
 }

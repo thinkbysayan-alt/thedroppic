@@ -13,6 +13,9 @@
   --color-accent-hover: #1a4fd6;
   --color-accent-contrast: #ffffff;
   --color-accent-soft: #eef3ff;
+  /* Filled backgrounds (buttons). Kept separate from --color-accent, which is used for text and icons and needs to be lighter on dark. */
+  --color-accent-fill: #2563ff;
+  --color-accent-fill-hover: #1a4fd6;
 
   --color-danger: #d92d20;
   --color-danger-soft: #fef3f2;
@@ -24,6 +27,8 @@
 
   --color-focus: #2563ff;
   --gradient-primary: none;
+  --checker: rgba(22, 22, 26, 0.07);
+  --focus-ring: rgba(37, 99, 255, 0.16);
 
   /* One shape system: chips 6, controls 10, panels 14. */
   --radius-sm: 6px;
@@ -66,4 +71,42 @@
     --reveal-duration: 0ms;
     --float-duration: 0s;
   }
+}
+
+/* Dark theme: a deliberate palette, not an inversion. Near-black cool ground,
+   raised surfaces one step lighter, brighter accent for text/icons, and a
+   slightly deeper blue for filled buttons so white labels keep AA contrast. */
+:root[data-theme='dark'] {
+  color-scheme: dark;
+
+  --color-bg: #0f1012;
+  --color-surface: #16171b;
+  --color-surface-raised: #1c1d22;
+  --color-border: #2a2c33;
+  --color-border-strong: #3d404a;
+  --color-text: #eceef2;
+  --color-text-muted: #a4a8b4;
+  --color-text-faint: #8d919e;
+
+  --color-accent: #6b96ff;
+  --color-accent-hover: #8aaeff;
+  --color-accent-fill: #2a63f5;
+  --color-accent-fill-hover: #2358d9;
+  --color-accent-soft: #1a2440;
+
+  --color-danger: #ff8a7e;
+  --color-danger-soft: #2a1614;
+  --color-danger-border: #5a2a26;
+
+  --color-success: #4ade80;
+  --color-success-soft: #10241a;
+  --color-success-border: #1f5a36;
+
+  --color-focus: #8aaeff;
+  --checker: rgba(255, 255, 255, 0.07);
+  --focus-ring: rgba(107, 150, 255, 0.28);
+
+  --shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.4);
+  --shadow-md: 0 6px 20px rgba(0, 0, 0, 0.45);
+  --shadow-lg: 0 16px 40px rgba(0, 0, 0, 0.55);
 }

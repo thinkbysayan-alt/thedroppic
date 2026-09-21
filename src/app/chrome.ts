@@ -1,4 +1,6 @@
-import { navigate, pathForRoute, type Route } from './router';
+import { navigate, pathForRoute, type PageRoute, type Route } from './router';
+import { ICON } from './icons';
+import { getTheme, toggleTheme } from './theme';
 
 /**
  * Renders the app shell (header + footer + #view-root) once at startup.
@@ -12,7 +14,7 @@ export function mountChrome(root: HTMLElement): { viewRoot: HTMLElement } {
     <div class="app-shell">
       <header class="site-header">
         <div class="container site-header__bar">
-          <a href="/" class="brand" aria-label="TheDropPic home">
+          <a href="/" class="brand" aria-label="thedroppic home">
             <span class="brand__mark" aria-hidden="true">
               <svg width="30" height="30" viewBox="0 0 32 32">
                 <rect x="3" y="11" width="17" height="17" rx="5.5" fill="#2563ff" />
@@ -36,10 +38,16 @@ export function mountChrome(root: HTMLElement): { viewRoot: HTMLElement } {
             <a href="${pathForRoute('learn')}">Learn</a>
             <a href="${pathForRoute('about')}">About</a>
           </nav>
-          <a href="/#upload" class="btn btn-primary btn-sm site-header__cta">Choose images</a>
-          <button type="button" class="mobile-nav-toggle" id="mobile-nav-toggle" aria-label="Open menu" aria-expanded="false" aria-controls="mobile-nav-panel">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" aria-hidden="true"><path d="M4 6h16M4 12h16M4 18h16" stroke-linecap="round"/></svg>
-          </button>
+          <div class="site-header__actions">
+            <button type="button" class="theme-toggle" id="theme-toggle" aria-pressed="false" aria-label="Dark mode">
+              <span class="theme-toggle__moon" aria-hidden="true">${ICON.moon}</span>
+              <span class="theme-toggle__sun" aria-hidden="true">${ICON.sun}</span>
+            </button>
+            <a href="/#upload" class="btn btn-primary btn-sm site-header__cta">Choose images</a>
+            <button type="button" class="mobile-nav-toggle" id="mobile-nav-toggle" aria-label="Open menu" aria-expanded="false" aria-controls="mobile-nav-panel">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" aria-hidden="true"><path d="M4 6h16M4 12h16M4 18h16" stroke-linecap="round"/></svg>
+            </button>
+          </div>
         </div>
         <div class="mobile-nav-panel" id="mobile-nav-panel" hidden>
           <a href="${pathForRoute('convert')}">Convert Images</a>
@@ -56,13 +64,14 @@ export function mountChrome(root: HTMLElement): { viewRoot: HTMLElement } {
       <footer class="site-footer">
         <div class="container">
           <p class="site-footer__brand">the<span class="brand__word-accent">droppic</span></p>
-          <p class="site-footer__tagline">Private image tools for everyone.</p>
+          <p class="site-footer__tagline">Private image tools that run in your browser.</p>
           <ul class="site-footer__links">
-            <li><a href="${pathForRoute('convert')}">Tools</a></li>
+            <li><a href="${pathForRoute('convert')}">Convert images</a></li>
+            <li><a href="${pathForRoute('remove-background')}">Remove background</a></li>
+            <li><a href="${pathForRoute('optimize')}">Compress images</a></li>
             <li><a href="${pathForRoute('learn')}">Learn</a></li>
             <li><a href="${pathForRoute('about')}">About</a></li>
-            <li><a href="#">Privacy</a></li>
-            <li><a href="#">Contact</a></li>
+            <li><a href="${pathForRoute('about')}#privacy">Privacy</a></li>
           </ul>
           <p>&copy; ${new Date().getFullYear()} thedroppic</p>
         </div>
@@ -82,6 +91,18 @@ export function mountChrome(root: HTMLElement): { viewRoot: HTMLElement } {
       dropdown.classList.remove('is-open');
       trigger.setAttribute('aria-expanded', 'false');
     }
+  });
+
+  const themeToggle = root.querySelector<HTMLButtonElement>('#theme-toggle')!;
+  const syncThemeToggle = (): void => {
+    const dark = getTheme() === 'dark';
+    themeToggle.setAttribute('aria-pressed', String(dark));
+    themeToggle.setAttribute('aria-label', dark ? 'Switch to light mode' : 'Switch to dark mode');
+  };
+  syncThemeToggle();
+  themeToggle.addEventListener('click', () => {
+    toggleTheme();
+    syncThemeToggle();
   });
 
   const mobileToggle = root.querySelector<HTMLButtonElement>('#mobile-nav-toggle')!;
@@ -104,11 +125,11 @@ export function mountChrome(root: HTMLElement): { viewRoot: HTMLElement } {
 
 export function setActiveNavRoute(root: HTMLElement, route: Route): void {
   root.querySelectorAll<HTMLAnchorElement>('.nav-dropdown__menu a').forEach((a) => {
-    a.classList.toggle('is-active', a.getAttribute('href') === pathForRoute(route));
+    a.classList.toggle('is-active', route !== 'not-found' && a.getAttribute('href') === pathForRoute(route));
   });
 }
 
 /** Small helper so page modules can navigate without importing the router directly everywhere. */
-export function goTo(route: Route): void {
+export function goTo(route: PageRoute): void {
   navigate(route);
 }

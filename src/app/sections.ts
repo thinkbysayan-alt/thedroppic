@@ -1,5 +1,5 @@
 import { setRevealDelay } from '../utils/reveal';
-import type { Route } from './router';
+import type { PageRoute } from './router';
 import { pathForRoute } from './router';
 
 export interface IconItem {
@@ -85,12 +85,14 @@ export interface FaqItem {
   answer: string;
 }
 
-export function renderToolFaq(items: FaqItem[]): HTMLElement {
+export function renderToolFaq(items: FaqItem[], heading = 'Frequently asked questions'): HTMLElement {
   const section = document.createElement('section');
   section.className = 'faq';
+  section.id = 'faq';
   section.setAttribute('aria-labelledby', 'faq-heading');
 
-  section.innerHTML = `<h2 id="faq-heading">Frequently asked questions</h2>`;
+  section.innerHTML = `<h2 id="faq-heading"></h2>`;
+  section.querySelector('h2')!.textContent = heading;
 
   items.forEach((item, index) => {
     const details = document.createElement('details');
@@ -112,6 +114,33 @@ export function renderToolFaq(items: FaqItem[]): HTMLElement {
     section.appendChild(details);
   });
 
+  return section;
+}
+
+export interface RelatedLink {
+  route: PageRoute;
+  label: string;
+  description: string;
+}
+
+/** A short list of contextual links to related tools and guides, with descriptive anchor text. */
+export function renderRelatedLinks(heading: string, links: RelatedLink[]): HTMLElement {
+  const section = document.createElement('section');
+  section.className = 'section related-links';
+  section.setAttribute('aria-labelledby', 'related-heading');
+  section.innerHTML = `<h2 id="related-heading"></h2><ul class="related-links__list"></ul>`;
+  section.querySelector('h2')!.textContent = heading;
+  const list = section.querySelector('ul')!;
+  for (const link of links) {
+    const li = document.createElement('li');
+    const a = document.createElement('a');
+    a.href = pathForRoute(link.route);
+    a.textContent = link.label;
+    const p = document.createElement('p');
+    p.textContent = link.description;
+    li.append(a, p);
+    list.appendChild(li);
+  }
   return section;
 }
 
@@ -198,7 +227,7 @@ export interface MediaCardItem {
 export function renderMediaCard(item: MediaCardItem): HTMLElement {
   const card = document.createElement('div');
   card.className = 'scroll-card-item scroll-card-item--media';
-  card.innerHTML = `<img class="scroll-card-item__photo" width="380" height="220" draggable="false" /><div class="scroll-card-item__body"><h3></h3><p></p></div>`;
+  card.innerHTML = `<img class="scroll-card-item__photo" width="380" height="220" loading="lazy" decoding="async" draggable="false" /><div class="scroll-card-item__body"><h3></h3><p></p></div>`;
   const img = card.querySelector('img')!;
   img.src = item.image;
   img.alt = item.alt;
@@ -334,7 +363,7 @@ export function renderSwipeStack(cards: HTMLElement[], accentClass: string): HTM
 }
 
 /** "Home > Tools > Convert Images" style breadcrumb at the top of each tool page. */
-export function renderBreadcrumb(toolLabel: string, toolRoute: Route): HTMLElement {
+export function renderBreadcrumb(toolLabel: string, toolRoute: PageRoute): HTMLElement {
   const nav = document.createElement('nav');
   nav.className = 'breadcrumb';
   nav.setAttribute('aria-label', 'Breadcrumb');

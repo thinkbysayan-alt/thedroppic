@@ -83,7 +83,7 @@ a {
   position: absolute;
   left: var(--space-3);
   top: -48px;
-  background: var(--color-accent);
+  background: var(--color-accent-fill);
   color: var(--color-accent-contrast);
   padding: var(--space-2) var(--space-4);
   border-radius: var(--radius-md);

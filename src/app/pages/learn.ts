@@ -1,4 +1,5 @@
 import { pathForRoute } from '../router';
+import { renderRelatedLinks } from '../sections';
 import type { ArticleMeta } from '../article';
 import { ARTICLE_FORMATS_META } from './article-formats';
 import { ARTICLE_BROWSER_META } from './article-browser-processing';
@@ -6,18 +7,14 @@ import { ARTICLE_BROWSER_META } from './article-browser-processing';
 const ARTICLES: ArticleMeta[] = [ARTICLE_FORMATS_META, ARTICLE_BROWSER_META];
 
 export function renderLearnPage(): HTMLElement {
-  document.title = 'Learn: Guides on Image Formats & Browser-Based Processing | thedroppic';
-  setMetaDescription(
-    'Practical guides on image formats and browser-based image processing: how thedroppic converts, removes backgrounds, and optimizes images entirely on your device.',
-  );
 
   const wrap = document.createElement('div');
 
   const hero = document.createElement('section');
   hero.className = 'tool-hero accent-blue';
   hero.innerHTML = `
-    <h1>Guides on images<br /><span class="tool-hero__accent">and how thedroppic works.</span></h1>
-    <p>Practical, no-jargon reading on image formats and browser-based processing.</p>
+    <h1>Guides on images <br /><span class="tool-hero__accent">and how thedroppic works.</span></h1>
+    <p>Short guides on image formats and private, browser-based processing.</p>
   `;
   wrap.appendChild(hero);
 
@@ -51,11 +48,14 @@ export function renderLearnPage(): HTMLElement {
   section.className = 'section';
   section.appendChild(grid);
   wrap.appendChild(section);
+  wrap.appendChild(
+    renderRelatedLinks('Try the tools', [
+      { route: 'convert', label: 'Convert images', description: 'Change the format of JPG, PNG, WebP, AVIF, TIFF and HEIC files.' },
+      { route: 'remove-background', label: 'Remove image backgrounds', description: 'Get a transparent PNG cutout with AI.' },
+      { route: 'optimize', label: 'Compress images', description: 'Reduce file size and see the exact savings.' },
+    ]),
+  );
 
   return wrap;
 }
 
-function setMetaDescription(text: string): void {
-  const el = document.querySelector('meta[name="description"]');
-  if (el) el.setAttribute('content', text);
-}

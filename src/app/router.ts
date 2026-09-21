@@ -1,14 +1,14 @@
 /**
- * Minimal client-side router — no framework, matches the rest of this app's
- * vanilla-TS style. Each route maps to one page module that renders into
- * the shared shell's #view-root (see chrome.ts / app.ts). No dynamic/slug
- * routes — the two articles are each just their own fixed named route,
- * which keeps this file a plain lookup table instead of needing a real
- * path-matching layer for what is currently only two posts.
+ * Minimal client-side router, matching the rest of this app's vanilla-TS
+ * style. Each route maps to one page module that renders into the shared
+ * shell's #view-root (see chrome.ts / app.ts). There are no dynamic routes:
+ * each article is its own fixed named route, so this file stays a plain
+ * lookup table.
  *
- * Uses the History API (real paths, not #hashes) so links look like
- * `/tools/convert` — this needs a host-level rewrite so refreshing a
- * sub-route doesn't 404 on a static host; see vercel.json's `rewrites`.
+ * Uses the History API (real paths, not #hashes). Every route is also
+ * prerendered to static HTML at build time (scripts/prerender.ts) and served
+ * with `cleanUrls` (see vercel.json), so crawlers get real pages and unknown
+ * URLs return a real 404.
  */
 export type Route =
   | 'home'
@@ -18,49 +18,60 @@ export type Route =
   | 'about'
   | 'learn'
   | 'article-formats'
-  | 'article-browser-processing';
+  | 'article-browser-processing'
+  | 'not-found';
 
-const ROUTE_PATHS: Record<Route, string> = {
+/** Routes that exist as real, indexable pages. `not-found` is deliberately not one. */
+export type PageRoute = Exclude<Route, 'not-found'>;
+
+export const ROUTE_PATHS: Record<PageRoute, string> = {
   home: '/',
   convert: '/tools/convert',
   'remove-background': '/tools/remove-background',
   optimize: '/tools/optimize',
   about: '/about',
   learn: '/learn',
-  'article-formats': '/learn/which-image-format-should-you-use',
-  'article-browser-processing': '/learn/how-browser-based-image-processing-works',
+  'article-formats': '/learn/best-image-format',
+  'article-browser-processing': '/learn/browser-based-image-processing',
 };
 
-const PATH_ROUTES: Record<string, Route> = {
-  '/': 'home',
-  '/tools/convert': 'convert',
-  '/tools/remove-background': 'remove-background',
-  '/tools/optimize': 'optimize',
-  '/about': 'about',
-  '/learn': 'learn',
-  '/learn/which-image-format-should-you-use': 'article-formats',
-  '/learn/how-browser-based-image-processing-works': 'article-browser-processing',
-};
+const PATH_ROUTES: Record<string, PageRoute> = Object.fromEntries(
+  (Object.entries(ROUTE_PATHS) as Array<[PageRoute, string]>).map(([route, path]) => [path, route]),
+);
 
-export function pathForRoute(route: Route): string {
+export function pathForRoute(route: PageRoute): string {
   return ROUTE_PATHS[route];
 }
 
+function normalizePath(pathname: string): string {
+  return pathname.length > 1 ? pathname.replace(/\/+$/, '') : pathname;
+}
+
+export function routeForPath(pathname: string): Route {
+  return PATH_ROUTES[normalizePath(pathname)] ?? 'not-found';
+}
+
 export function getCurrentRoute(): Route {
-  return PATH_ROUTES[window.location.pathname] ?? 'home';
+  return routeForPath(window.location.pathname);
 }
 
 type RouteListener = (route: Route) => void;
 const listeners = new Set<RouteListener>();
 
-/** Navigates to a route, pushing a new history entry, and notifies listeners. Scrolls to top like a real page load. */
-export function navigate(route: Route): void {
-  const path = pathForRoute(route);
-  if (window.location.pathname !== path) {
+function scrollToHash(hash: string): void {
+  const target = hash ? document.getElementById(decodeURIComponent(hash.slice(1))) : null;
+  if (target) target.scrollIntoView({ block: 'start' });
+  else window.scrollTo(0, 0);
+}
+
+/** Navigates to a route, pushing a new history entry, and notifies listeners. Scrolls to the `#hash` target, or to the top like a real page load. */
+export function navigate(route: PageRoute, hash = ''): void {
+  const path = pathForRoute(route) + hash;
+  if (window.location.pathname + window.location.hash !== path) {
     window.history.pushState({}, '', path);
   }
-  window.scrollTo(0, 0);
   for (const listener of listeners) listener(route);
+  scrollToHash(hash);
 }
 
 export function onRouteChange(listener: RouteListener): () => void {
@@ -77,9 +88,9 @@ export function initRouter(): void {
 
 /**
  * Intercepts clicks on same-origin, in-app `<a href="/...">` links so they
- * navigate via the router instead of a full page reload — attach once on
- * the document. Ignores modified clicks (cmd/ctrl/shift/middle-click) so
- * "open in new tab" keeps working.
+ * navigate via the router instead of a full page reload. Ignores modified
+ * clicks (cmd/ctrl/shift/middle-click) so "open in new tab" keeps working.
+ * A link to `#section` on the page you are already on is left to the browser.
  */
 export function installLinkInterceptor(): void {
   document.addEventListener('click', (e) => {
@@ -90,9 +101,12 @@ export function installLinkInterceptor(): void {
     if (anchor.target && anchor.target !== '_self') return;
     const href = anchor.getAttribute('href');
     if (!href || !href.startsWith('/') || href.startsWith('//')) return;
-    const route = PATH_ROUTES[href.split('#')[0]!];
-    if (!route) return; // not a known app route (e.g. an in-page #anchor): let it behave normally
+    const [pathPart = '', hashPart = ''] = href.split('#');
+    const route = PATH_ROUTES[normalizePath(pathPart)];
+    if (!route) return;
+    const hash = hashPart ? `#${hashPart}` : '';
+    if (getCurrentRoute() === route && hash) return; // same page: native anchor scroll
     e.preventDefault();
-    navigate(route);
+    navigate(route, hash);
   });
 }

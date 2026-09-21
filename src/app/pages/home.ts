@@ -1,27 +1,21 @@
 import { renderUploadCard, listenForClipboardPaste } from '../../components/upload/upload';
 import { ICON } from '../icons';
-import { renderFeatureStrip, renderHowItWorks, renderCtaBand, renderToolFaq } from '../sections';
+import { renderFeatureStrip, renderHowItWorks, renderCtaBand, renderToolFaq, renderRelatedLinks } from '../sections';
 import { navigate, pathForRoute } from '../router';
 import { initScrollReveal } from '../../utils/reveal';
 
-
 export function renderHomePage(): HTMLElement {
-  document.title = 'thedroppic: Private Image Tools That Run in Your Browser';
-  setMetaDescription(
-    'Convert images, remove backgrounds, and optimize file size, entirely in your browser. No account, no upload, nothing leaves your device.',
-  );
-
   const wrap = document.createElement('div');
   wrap.appendChild(renderHero());
   wrap.appendChild(renderToolsSection());
   wrap.appendChild(
     renderHowItWorks(
-      'Three simple steps',
-      'Everything happens on your device. Fast, private and hassle-free.',
+      'How it works',
+      'Everything runs in your browser.',
       [
-        { icon: ICON.cursorClick, title: 'Drop', description: 'Choose your image (up to 5 files).' },
-        { icon: ICON.cpu, title: 'Process', description: 'Your browser does the work locally.' },
-        { icon: ICON.downloadSimple, title: 'Download', description: 'Get your result instantly. No upload. No waiting.' },
+        { icon: ICON.cursorClick, title: 'Drop', description: 'Choose up to 5 images.' },
+        { icon: ICON.cpu, title: 'Process', description: 'Your browser does the work. Nothing is sent to a server.' },
+        { icon: ICON.downloadSimple, title: 'Download', description: 'Save the result. There is no upload to wait for.' },
       ],
       'accent-brand',
     ),
@@ -29,15 +23,22 @@ export function renderHomePage(): HTMLElement {
   wrap.appendChild(renderBenefits());
   wrap.appendChild(
     renderCtaBand(
-      'Get the image you need in seconds.',
+      'Drop an image to get started.',
       '',
       'Choose images',
-      'No account. No upload. Runs 100% in your browser.',
+      'No account. No upload.',
       'accent-brand',
       () => document.getElementById('upload')?.scrollIntoView({ behavior: 'smooth', block: 'center' }),
     ),
   );
   wrap.appendChild(renderToolFaq(HOME_FAQ));
+  wrap.appendChild(
+    renderRelatedLinks('Learn more', [
+      { route: 'article-formats', label: 'Which image format should you use?', description: 'A short guide to JPG, PNG, WebP, AVIF, TIFF and HEIC.' },
+      { route: 'article-browser-processing', label: 'How browser-based image processing works', description: 'What happens to your image, step by step.' },
+      { route: 'about', label: 'About thedroppic', description: 'Why the tools run in your browser.' },
+    ]),
+  );
 
   requestAnimationFrame(() => initScrollReveal(wrap));
   return wrap;
@@ -50,8 +51,8 @@ function renderHero(): HTMLElement {
   const copy = document.createElement('div');
   copy.className = 'home-hero__copy';
   copy.innerHTML = `
-    <h1>Your images.<br />Your device.<br /><span class="home-hero__accent">Your control.</span></h1>
-    <p>Convert images, remove backgrounds and optimize files directly in your browser. Nothing is uploaded.</p>
+    <h1>Convert, cut out and compress images <br /><span class="home-hero__accent">without uploading them.</span></h1>
+    <p>Change formats, remove backgrounds and reduce file size in your browser. No account, no upload.</p>
   `;
   hero.appendChild(copy);
 
@@ -60,7 +61,7 @@ function renderHero(): HTMLElement {
   uploadWrap.appendChild(
     renderUploadCard({
       onFiles: (files) => {
-        // Homepage upload is a shortcut straight into the Convert tool — it decodes there so any bad-file error shows in context.
+        // Homepage upload is a shortcut straight into the Convert tool: it decodes there so any bad-file error shows in context.
         void routeFilesToConvert(files);
       },
     }),
@@ -72,7 +73,7 @@ function renderHero(): HTMLElement {
   return hero;
 }
 
-/** Homepage upload doesn't run its own pipeline — it hands the files to the Convert tool page via a short-lived in-memory handoff, matching "no fourth path" simplicity. */
+/** Homepage upload doesn't run its own pipeline: it hands the files to the Convert tool page via a short-lived in-memory handoff. */
 let pendingHandoffFiles: File[] | null = null;
 export function takePendingHandoffFiles(): File[] | null {
   const files = pendingHandoffFiles;
@@ -89,7 +90,7 @@ function renderToolsSection(): HTMLElement {
   const section = document.createElement('section');
   section.className = 'section tools-section';
   section.id = 'tools';
-  section.innerHTML = `<h2>What would you like to do?</h2>`;
+  section.innerHTML = `<h2>Choose a tool</h2>`;
 
   const grid = document.createElement('div');
   grid.className = 'tool-cards';
@@ -100,7 +101,7 @@ function renderToolsSection(): HTMLElement {
       accent: 'accent-blue',
       icon: ICON.arrowsLeftRight,
       title: 'Convert Images',
-      description: 'Change image formats in seconds.',
+      description: 'Change the format of any image.',
       formats: 'JPG, PNG, WebP, AVIF, TIFF, HEIC',
     },
     {
@@ -108,7 +109,7 @@ function renderToolsSection(): HTMLElement {
       accent: 'accent-mint',
       icon: ICON.scissors,
       title: 'Remove Background',
-      description: 'Get clean cutouts with AI (no upload).',
+      description: 'Cut out a subject with AI and get a transparent PNG.',
       formats: '',
     },
     {
@@ -116,7 +117,7 @@ function renderToolsSection(): HTMLElement {
       accent: 'accent-lavender',
       icon: ICON.arrowsInLineVertical,
       title: 'Optimize / Compress',
-      description: 'Reduce file size without losing quality.',
+      description: 'Make files smaller. Pick Small, Medium or Original quality.',
       formats: '',
     },
   ];
@@ -149,17 +150,17 @@ function renderBenefits(): HTMLElement {
   const section = document.createElement('section');
   section.className = 'section benefits-compact';
   section.id = 'privacy';
-  section.innerHTML = `<h2>Why people choose thedroppic</h2>`;
+  section.innerHTML = `<h2>Why use thedroppic</h2>`;
 
   section.appendChild(
     renderFeatureStrip(
       [
-        { icon: ICON.shieldCheck, title: 'Completely private', description: 'Nothing is uploaded.' },
-        { icon: ICON.lightning, title: 'Fast & simple', description: 'No queues. No fuss.' },
-        { icon: ICON.images, title: 'All major formats', description: 'JPG, PNG, WebP, AVIF, TIFF, HEIC.' },
-        { icon: ICON.stack, title: 'Convert up to 5 images', description: 'Batch without the clutter.' },
-        { icon: ICON.userCheck, title: 'No account required', description: 'Just drop and go.' },
-        { icon: ICON.downloadSimple, title: 'Direct downloads', description: 'One image, one click.' },
+        { icon: ICON.shieldCheck, title: 'Private', description: 'Images never leave your device.' },
+        { icon: ICON.userCheck, title: 'No account', description: 'Open the page and start.' },
+        { icon: ICON.images, title: 'Six formats', description: 'JPG, PNG, WebP, AVIF, TIFF, HEIC.' },
+        { icon: ICON.stack, title: 'Up to 5 at once', description: 'Process a small batch in one go.' },
+        { icon: ICON.downloadSimple, title: 'Direct downloads', description: 'One image, one file.' },
+        { icon: ICON.lightning, title: 'Free', description: 'No limit on how often you use it.' },
       ],
       'benefits-compact__grid',
     ),
@@ -169,14 +170,10 @@ function renderBenefits(): HTMLElement {
 }
 
 const HOME_FAQ = [
-  { question: 'Are my images uploaded?', answer: 'No. Every tool processes your image locally in your browser. Nothing is sent to a server.' },
-  { question: 'Do I need an account?', answer: 'No. thedroppic does not require an account or sign-in.' },
-  { question: 'How many images can I process at once?', answer: 'Up to 5 images at a time, in Convert, Remove Background, and Optimize.' },
-  { question: 'What tools does thedroppic offer?', answer: 'Three: Convert Images (format conversion), Remove Background (AI cutouts), and Optimize/Compress (file-size reduction).' },
+  { question: 'Are my images uploaded?', answer: 'No. Every tool runs in your browser and nothing is sent to a server. The background remover downloads an AI model once, but never your image.' },
+  { question: 'Do I need an account?', answer: 'No. There is no sign-up or login.' },
+  { question: 'What can thedroppic do?', answer: 'It converts image formats, removes backgrounds with AI and reduces file size.' },
+  { question: 'How many images can I process at once?', answer: 'Up to 5 in each tool.' },
+  { question: 'Which image formats are supported?', answer: 'You can open JPG, PNG, WebP, AVIF, TIFF and HEIC. Converted images save as JPG, PNG, WebP, AVIF or TIFF.' },
+  { question: 'Is it free?', answer: 'Yes. There is no limit on how often you use it.' },
 ];
-
-function setMetaDescription(text: string): void {
-  const el = document.querySelector('meta[name="description"]');
-  if (el) el.setAttribute('content', text);
-}
-

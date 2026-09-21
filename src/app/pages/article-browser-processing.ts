@@ -4,8 +4,7 @@ export const ARTICLE_BROWSER_META: ArticleMeta = {
   route: 'article-browser-processing',
   category: 'Behind the Tool',
   title: 'How Browser-Based Image Processing Works',
-  excerpt:
-    'What actually happens when you convert, optimize, or remove the background from an image without uploading it to a server? Here’s how browser-based image processing works.',
+  excerpt: 'What happens when you convert, compress or cut out an image without uploading it? A plain-language look at browser-based processing.',
   readTime: '8 min',
   accent: 'accent-mint',
 };

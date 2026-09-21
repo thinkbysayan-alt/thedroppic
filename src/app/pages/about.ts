@@ -1,10 +1,9 @@
 import { renderHowItWorks, renderCtaBand, renderScrollCard } from '../sections';
 import { ICON } from '../icons';
-import { navigate, pathForRoute, type Route } from '../router';
-
+import { navigate, pathForRoute, type PageRoute } from '../router';
 
 interface ToolInfo {
-  route: Route;
+  route: PageRoute;
   accent: string;
   icon: string;
   title: string;
@@ -18,33 +17,28 @@ const TOOLS: ToolInfo[] = [
     accent: 'accent-blue',
     icon: ICON.arrowsLeftRight,
     title: 'Convert Images',
-    description: 'Convert images between popular formats quickly and easily, without requiring desktop software.',
-    cta: 'Convert Images',
+    description: 'Convert images between JPG, PNG, WebP, AVIF, TIFF and HEIC.',
+    cta: 'Convert images',
   },
   {
     route: 'remove-background',
     accent: 'accent-mint',
     icon: ICON.scissors,
     title: 'Remove Backgrounds',
-    description: 'Create clean, transparent image cutouts directly in your browser.',
-    cta: 'Remove Backgrounds',
+    description: 'Cut out a subject and download a transparent PNG.',
+    cta: 'Remove a background',
   },
   {
     route: 'optimize',
     accent: 'accent-lavender',
     icon: ICON.arrowsInLineVertical,
     title: 'Optimize Image Files',
-    description: 'Reduce image file sizes while keeping your images useful for everyday sharing, websites, and projects.',
-    cta: 'Optimize Images',
+    description: 'Reduce file size and see the exact before and after.',
+    cta: 'Compress images',
   },
 ];
 
 export function renderAboutPage(): HTMLElement {
-  document.title = 'About thedroppic: Private, Browser-Based Image Tools';
-  setMetaDescription(
-    'thedroppic was built to make everyday image tasks faster, simpler, and more private: converting, removing backgrounds, and optimizing images entirely in your browser.',
-  );
-
   const wrap = document.createElement('div');
   wrap.appendChild(renderHero());
   wrap.appendChild(renderIntro());
@@ -52,13 +46,13 @@ export function renderAboutPage(): HTMLElement {
   wrap.appendChild(renderPrivacySection());
   wrap.appendChild(
     renderHowItWorks(
-      'Designed to stay simple.',
-      "We don't believe an image utility needs dozens of complicated controls. No account. No complicated setup. No unnecessary distractions.",
+      'How it works',
+      'No account and no setup.',
       [
-        { icon: ICON.uploadSimple, title: 'Drop your images', description: 'Choose or drop the files you need to work with.' },
-        { icon: ICON.slidersHorizontal, title: 'Choose what you need', description: 'Pick a tool: convert, remove background, or optimize.' },
-        { icon: ICON.shieldCheck, title: 'Process them', description: 'Your browser does the work. Nothing is uploaded.' },
-        { icon: ICON.downloadSimple, title: 'Download the result', description: 'Get exactly what you need, instantly.' },
+        { icon: ICON.uploadSimple, title: 'Drop your images', description: 'Choose or drop up to 5 files.' },
+        { icon: ICON.slidersHorizontal, title: 'Pick a tool', description: 'Convert, remove a background or compress.' },
+        { icon: ICON.shieldCheck, title: 'Your browser does the work', description: 'Nothing is uploaded.' },
+        { icon: ICON.downloadSimple, title: 'Download the result', description: 'Save each file when it is ready.' },
       ],
       'accent-brand',
     ),
@@ -66,10 +60,10 @@ export function renderAboutPage(): HTMLElement {
   wrap.appendChild(renderEverydayUse());
   wrap.appendChild(
     renderCtaBand(
-      'Ready to work with your images?',
-      'Choose a tool and get started.',
+      'Try a tool',
+      '',
       'Choose images',
-      'No account. No upload. Runs 100% in your browser.',
+      'No account. No upload.',
       'accent-brand',
       () => navigate('convert'),
     ),
@@ -85,7 +79,7 @@ function renderHero(): HTMLElement {
   hero.innerHTML = `
     <div class="about-hero__copy">
       <h1>Simple image tools, built with privacy in mind.</h1>
-      <p>Working with images shouldn't always mean installing heavy software, creating an account, or uploading your files to another server.</p>
+      <p>Working with images should not mean installing software, creating an account or uploading files to a server.</p>
     </div>
   `;
   return hero;
@@ -95,14 +89,14 @@ function renderIntro(): HTMLElement {
   const section = document.createElement('section');
   section.className = 'section about-intro';
   section.innerHTML = `
-    <h2>Why thedroppic?</h2>
-    <p>thedroppic was created to make everyday image tasks faster, simpler, and more private. It brings together a few useful tools that you can access directly from your browser, without unnecessary complexity.</p>
-    <p>Most image tools are built around uploading your files to a server. While that can be convenient, it isn't always necessary for simple tasks. thedroppic takes a different approach: our tools are designed to process images directly in your browser, so your files can stay on your device instead of being sent to a remote server.</p>
+    <h2>Why thedroppic exists</h2>
+    <p>Most image tools upload your files to a server. For simple tasks, that is often not needed.</p>
+    <p>thedroppic does the work in your browser instead. Your files stay on your device.</p>
   `;
 
   const callout = document.createElement('p');
   callout.className = 'about-callout';
-  callout.textContent = 'Runs 100% in your browser. Nothing is uploaded.';
+  callout.textContent = 'Runs in your browser. Nothing is uploaded.';
   section.appendChild(callout);
 
   return section;
@@ -111,7 +105,7 @@ function renderIntro(): HTMLElement {
 function renderToolsSection(): HTMLElement {
   const section = document.createElement('section');
   section.className = 'section about-tools';
-  section.innerHTML = `<h2>What can you do with thedroppic?</h2><p class="section-sub">thedroppic focuses on three everyday image tasks.</p>`;
+  section.innerHTML = `<h2>What thedroppic does</h2>`;
 
   const grid = document.createElement('div');
   grid.className = 'tool-cards';
@@ -140,19 +134,27 @@ function renderPrivacySection(): HTMLElement {
   const content = document.createElement('div');
   content.className = 'about-privacy__content';
   content.innerHTML = `
-    <p>Privacy isn't an extra feature we added later. It's part of how thedroppic is designed. Whenever possible, image processing happens locally in your browser. Your images can be processed without ever leaving your device.</p>
-    <p>Whether you're working with personal photos, product images, design assets, or files for your next project, you stay in control.</p>
+    <p>Image processing happens in your browser. Your images are not sent to a server.</p>
+    <p>The background remover downloads an AI model once. That download contains none of your image data.</p>
     <p class="about-privacy__highlight">Your images. Your device. Your control.</p>
   `;
-  return renderScrollCard('Your images belong to you.', '', content, 'accent-brand');
+  const section = renderScrollCard('How your privacy is protected', '', content, 'accent-brand');
+  section.id = 'privacy';
+  return section;
 }
 
 function renderEverydayUse(): HTMLElement {
   const section = document.createElement('section');
   section.className = 'section about-everyday';
   section.innerHTML = `
-    <h2>Built for everyday use.</h2>
-    <p>thedroppic is for anyone who occasionally needs to work with images without opening complicated editing software. Whether you're preparing images for a website, optimizing files before sending them, converting formats for a project, or removing a background from a product photo, the goal is the same: make the task easier.</p>
+    <h2>Who it is for</h2>
+    <p>Anyone who needs to work with an image without opening editing software. For example:</p>
+    <ul class="about-list">
+      <li>Preparing images for a website</li>
+      <li>Shrinking files before sending them</li>
+      <li>Converting formats for a project</li>
+      <li>Removing the background from a product photo</li>
+    </ul>
   `;
   return section;
 }
@@ -160,17 +162,16 @@ function renderEverydayUse(): HTMLElement {
 function renderToolLinksRow(): HTMLElement {
   const row = document.createElement('div');
   row.className = 'about-cta-links';
-  TOOLS.forEach((tool) => {
+  const links: Array<{ route: PageRoute; label: string }> = [
+    ...TOOLS.map((t) => ({ route: t.route, label: t.title })),
+    { route: 'learn', label: 'Read the guides' },
+  ];
+  links.forEach((item) => {
     const link = document.createElement('a');
-    link.href = pathForRoute(tool.route);
+    link.href = pathForRoute(item.route);
     link.className = 'btn btn-secondary';
-    link.textContent = tool.title;
+    link.textContent = item.label;
     row.appendChild(link);
   });
   return row;
-}
-
-function setMetaDescription(text: string): void {
-  const el = document.querySelector('meta[name="description"]');
-  if (el) el.setAttribute('content', text);
 }

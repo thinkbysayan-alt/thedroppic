@@ -3,13 +3,14 @@
   "private": true,
   "version": "0.1.0",
   "type": "module",
-  "description": "Fast, private, browser-only image converter. Upload, convert, download — no server, no accounts.",
+  "description": "Fast, private, browser-only image converter. Upload, convert, download \u2014 no server, no accounts.",
   "scripts": {
     "dev": "vite",
-    "build": "tsc --noEmit && vite build",
+    "build": "tsc --noEmit && vite build && node scripts/prerender.mjs",
     "preview": "vite preview",
     "test": "vitest run",
-    "test:watch": "vitest"
+    "test:watch": "vitest",
+    "audit:seo": "node scripts/audit.mjs"
   },
   "dependencies": {
     "@fontsource-variable/geist": "^5.3.0",
@@ -24,6 +25,8 @@
     "utif": "^3.1.0"
   },
   "devDependencies": {
+    "@happy-dom/global-registrator": "^20.14.5",
+    "happy-dom": "^20.14.5",
     "typescript": "^5.6.3",
     "vite": "^8.3.0",
     "vitest": "^5.0.0"

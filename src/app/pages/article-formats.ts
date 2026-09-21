@@ -4,8 +4,7 @@ export const ARTICLE_FORMATS_META: ArticleMeta = {
   route: 'article-formats',
   category: 'Image Basics',
   title: 'Which Image Format Should You Use? A Practical Guide',
-  excerpt:
-    'JPG, PNG, WebP, AVIF, TIFF, or HEIC? A practical, no-jargon guide to choosing the right image format for photos, graphics, websites, and professional workflows.',
+  excerpt: 'JPG, PNG, WebP, AVIF, TIFF or HEIC? Learn which image format suits photos, graphics, websites and print.',
   readTime: '7 min',
   accent: 'accent-blue',
 };
