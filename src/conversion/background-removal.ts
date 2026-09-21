@@ -1,5 +1,5 @@
 import { AppError } from '../types';
-import type { BackgroundRemovalRequest, BackgroundRemovalResponse } from '../workers/background-removal-protocol';
+import type { BackgroundRemovalMessage, BackgroundRemovalRequest, BackgroundRemovalResponse } from '../workers/background-removal-protocol';
 
 /**
  * AI background removal — MODNet (ZHKKKe/MODNet, Apache-2.0), a trimap-free
@@ -43,6 +43,15 @@ function getWorker(): Worker {
   return worker;
 }
 
+/**
+ * Starts downloading and initialising the model in the background so the
+ * first cutout doesn't pay for it. Safe to call repeatedly: the worker only
+ * loads once.
+ */
+export function preloadBackgroundRemoval(): void {
+  getWorker().postMessage({ kind: 'warmup' } satisfies BackgroundRemovalMessage);
+}
+
 function callWorker(request: BackgroundRemovalRequest): Promise<BackgroundRemovalResponse> {
   return new Promise((resolve, reject) => {
     pending.set(request.id, { resolve, reject });
@@ -64,8 +73,9 @@ export async function removeBackground(imageData: ImageData): Promise<ImageData>
   const id = nextId++;
   // .slice() copies the buffer so the caller's own ImageData is left intact and transferable — the worker takes ownership of the copy.
   const buffer = imageData.data.buffer.slice(0);
-  const response = await callWorker({ id, data: buffer, width: imageData.width, height: imageData.height });
+  const response = await callWorker({ kind: 'segment', id, data: buffer, width: imageData.width, height: imageData.height });
   if (!response.ok) throw new AppError(response.errorCode, response.message);
+  console.info('[background-removal]', `${imageData.width}x${imageData.height}`, response.timings);
   return new ImageData(new Uint8ClampedArray(response.data), response.width, response.height);
 }
 

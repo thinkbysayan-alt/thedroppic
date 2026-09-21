@@ -312,8 +312,9 @@
 
 /* ---------- Workspace (post-upload) ---------- */
 .workspace {
+  width: 100%;
   max-width: 760px;
-  margin-inline: 0;
+  margin-inline: auto;
   display: flex;
   flex-direction: column;
   gap: var(--space-5);
@@ -1066,6 +1067,20 @@
 .home-hero__accent {
   color: var(--color-accent);
 }
+.flip-word {
+  display: inline-block;
+  transform-origin: 50% 60%;
+  transition: transform 260ms cubic-bezier(0.4, 0, 0.2, 1), opacity 260ms ease;
+}
+.flip-word.is-out {
+  transform: perspective(600px) rotateX(-70deg);
+  opacity: 0;
+}
+.flip-word.is-in {
+  transform: perspective(600px) rotateX(70deg);
+  opacity: 0;
+  transition: none;
+}
 .home-hero__copy p {
   color: var(--color-text-muted);
   font-size: 1.125rem;
@@ -1107,6 +1122,12 @@
 
 /* On tool pages the dropzone spans the content column under the hero. */
 .tool-hero ~ #upload .upload-card {
+  max-width: none;
+  margin-inline: 0;
+}
+
+/* Same container before and after upload: the workspace fills the column just like the dropzone. */
+.tool-hero ~ #upload .workspace {
   max-width: none;
   margin-inline: 0;
 }

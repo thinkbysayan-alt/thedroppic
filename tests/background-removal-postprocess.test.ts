@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { cleanupMask, antiAliasEdges, reduceHalo, refineMatte } from '../src/conversion/background-removal-postprocess';
+import { cleanupMask, antiAliasEdges, reduceHalo, refineMatte, upsampleAlphaInto } from '../src/conversion/background-removal-postprocess';
 
 /** Builds a flat W×H alpha buffer, all pixels set to `value`. */
 function flatAlpha(width: number, height: number, value: number): Uint8ClampedArray {
@@ -96,5 +96,25 @@ describe('refineMatte', () => {
     for (let i = 3; i < rgba.length; i += 4) {
       expect(rgba[i]).toBe(255);
     }
+  });
+});
+
+describe('upsampleAlphaInto', () => {
+  it('writes only the alpha channel and keeps a flat matte flat at any target size', () => {
+    const rgba = new Uint8ClampedArray(7 * 5 * 4).map((_, i) => (i % 4 === 3 ? 0 : 200));
+    upsampleAlphaInto(rgba, 7, 5, new Uint8ClampedArray(4).fill(128), 2, 2);
+    for (let i = 0; i < 35; i++) {
+      expect(rgba[i * 4 + 3]).toBe(128);
+      expect(rgba[i * 4]).toBe(200);
+    }
+  });
+
+  it('interpolates smoothly between low-resolution samples and preserves ordering', () => {
+    const rgba = new Uint8ClampedArray(8 * 1 * 4);
+    upsampleAlphaInto(rgba, 8, 1, new Uint8ClampedArray([0, 255]), 2, 1);
+    const alphas = Array.from({ length: 8 }, (_, x) => rgba[x * 4 + 3]!);
+    expect(alphas[0]).toBe(0);
+    expect(alphas[7]).toBe(255);
+    for (let x = 1; x < 8; x++) expect(alphas[x]!).toBeGreaterThanOrEqual(alphas[x - 1]!);
   });
 });

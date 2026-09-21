@@ -51,10 +51,11 @@ function renderHero(): HTMLElement {
   const copy = document.createElement('div');
   copy.className = 'home-hero__copy';
   copy.innerHTML = `
-    <h1>Convert, cut out and compress images <br /><span class="home-hero__accent">without uploading them.</span></h1>
+    <h1>Convert, cut out and compress images <br /><span class="home-hero__accent"><span class="flip-word">for free.</span></span></h1>
     <p>Change formats, remove backgrounds and reduce file size in your browser. No account, no upload.</p>
   `;
   hero.appendChild(copy);
+  startFlipWords(copy.querySelector<HTMLElement>('.flip-word')!);
 
   const uploadWrap = document.createElement('div');
   uploadWrap.id = 'upload';
@@ -71,6 +72,28 @@ function renderHero(): HTMLElement {
   listenForClipboardPaste((file) => void routeFilesToConvert([file]));
 
   return hero;
+}
+
+const FLIP_WORDS = ['for free.', 'no login needed.', 'no upload needed.'];
+const FLIP_HALF_MS = 260;
+const FLIP_INTERVAL_MS = 3200;
+
+/** Cycles the accent words with a subtle vertical flip. Static "for free." when the user prefers reduced motion. */
+function startFlipWords(el: HTMLElement): void {
+  if (window.matchMedia?.('(prefers-reduced-motion: reduce)').matches) return;
+  let index = 0;
+  window.setInterval(() => {
+    if (!el.isConnected) return;
+    el.classList.add('is-out');
+    window.setTimeout(() => {
+      index = (index + 1) % FLIP_WORDS.length;
+      el.textContent = FLIP_WORDS[index]!;
+      el.classList.remove('is-out');
+      el.classList.add('is-in');
+      void el.offsetWidth; // commit the "in" start state before transitioning to rest
+      el.classList.remove('is-in');
+    }, FLIP_HALF_MS);
+  }, FLIP_INTERVAL_MS);
 }
 
 /** Homepage upload doesn't run its own pipeline: it hands the files to the Convert tool page via a short-lived in-memory handoff. */

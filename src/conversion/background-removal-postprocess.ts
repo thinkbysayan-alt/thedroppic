@@ -1,6 +1,6 @@
 /**
- * Post-processing applied to MODNet's raw alpha matte before it becomes the
- * final transparent PNG. MODNet itself is untouched — this operates purely
+ * Post-processing applied to the model's raw alpha matte before it becomes the
+ * final transparent PNG. the model itself is untouched — this operates purely
  * on the RGBA pixel buffer the model produced (RGB = original photo,
  * alpha = the model's soft matte), in three explicit stages:
  *
@@ -47,22 +47,53 @@ const CONFIDENT_FG = 250;
  */
 const EDGE_VARIANCE_THRESHOLD = 10;
 
-/** True if `alpha`'s value varies meaningfully within its 3x3 neighborhood — i.e. this pixel sits near a real matte boundary, not just anywhere with a non-extreme value. */
-function isNearEdge(alpha: Uint8ClampedArray, x: number, y: number, width: number, height: number): boolean {
-  let min = 255;
-  let max = 0;
-  for (let dy = -1; dy <= 1; dy++) {
-    const ny = y + dy;
-    if (ny < 0 || ny >= height) continue;
-    for (let dx = -1; dx <= 1; dx++) {
-      const nx = x + dx;
-      if (nx < 0 || nx >= width) continue;
-      const v = alpha[ny * width + nx]!;
-      if (v < min) min = v;
-      if (v > max) max = v;
+/**
+ * Marks every pixel whose alpha varies by more than EDGE_VARIANCE_THRESHOLD
+ * within its (border-clipped) 3x3 neighborhood — i.e. sits near a real matte
+ * boundary, not just anywhere with a non-extreme value. Computed for the
+ * whole image at once as a separable min/max (3x1 then 1x3), which reads
+ * ~6 values per pixel instead of 9 and, more importantly, lets every later
+ * stage skip flat regions with a single byte test rather than re-scanning
+ * the neighborhood. Result is identical to a direct 3x3 scan.
+ */
+function buildEdgeMask(alpha: Uint8ClampedArray, width: number, height: number): Uint8Array {
+  const n = width * height;
+  const rowMin = new Uint8Array(n);
+  const rowMax = new Uint8Array(n);
+  for (let y = 0; y < height; y++) {
+    const row = y * width;
+    for (let x = 0; x < width; x++) {
+      const i = row + x;
+      const c = alpha[i]!;
+      let lo = c;
+      let hi = c;
+      if (x > 0) {
+        const l = alpha[i - 1]!;
+        if (l < lo) lo = l;
+        if (l > hi) hi = l;
+      }
+      if (x < width - 1) {
+        const r = alpha[i + 1]!;
+        if (r < lo) lo = r;
+        if (r > hi) hi = r;
+      }
+      rowMin[i] = lo;
+      rowMax[i] = hi;
     }
   }
-  return max - min > EDGE_VARIANCE_THRESHOLD;
+  const edge = new Uint8Array(n);
+  for (let y = 0; y < height; y++) {
+    const row = y * width;
+    const up = y > 0 ? row - width : row;
+    const down = y < height - 1 ? row + width : row;
+    for (let x = 0; x < width; x++) {
+      const i = row + x;
+      const lo = Math.min(rowMin[i]!, rowMin[up + x]!, rowMin[down + x]!);
+      const hi = Math.max(rowMax[i]!, rowMax[up + x]!, rowMax[down + x]!);
+      if (hi - lo > EDGE_VARIANCE_THRESHOLD) edge[i] = 1;
+    }
+  }
+  return edge;
 }
 
 /** Extracts just the alpha channel (index 3 of every RGBA pixel) into its own array. */
@@ -74,17 +105,18 @@ function extractAlpha(rgba: Uint8ClampedArray, pixelCount: number): Uint8Clamped
 
 /**
  * 3x3 median filter on the alpha channel, restricted to pixels near a real
- * boundary (see `isNearEdge`) — that's where a low-resolution model's
+ * boundary (see `buildEdgeMask`) — that's where a low-resolution model's
  * upsampled mask actually shows noise, so skipping flat/confident regions
  * keeps this fast on large photos without touching them at all.
  */
 export function cleanupMask(alpha: Uint8ClampedArray, width: number, height: number): Uint8ClampedArray {
   const out = new Uint8ClampedArray(alpha);
   const window = new Uint8ClampedArray(9);
+  const edge = buildEdgeMask(alpha, width, height);
   for (let y = 0; y < height; y++) {
     for (let x = 0; x < width; x++) {
       const i = y * width + x;
-      if (!isNearEdge(alpha, x, y, width, height)) continue;
+      if (edge[i] === 0) continue;
 
       let n = 0;
       for (let dy = -1; dy <= 1; dy++) {
@@ -126,12 +158,13 @@ export function antiAliasEdges(alpha: Uint8ClampedArray, width: number, height: 
   const out = new Uint8ClampedArray(alpha);
   // prettier-ignore
   const kernel = [1, 2, 1, 2, 4, 2, 1, 2, 1];
+  const edge = buildEdgeMask(alpha, width, height);
 
   for (let y = 0; y < height; y++) {
     for (let x = 0; x < width; x++) {
       const i = y * width + x;
       const a = alpha[i]!;
-      if (!isNearEdge(alpha, x, y, width, height)) continue;
+      if (edge[i] === 0) continue;
 
       let sum = 0;
       let weight = 0;
@@ -168,12 +201,13 @@ export function antiAliasEdges(alpha: Uint8ClampedArray, width: number, height: 
 export function reduceHalo(rgba: Uint8ClampedArray, alpha: Uint8ClampedArray, width: number, height: number): void {
   const original = new Uint8ClampedArray(rgba); // stable read source — we're about to overwrite rgba's RGB in place
   const RADIUS = 2;
+  const edge = buildEdgeMask(alpha, width, height);
 
   for (let y = 0; y < height; y++) {
     for (let x = 0; x < width; x++) {
       const i = y * width + x;
       const a = alpha[i]!;
-      if (!isNearEdge(alpha, x, y, width, height)) continue;
+      if (edge[i] === 0) continue;
 
       let sumR = 0;
       let sumG = 0;
@@ -211,8 +245,52 @@ export function reduceHalo(rgba: Uint8ClampedArray, alpha: Uint8ClampedArray, wi
 }
 
 /**
+ * Bilinearly upsamples a low-resolution matte (`alpha`, `aw` x `ah`) straight
+ * into the alpha channel of a full-resolution RGBA buffer, in place. The model
+ * only ever produces its matte at a small fixed size, so this is the whole
+ * "resize the mask to the photo" step — done here on typed arrays instead of
+ * round-tripping the full-resolution image through canvas copies.
+ * Pixel-center aligned, matching how canvas scaling samples.
+ */
+export function upsampleAlphaInto(
+  rgba: Uint8ClampedArray,
+  width: number,
+  height: number,
+  alpha: Uint8ClampedArray,
+  aw: number,
+  ah: number,
+): void {
+  const x0 = new Int32Array(width);
+  const x1 = new Int32Array(width);
+  const xf = new Float32Array(width);
+  for (let x = 0; x < width; x++) {
+    const sx = Math.min(Math.max(((x + 0.5) * aw) / width - 0.5, 0), aw - 1);
+    const f = Math.floor(sx);
+    x0[x] = f;
+    x1[x] = Math.min(f + 1, aw - 1);
+    xf[x] = sx - f;
+  }
+  for (let y = 0; y < height; y++) {
+    const sy = Math.min(Math.max(((y + 0.5) * ah) / height - 0.5, 0), ah - 1);
+    const fy = Math.floor(sy);
+    const wy = sy - fy;
+    const rowA = fy * aw;
+    const rowB = Math.min(fy + 1, ah - 1) * aw;
+    let o = y * width * 4 + 3;
+    for (let x = 0; x < width; x++, o += 4) {
+      const a = x0[x]!;
+      const b = x1[x]!;
+      const wx = xf[x]!;
+      const top = alpha[rowA + a]! + (alpha[rowA + b]! - alpha[rowA + a]!) * wx;
+      const bot = alpha[rowB + a]! + (alpha[rowB + b]! - alpha[rowB + a]!) * wx;
+      rgba[o] = top + (bot - top) * wy; // Uint8ClampedArray rounds to nearest
+    }
+  }
+}
+
+/**
  * Runs the full refinement pipeline (cleanup → anti-alias → halo
- * reduction) on a raw MODNet output buffer, in place. `rgba` must be
+ * reduction) on a raw the model output buffer, in place. `rgba` must be
  * RGBA (4 channels), `width * height * 4 === rgba.length`.
  */
 export function refineMatte(rgba: Uint8ClampedArray, width: number, height: number): void {

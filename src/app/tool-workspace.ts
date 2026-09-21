@@ -6,6 +6,7 @@ import { renderUploadCard, listenForClipboardPaste } from '../components/upload/
 import { renderPreview } from '../components/preview/image-preview';
 import { renderFormatSelector } from '../components/format-selector/format-selector';
 import { renderQualityControl } from '../components/quality-control/quality-slider';
+import { preloadBackgroundRemoval } from '../conversion/background-removal';
 import { renderBackgroundRemovalToggle } from '../components/quality-control/background-removal-toggle';
 import { renderCropper } from '../components/cropper/cropper';
 import { renderResultPanel } from '../components/result/result-panel';
@@ -117,6 +118,8 @@ export function createToolWorkspace(config: ToolWorkspaceConfig) {
   }
 
   async function handleIncomingFile(file: File): Promise<void> {
+    // Start loading the AI model now, while the user reviews the image, so the cutout itself starts fast.
+    if (config.forceRemoveBackground) preloadBackgroundRemoval();
     try {
       const image = await buildUploadedImage(file);
       setView({
@@ -134,6 +137,7 @@ export function createToolWorkspace(config: ToolWorkspaceConfig) {
   }
 
   async function startBatch(files: File[]): Promise<void> {
+    if (config.forceRemoveBackground) preloadBackgroundRemoval();
     const items: BatchItem[] = await Promise.all(
       files.map(async (file): Promise<BatchItem> => {
         const id = `batch-${++batchIdCounter}`;
@@ -362,8 +366,10 @@ export function createToolWorkspace(config: ToolWorkspaceConfig) {
     if (config.showBackgroundToggle) {
       controlsPanel.appendChild(
         renderBackgroundRemovalToggle(view.removeBackground, {
-          onChange: (removeBackground) =>
-            setView({ ...view, removeBackground, outputFormat: removeBackground ? 'png' : view.outputFormat }),
+          onChange: (removeBackground) => {
+            if (removeBackground) preloadBackgroundRemoval();
+            setView({ ...view, removeBackground, outputFormat: removeBackground ? 'png' : view.outputFormat });
+          },
         }),
       );
     }
