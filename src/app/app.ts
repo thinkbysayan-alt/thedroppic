@@ -12,6 +12,7 @@ import { renderNotFoundPage } from './pages/not-found';
 import { applySeo } from './seo';
 import { removePageListeners } from '../components/upload/upload';
 import { initScrollReveal } from '../utils/reveal';
+import { bindMicroInteractions, transitionPage, warmMotion } from '../utils/motion';
 
 /**
  * Top-level bootstrap: mounts the shared header/footer shell once, then
@@ -22,10 +23,13 @@ import { initScrollReveal } from '../utils/reveal';
  */
 export function mountApp(root: HTMLElement): void {
   const { viewRoot } = mountChrome(root);
+  warmMotion(); // start loading GSAP on idle time so it's ready before the first hover/navigation
+  bindMicroInteractions(root); // bound once; keeps working across every future route render
+
+  let isFirstRender = true;
 
   function renderRoute(route: Route): void {
     removePageListeners(); // the previous page's paste-to-upload handlers must not outlive it
-    viewRoot.replaceChildren();
     let page: HTMLElement;
     switch (route) {
       case 'convert':
@@ -57,10 +61,21 @@ export function mountApp(root: HTMLElement): void {
         page = renderHomePage();
         break;
     }
-    viewRoot.appendChild(page);
-    setActiveNavRoute(root, route);
-    applySeo(route, viewRoot);
-    initScrollReveal(viewRoot);
+    const swap = (): void => {
+      viewRoot.replaceChildren();
+      viewRoot.appendChild(page);
+      setActiveNavRoute(root, route);
+      applySeo(route, viewRoot);
+      initScrollReveal(viewRoot);
+    };
+
+    // No transition on the very first paint — only between navigations, so the initial page load is never delayed.
+    if (isFirstRender) {
+      isFirstRender = false;
+      swap();
+    } else {
+      void transitionPage(viewRoot, swap);
+    }
   }
 
   initRouter();

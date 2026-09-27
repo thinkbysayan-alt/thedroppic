@@ -3,7 +3,7 @@
   "private": true,
   "version": "0.1.0",
   "type": "module",
-  "description": "Fast, private, browser-only image converter. Upload, convert, download \u2014 no server, no accounts.",
+  "description": "Fast, private, browser-only image converter. Upload, convert, download — no server, no accounts.",
   "scripts": {
     "dev": "vite",
     "build": "tsc --noEmit && vite build && node scripts/prerender.mjs",
@@ -21,6 +21,7 @@
     "@jsquash/png": "^3.1.1",
     "@jsquash/webp": "^1.4.0",
     "@phosphor-icons/core": "^2.1.1",
+    "gsap": "^3.15.0",
     "libheif-js": "^1.23.2",
     "utif": "^3.1.0"
   },
