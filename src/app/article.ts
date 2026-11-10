@@ -2,7 +2,7 @@ import { navigate, pathForRoute, type PageRoute } from './router';
 import { renderRelatedLinks, type RelatedLink } from './sections';
 
 /**
- * A tiny content-block model shared by both Learn articles, so the actual
+ * A tiny content-block model shared by both blog articles, so the actual
  * long-form copy (converted from the supplied PDFs) can live as plain data
  * next to each article's title, and this one renderer handles
  * turning it into consistent, on-brand markup — headings, paragraphs,
@@ -30,21 +30,21 @@ export interface ArticleMeta {
 
 const RELATED: Partial<Record<PageRoute, RelatedLink[]>> = {
   'article-formats': [
-    { route: 'convert', label: 'Convert images to another format', description: 'Switch between JPG, PNG, WebP, AVIF and TIFF.' },
-    { route: 'optimize', label: 'Compress images', description: 'Reduce file size in your browser.' },
+    { route: 'jpeg-to-png', label: 'JPEG to PNG', description: 'Save JPEG files as lossless PNG.' },
+    { route: 'png-to-jpeg', label: 'PNG to JPEG', description: 'Make PNG files smaller.' },
     { route: 'article-browser-processing', label: 'How browser-based image processing works', description: 'What happens to your image, step by step.' },
   ],
   'article-browser-processing': [
     { route: 'article-formats', label: 'Which image format should you use?', description: 'A short guide to choosing a format.' },
-    { route: 'remove-background', label: 'Remove an image background', description: 'AI cutouts that run in your browser.' },
+    { route: 'heic-to-jpeg', label: 'HEIC to JPEG', description: 'Open iPhone photos anywhere.' },
     { route: 'about', label: 'About thedroppic', description: 'Why the tools run in your browser.' },
   ],
 };
 
 const TOOL_LABEL: Record<string, string> = {
-  convert: 'Convert Images',
-  'remove-background': 'Remove Backgrounds',
-  optimize: 'Optimize Images',
+  'jpeg-to-png': 'JPEG to PNG',
+  'png-to-jpeg': 'PNG to JPEG',
+  'heic-to-jpeg': 'HEIC to JPEG',
 };
 
 export function renderArticlePage(meta: ArticleMeta, blocks: ArticleBlock[]): HTMLElement {
@@ -58,7 +58,7 @@ export function renderArticlePage(meta: ArticleMeta, blocks: ArticleBlock[]): HT
   breadcrumb.innerHTML = `
     <a href="/">Home</a>
     <span aria-hidden="true">›</span>
-    <a href="${pathForRoute('learn')}">Learn</a>
+    <a href="${pathForRoute('blog')}">Blog</a>
     <span aria-hidden="true">›</span>
     <span aria-current="page"></span>
   `;
@@ -86,9 +86,9 @@ export function renderArticlePage(meta: ArticleMeta, blocks: ArticleBlock[]): HT
   if (related) wrap.appendChild(renderRelatedLinks('Keep reading', related));
 
   const backLink = document.createElement('a');
-  backLink.href = pathForRoute('learn');
+  backLink.href = pathForRoute('blog');
   backLink.className = 'btn btn-secondary';
-  backLink.textContent = '← All guides';
+  backLink.textContent = '← All posts';
   backLink.style.marginTop = 'var(--space-6)';
   wrap.appendChild(backLink);
 

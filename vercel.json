@@ -11,7 +11,10 @@
     }
   ],
   "redirects": [
-    { "source": "/learn/which-image-format-should-you-use", "destination": "/learn/best-image-format", "statusCode": 301 },
-    { "source": "/learn/how-browser-based-image-processing-works", "destination": "/learn/browser-based-image-processing", "statusCode": 301 }
+    { "source": "/learn", "destination": "/blog", "statusCode": 301 },
+    { "source": "/learn/which-image-format-should-you-use", "destination": "/blog/best-image-format", "statusCode": 301 },
+    { "source": "/learn/how-browser-based-image-processing-works", "destination": "/blog/browser-based-image-processing", "statusCode": 301 },
+    { "source": "/learn/best-image-format", "destination": "/blog/best-image-format", "statusCode": 301 },
+    { "source": "/learn/browser-based-image-processing", "destination": "/blog/browser-based-image-processing", "statusCode": 301 }
   ]
 }

@@ -12,27 +12,54 @@
  */
 export type Route =
   | 'home'
+  | 'jpeg-to-png'
+  | 'png-to-jpeg'
+  | 'heic-to-jpeg'
+  | 'webp-to-jpeg'
+  | 'webp-to-png'
+  | 'jpeg-to-webp'
+  | 'png-to-webp'
+  | 'how-it-works'
+  | 'about'
+  | 'blog'
+  | 'article-formats'
+  | 'article-browser-processing'
+  // The original multi-format tools. Still served at their old URLs, but no longer linked from the site.
   | 'convert'
   | 'remove-background'
   | 'optimize'
-  | 'about'
-  | 'learn'
-  | 'article-formats'
-  | 'article-browser-processing'
   | 'not-found';
 
 /** Routes that exist as real, indexable pages. `not-found` is deliberately not one. */
 export type PageRoute = Exclude<Route, 'not-found'>;
 
+/** The single-purpose converter pages. They are the tabs of the Convert page. */
+export type ConverterRoute =
+  | 'jpeg-to-png'
+  | 'png-to-jpeg'
+  | 'heic-to-jpeg'
+  | 'webp-to-jpeg'
+  | 'webp-to-png'
+  | 'jpeg-to-webp'
+  | 'png-to-webp';
+
 export const ROUTE_PATHS: Record<PageRoute, string> = {
   home: '/',
+  'jpeg-to-png': '/jpeg-to-png',
+  'png-to-jpeg': '/png-to-jpeg',
+  'heic-to-jpeg': '/heic-to-jpeg',
+  'webp-to-jpeg': '/webp-to-jpeg',
+  'webp-to-png': '/webp-to-png',
+  'jpeg-to-webp': '/jpeg-to-webp',
+  'png-to-webp': '/png-to-webp',
+  'how-it-works': '/how-it-works',
+  about: '/about',
+  blog: '/blog',
+  'article-formats': '/blog/best-image-format',
+  'article-browser-processing': '/blog/browser-based-image-processing',
   convert: '/tools/convert',
   'remove-background': '/tools/remove-background',
   optimize: '/tools/optimize',
-  about: '/about',
-  learn: '/learn',
-  'article-formats': '/learn/best-image-format',
-  'article-browser-processing': '/learn/browser-based-image-processing',
 };
 
 const PATH_ROUTES: Record<string, PageRoute> = Object.fromEntries(

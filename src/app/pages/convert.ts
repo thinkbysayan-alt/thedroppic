@@ -10,7 +10,6 @@ import {
   renderRelatedLinks,
 } from '../sections';
 import { renderFeatureCarousel } from '../feature-carousel';
-import { takePendingHandoffFiles } from './home';
 
 const FORMAT_CARDS = [
   { label: 'JPG', note: 'Best for photos and everyday sharing.' },
@@ -36,18 +35,6 @@ export function renderConvertPage(): HTMLElement {
     showBackgroundToggle: true,
   });
   workspace.mount(workspaceHost);
-
-  const handoff = takePendingHandoffFiles();
-  if (handoff && handoff.length > 0) {
-    // Fired from the homepage's own upload card: feed it straight into this tool's pipeline.
-    const input = workspaceHost.querySelector<HTMLInputElement>('#file-input');
-    if (input) {
-      const dt = new DataTransfer();
-      handoff.forEach((f) => dt.items.add(f));
-      input.files = dt.files;
-      input.dispatchEvent(new Event('change', { bubbles: true }));
-    }
-  }
 
   wrap.appendChild(
     renderFeatureCarousel(

@@ -47,7 +47,7 @@ const HOVER_LIFT = { y: -3, scale: 1.015, duration: 0.2, ease: 'power2.out' };
 const HOVER_RESET = { y: 0, scale: 1, duration: 0.2, ease: 'power2.out' };
 const PRESS = { y: -1, scale: 0.97, duration: 0.1, ease: 'power1.out' };
 
-const INTERACTIVE_SELECTOR = '.tool-card, .btn-primary, .theme-toggle';
+const INTERACTIVE_SELECTOR = '.btn-primary, .tile';
 
 /**
  * Delegated hover/press micro-interactions for cards and primary buttons.
@@ -114,7 +114,96 @@ export async function transitionPage(viewRoot: HTMLElement, swap: () => void): P
     swap();
     return;
   }
-  await gsap.to(viewRoot, { opacity: 0, y: 6, duration: 0.15, ease: 'power1.in' });
+  // Opacity only: a transform on the view container would become the containing block for the home page's
+  // absolutely positioned illustration and shift it. Props are cleared afterwards so nothing is left behind.
+  // If the exit fade can't run (a throttled background tab pauses animation frames), never hold navigation hostage to it.
+  await new Promise<void>((resolve) => {
+    const guard = window.setTimeout(resolve, 400);
+    gsap.to(viewRoot, {
+      opacity: 0,
+      duration: 0.15,
+      ease: 'power1.in',
+      onComplete: () => {
+        window.clearTimeout(guard);
+        resolve();
+      },
+    });
+  });
   swap();
-  gsap.fromTo(viewRoot, { opacity: 0, y: 6 }, { opacity: 1, y: 0, duration: 0.3, ease: 'power2.out' });
+  gsap.fromTo(viewRoot, { opacity: 0 }, { opacity: 1, duration: 0.3, ease: 'power2.out', clearProps: 'opacity', overwrite: true });
+  // Fail-safe: whatever happens to the animation, the new page is fully visible shortly after.
+  window.setTimeout(() => {
+    gsap.killTweensOf(viewRoot);
+    viewRoot.style.opacity = '';
+  }, 700);
+}
+
+/** Elements that gently rise in as they scroll into view. Kept short on purpose: sections and tiles only. */
+const SCROLL_TARGETS = '.page-section:not(.faq), .tiles > li, .conv-faq, .conv-cta__inner, .conv-more, .article-callout, .article-tool-links';
+
+let scrollTriggers: Array<{ kill: () => void }> = [];
+let removeSafetyNet: (() => void) | null = null;
+
+/**
+ * Subtle GSAP ScrollTrigger entrance: a short fade and 14px rise, once per element.
+ * Skipped for reduced motion, for the one-screen home page and in the prerender shim.
+ * Elements already in view when the page loads are left alone (no flash), and every
+ * element gets a fail-safe so it can never stay hidden.
+ */
+export async function initScrollMotion(root: HTMLElement, route: string): Promise<void> {
+  for (const t of scrollTriggers) t.kill();
+  scrollTriggers = [];
+  removeSafetyNet?.();
+  removeSafetyNet = null;
+  if (route === 'home' || prefersReducedMotion() || /HappyDOM/i.test(navigator.userAgent)) return;
+
+  try {
+    const [gsap, st] = await Promise.all([loadGsap(), import('gsap/ScrollTrigger')]);
+    if (!gsap) return;
+    const ScrollTrigger = st.ScrollTrigger;
+    gsap.registerPlugin(ScrollTrigger);
+    if (!root.isConnected) return;
+
+    root.querySelectorAll<HTMLElement>(SCROLL_TARGETS).forEach((el) => {
+      if (el.getBoundingClientRect().top < window.innerHeight * 0.9) return; // already visible
+      const tween = gsap.from(el, {
+        opacity: 0,
+        y: 14,
+        duration: 0.6,
+        ease: 'power2.out',
+        clearProps: 'opacity,transform',
+        scrollTrigger: {
+          trigger: el,
+          start: 'top 88%',
+          once: true,
+          // Fail-safe: if the animation can't run (throttled tab), the element still appears.
+          onEnter: () =>
+            window.setTimeout(() => {
+              gsap.killTweensOf(el);
+              gsap.set(el, { clearProps: 'opacity,transform' });
+            }, 1200),
+        },
+      });
+      scrollTriggers.push(tween.scrollTrigger!);
+    });
+
+    // Safety net independent of ScrollTrigger and animation frames: anything scrolled into view is
+    // forced visible after a moment, so a throttled tab can never leave a section hidden.
+    const check = (): void => {
+      root.querySelectorAll<HTMLElement>(SCROLL_TARGETS).forEach((el) => {
+        if (el.style.opacity !== '0' || el.getBoundingClientRect().top > window.innerHeight * 0.88) return;
+        window.setTimeout(() => {
+          gsap.killTweensOf(el);
+          gsap.set(el, { clearProps: 'opacity,transform' });
+        }, 1200);
+      });
+    };
+    window.addEventListener('scroll', check, { passive: true });
+    removeSafetyNet = () => window.removeEventListener('scroll', check);
+  } catch {
+    root.querySelectorAll<HTMLElement>(SCROLL_TARGETS).forEach((el) => {
+      el.style.opacity = '';
+      el.style.transform = '';
+    });
+  }
 }

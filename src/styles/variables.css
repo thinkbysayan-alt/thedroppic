@@ -1,40 +1,44 @@
 :root {
-  /* One accent (the brand blue), a cool neutral ground, off-black ink. */
-  --color-bg: #f8f8f9;
-  --color-surface: #ffffff;
+  /* Black on paper. The only colour on the site is the CTA blue. */
+  --color-bg: #ffffff;
+  --color-surface: #f7f7f5;
   --color-surface-raised: #ffffff;
-  --color-border: #e4e4e8;
-  --color-border-strong: #cfcfd6;
-  --color-text: #16161a;
-  --color-text-muted: #5b5e6b;
-  --color-text-faint: #6b6e7c;
+  --color-border: rgba(10, 10, 10, 0.2); /* hairline dividers */
+  --color-border-strong: #0a0a0a; /* controls, cards, drop zone */
+  --color-text: #0a0a0a;
+  --color-text-muted: #4a4a4a;
+  --color-text-faint: #5e5e5e;
 
-  --color-accent: #2563ff;
-  --color-accent-hover: #1a4fd6;
+  /* CTA blue: buttons and call-to-action links only (--color-cta, --color-accent-fill). */
+  --color-cta: #2563ff;
+  --color-cta-hover: #1a4fd6;
+  /* Everything else that used to be "accent" (selected states, emphasis, sliders) is ink. */
+  --color-accent: var(--color-text);
+  --color-accent-hover: var(--color-text);
   --color-accent-contrast: #ffffff;
-  --color-accent-soft: #eef3ff;
-  /* Filled backgrounds (buttons). Kept separate from --color-accent, which is used for text and icons and needs to be lighter on dark. */
+  --color-accent-soft: rgba(10, 10, 10, 0.06);
   --color-accent-fill: #2563ff;
   --color-accent-fill-hover: #1a4fd6;
 
-  --color-danger: #d92d20;
-  --color-danger-soft: #fef3f2;
-  --color-danger-border: #fecdca;
+  /* Status is carried by words and icons, not colour. */
+  --color-danger: #0a0a0a;
+  --color-danger-soft: transparent;
+  --color-danger-border: #0a0a0a;
 
-  --color-success: #16a34a;
-  --color-success-soft: #f0fdf4;
-  --color-success-border: #bbf7d0;
+  --color-success: #0a0a0a;
+  --color-success-soft: transparent;
+  --color-success-border: #0a0a0a;
 
-  --color-focus: #2563ff;
+  --color-focus: #0a0a0a;
   --gradient-primary: none;
-  --checker: rgba(22, 22, 26, 0.07);
-  --focus-ring: rgba(37, 99, 255, 0.16);
+  --checker: rgba(10, 10, 10, 0.08);
+  --focus-ring: rgba(10, 10, 10, 0.18);
 
-  /* One shape system: chips 6, controls 10, panels 14. */
-  --radius-sm: 6px;
-  --radius-md: 10px;
-  --radius-lg: 14px;
-  --radius-xl: 14px;
+  /* Square-ish: one small radius everywhere. */
+  --radius-sm: 2px;
+  --radius-md: 4px;
+  --radius-lg: 4px;
+  --radius-xl: 4px;
 
   --space-1: 4px;
   --space-2: 8px;
@@ -46,21 +50,28 @@
   --space-8: 64px;
   --space-9: 96px;
 
-  --font-sans: 'Geist Variable', ui-sans-serif, system-ui, -apple-system, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+  /* Plus Jakarta Sans for everything (matches the Figma designs); Geist Mono for tiny labels and numbers. */
+  --font-sans: 'Plus Jakarta Sans Variable', ui-sans-serif, system-ui, -apple-system, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
   --font-mono: 'Geist Mono Variable', ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+  --font-display: var(--font-sans);
 
-  --content-max: 1120px;
-  --shadow-sm: 0 1px 2px rgba(22, 22, 26, 0.05);
-  --shadow-md: 0 6px 20px rgba(22, 22, 26, 0.06);
-  --shadow-lg: 0 16px 40px rgba(22, 22, 26, 0.09);
+  /* Design unit: 1u = 1px on the 1920px Figma frame, scaling with the window (capped at 1920). */
+  --u: calc(min(100vw, 1920px) / 1920);
+  --pad-x: calc(168 * var(--u));
+  --color-footer: #efefed;
+  --color-band: #f8f8f9;
+
+  --content-max: 1280px;
+  --header-h: 72px;
+  --shadow-sm: none;
+  --shadow-md: none;
+  --shadow-lg: none;
 
   --transition-fast: 120ms ease;
   --transition-base: 200ms ease;
   --reveal-duration: 500ms;
   --float-duration: 6s;
 
-  /* Light only, deliberately: one designed look regardless of the visitor's
-     OS/browser dark-mode setting. */
   color-scheme: light;
 }
 
@@ -73,40 +84,10 @@
   }
 }
 
-/* Dark theme: a deliberate palette, not an inversion. Near-black cool ground,
-   raised surfaces one step lighter, brighter accent for text/icons, and a
-   slightly deeper blue for filled buttons so white labels keep AA contrast. */
-:root[data-theme='dark'] {
-  color-scheme: dark;
-
-  --color-bg: #0f1012;
-  --color-surface: #16171b;
-  --color-surface-raised: #1c1d22;
-  --color-border: #2a2c33;
-  --color-border-strong: #3d404a;
-  --color-text: #eceef2;
-  --color-text-muted: #a4a8b4;
-  --color-text-faint: #8d919e;
-
-  --color-accent: #6b96ff;
-  --color-accent-hover: #8aaeff;
-  --color-accent-fill: #2a63f5;
-  --color-accent-fill-hover: #2358d9;
-  --color-accent-soft: #1a2440;
-
-  --color-danger: #ff8a7e;
-  --color-danger-soft: #2a1614;
-  --color-danger-border: #5a2a26;
-
-  --color-success: #4ade80;
-  --color-success-soft: #10241a;
-  --color-success-border: #1f5a36;
-
-  --color-focus: #8aaeff;
-  --checker: rgba(255, 255, 255, 0.07);
-  --focus-ring: rgba(107, 150, 255, 0.28);
-
-  --shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.4);
-  --shadow-md: 0 6px 20px rgba(0, 0, 0, 0.45);
-  --shadow-lg: 0 16px 40px rgba(0, 0, 0, 0.55);
+/* Phones and small tablets: fixed, readable sizes instead of the scaled desktop ones. */
+@media (max-width: 999px) {
+  :root {
+    --u: 0.6px;
+    --pad-x: clamp(20px, 5vw, 40px);
+  }
 }

@@ -1,12 +1,12 @@
 {
   "name": "thedroppic",
   "short_name": "thedroppic",
-  "description": "Private image tools that run in your browser: convert formats, remove backgrounds and reduce file size.",
+  "description": "Convert JPEG, PNG, WebP and HEIC images in your browser. Free, private, nothing is uploaded.",
   "start_url": "/",
   "scope": "/",
   "display": "standalone",
-  "theme_color": "#2563ff",
-  "background_color": "#f8f8f9",
+  "theme_color": "#efefee",
+  "background_color": "#efefee",
   "icons": [
     { "src": "/icon-192.png", "sizes": "192x192", "type": "image/png", "purpose": "any" },
     { "src": "/icon-512.png", "sizes": "512x512", "type": "image/png", "purpose": "any" },

@@ -5,14 +5,16 @@ import { renderConvertPage } from './pages/convert';
 import { renderRemoveBackgroundPage } from './pages/remove-background';
 import { renderOptimizePage } from './pages/optimize';
 import { renderAboutPage } from './pages/about';
-import { renderLearnPage } from './pages/learn';
+import { renderBlogPage } from './pages/blog';
+import { renderConverterPage } from './pages/converter';
+import { renderHowItWorksPage } from './pages/how-it-works';
 import { renderArticleFormatsPage } from './pages/article-formats';
 import { renderArticleBrowserProcessingPage } from './pages/article-browser-processing';
 import { renderNotFoundPage } from './pages/not-found';
 import { applySeo } from './seo';
 import { removePageListeners } from '../components/upload/upload';
 import { initScrollReveal } from '../utils/reveal';
-import { bindMicroInteractions, transitionPage, warmMotion } from '../utils/motion';
+import { bindMicroInteractions, initScrollMotion, transitionPage, warmMotion } from '../utils/motion';
 
 /**
  * Top-level bootstrap: mounts the shared header/footer shell once, then
@@ -44,8 +46,20 @@ export function mountApp(root: HTMLElement): void {
       case 'about':
         page = renderAboutPage();
         break;
-      case 'learn':
-        page = renderLearnPage();
+      case 'jpeg-to-png':
+      case 'png-to-jpeg':
+      case 'heic-to-jpeg':
+      case 'webp-to-jpeg':
+      case 'webp-to-png':
+      case 'jpeg-to-webp':
+      case 'png-to-webp':
+        page = renderConverterPage(route);
+        break;
+      case 'how-it-works':
+        page = renderHowItWorksPage();
+        break;
+      case 'blog':
+        page = renderBlogPage();
         break;
       case 'article-formats':
         page = renderArticleFormatsPage();
@@ -67,6 +81,7 @@ export function mountApp(root: HTMLElement): void {
       setActiveNavRoute(root, route);
       applySeo(route, viewRoot);
       initScrollReveal(viewRoot);
+      void initScrollMotion(viewRoot, route);
     };
 
     // No transition on the very first paint — only between navigations, so the initial page load is never delayed.

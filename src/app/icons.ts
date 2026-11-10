@@ -15,8 +15,6 @@ import arrowsLeftRight from '@phosphor-icons/core/assets/duotone/arrows-left-rig
 import scissors from '@phosphor-icons/core/assets/duotone/scissors-duotone.svg?raw';
 import arrowsInLineVertical from '@phosphor-icons/core/assets/duotone/arrows-in-line-vertical-duotone.svg?raw';
 import userCheck from '@phosphor-icons/core/assets/duotone/user-check-duotone.svg?raw';
-import moon from '@phosphor-icons/core/assets/regular/moon.svg?raw';
-import sun from '@phosphor-icons/core/assets/regular/sun.svg?raw';
 import cursorClick from '@phosphor-icons/core/assets/duotone/cursor-click-duotone.svg?raw';
 
 /** Phosphor duotone icons (MIT), inlined so they inherit `currentColor`. */
@@ -39,6 +37,4 @@ export const ICON = {
   arrowsInLineVertical,
   userCheck,
   cursorClick,
-  moon,
-  sun,
 };

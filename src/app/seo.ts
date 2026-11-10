@@ -24,10 +24,82 @@ interface PageMeta {
 
 export const PAGE_META: Record<PageRoute, PageMeta> = {
   home: {
-    title: 'thedroppic: Private Image Tools That Run in Your Browser',
+    title: 'thedroppic: Convert Images Privately in Your Browser',
     description:
-      'Convert image formats, remove backgrounds and reduce file size in your browser. No account and no upload. Your images stay on your device.',
+      'Convert JPEG, PNG, WebP and HEIC images in your browser. Free, no account, and nothing is uploaded. Your files never leave your device.',
     crumb: 'Home',
+  },
+  'jpeg-to-png': {
+    title: 'JPEG to PNG Converter: Free, No Upload | thedroppic',
+    description:
+      'Convert JPEG to PNG in your browser. Free, up to 5 files at once, and nothing is uploaded. Your images stay on your device.',
+    crumb: 'JPEG to PNG',
+  },
+  'png-to-jpeg': {
+    title: 'PNG to JPEG Converter: Free, No Upload | thedroppic',
+    description:
+      'Convert PNG to JPEG in your browser and get smaller files. Set the quality, convert up to 5 files, and nothing is uploaded.',
+    crumb: 'PNG to JPEG',
+  },
+  'heic-to-jpeg': {
+    title: 'HEIC to JPEG Converter: Free, No Upload | thedroppic',
+    description:
+      'Convert iPhone HEIC photos to JPEG in your browser. Free, up to 5 files at once, and nothing is uploaded.',
+    crumb: 'HEIC to JPEG',
+  },
+  'webp-to-jpeg': {
+    title: 'WebP to JPEG Converter: Free, No Upload | thedroppic',
+    description:
+      'Convert WebP to JPEG in your browser so it opens anywhere. Free, up to 5 files at once, and nothing is uploaded.',
+    crumb: 'WebP to JPEG',
+  },
+  'webp-to-png': {
+    title: 'WebP to PNG Converter: Free, No Upload | thedroppic',
+    description:
+      'Convert WebP to PNG in your browser and keep transparency. Free, up to 5 files at once, and nothing is uploaded.',
+    crumb: 'WebP to PNG',
+  },
+  'jpeg-to-webp': {
+    title: 'JPEG to WebP Converter: Free, No Upload | thedroppic',
+    description:
+      'Convert JPEG to WebP in your browser and get lighter web images. Set the quality, convert up to 5 files, and nothing is uploaded.',
+    crumb: 'JPEG to WebP',
+  },
+  'png-to-webp': {
+    title: 'PNG to WebP Converter: Free, No Upload | thedroppic',
+    description:
+      'Convert PNG to WebP in your browser and get smaller files. Set the quality, convert up to 5 files, and nothing is uploaded.',
+    crumb: 'PNG to WebP',
+  },
+  'how-it-works': {
+    title: 'How thedroppic Works: Private Image Conversion',
+    description:
+      'See how thedroppic converts images in your browser in three steps: drop, convert, download. Nothing is uploaded to a server.',
+    crumb: 'How it works',
+  },
+  about: {
+    title: 'About thedroppic: Private Image Converters',
+    description:
+      'thedroppic converts images in your browser. No account, no upload, no tracking. Learn how it protects your privacy.',
+    crumb: 'About',
+  },
+  blog: {
+    title: 'Blog: Image Format Guides | thedroppic',
+    description:
+      'Short guides on choosing image formats and on how browser-based image processing keeps your files private.',
+    crumb: 'Blog',
+  },
+  'article-formats': {
+    title: 'Which Image Format Should You Use? | thedroppic',
+    description: ARTICLE_FORMATS_META.excerpt,
+    crumb: ARTICLE_FORMATS_META.title,
+    parent: 'blog',
+  },
+  'article-browser-processing': {
+    title: 'How Browser-Based Image Processing Works | thedroppic',
+    description: ARTICLE_BROWSER_META.excerpt,
+    crumb: ARTICLE_BROWSER_META.title,
+    parent: 'blog',
   },
   convert: {
     title: 'Image Converter: JPG, PNG, WebP, AVIF, TIFF & HEIC | thedroppic',
@@ -46,30 +118,6 @@ export const PAGE_META: Record<PageRoute, PageMeta> = {
     description:
       'Reduce image file size in your browser. Choose Small, Medium or Original quality and see the exact before and after size. Nothing is uploaded.',
     crumb: 'Optimize / Compress',
-  },
-  about: {
-    title: 'About thedroppic: Private, Browser-Based Image Tools',
-    description:
-      'thedroppic offers three image tools that run in your browser: convert formats, remove backgrounds and reduce file size. See how it protects your privacy.',
-    crumb: 'About',
-  },
-  learn: {
-    title: 'Learn: Image Format Guides | thedroppic',
-    description:
-      'Short guides on choosing image formats and on how browser-based image processing keeps your files private.',
-    crumb: 'Learn',
-  },
-  'article-formats': {
-    title: 'Which Image Format to Use: JPG, PNG, WebP, AVIF | thedroppic',
-    description: ARTICLE_FORMATS_META.excerpt,
-    crumb: ARTICLE_FORMATS_META.title,
-    parent: 'learn',
-  },
-  'article-browser-processing': {
-    title: 'How Browser-Based Image Processing Works | thedroppic',
-    description: ARTICLE_BROWSER_META.excerpt,
-    crumb: ARTICLE_BROWSER_META.title,
-    parent: 'learn',
   },
 };
 
@@ -103,6 +151,34 @@ const ORGANIZATION = {
 };
 
 const TOOL_APPS: Partial<Record<PageRoute, { name: string; features: string[] }>> = {
+  'jpeg-to-png': {
+    name: 'thedroppic JPEG to PNG Converter',
+    features: ['Convert JPEG to PNG', 'Up to 5 images at once', 'Runs in your browser, nothing is uploaded'],
+  },
+  'png-to-jpeg': {
+    name: 'thedroppic PNG to JPEG Converter',
+    features: ['Convert PNG to JPEG with adjustable quality', 'Up to 5 images at once', 'Runs in your browser, nothing is uploaded'],
+  },
+  'heic-to-jpeg': {
+    name: 'thedroppic HEIC to JPEG Converter',
+    features: ['Convert iPhone HEIC photos to JPEG', 'Up to 5 images at once', 'Runs in your browser, nothing is uploaded'],
+  },
+  'webp-to-jpeg': {
+    name: 'thedroppic WebP to JPEG Converter',
+    features: ['Convert WebP to JPEG', 'Up to 5 images at once', 'Runs in your browser, nothing is uploaded'],
+  },
+  'webp-to-png': {
+    name: 'thedroppic WebP to PNG Converter',
+    features: ['Convert WebP to PNG and keep transparency', 'Up to 5 images at once', 'Runs in your browser, nothing is uploaded'],
+  },
+  'jpeg-to-webp': {
+    name: 'thedroppic JPEG to WebP Converter',
+    features: ['Convert JPEG to WebP with adjustable quality', 'Up to 5 images at once', 'Runs in your browser, nothing is uploaded'],
+  },
+  'png-to-webp': {
+    name: 'thedroppic PNG to WebP Converter',
+    features: ['Convert PNG to WebP with adjustable quality', 'Up to 5 images at once', 'Runs in your browser, nothing is uploaded'],
+  },
   convert: {
     name: 'thedroppic Image Converter',
     features: [
@@ -179,7 +255,7 @@ function buildGraph(route: PageRoute, faq: FaqEntry[]): object[] {
     });
   }
   if (route === 'about') graph.push({ '@type': 'AboutPage', url, name: meta.title, description: meta.description });
-  if (route === 'learn') graph.push({ '@type': 'CollectionPage', url, name: meta.title, description: meta.description });
+  if (route === 'blog') graph.push({ '@type': 'CollectionPage', url, name: meta.title, description: meta.description });
   if (route === 'article-formats' || route === 'article-browser-processing') {
     graph.push({
       '@type': 'Article',

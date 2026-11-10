@@ -170,3 +170,8 @@ a {
     scroll-behavior: auto !important;
   }
 }
+
+/* Reserve the scrollbar's space on every page so the menu never shifts between pages that scroll and ones that don't. */
+html {
+  scrollbar-gutter: stable;
+}

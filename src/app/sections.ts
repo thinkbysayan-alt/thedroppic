@@ -379,3 +379,206 @@ export function renderBreadcrumb(toolLabel: string, toolRoute: PageRoute): HTMLE
   current.setAttribute('href', pathForRoute(toolRoute));
   return nav;
 }
+
+// ---------- New monochrome layout helpers ----------
+
+export interface ArtOptions {
+  /** Path under /art, e.g. "/art/hero.svg". */
+  src: string;
+  /** Empty for decorative images. */
+  alt: string;
+  width: number;
+  height: number;
+  className?: string;
+  /** Marks an above-the-fold image so the browser fetches it first. */
+  priority?: boolean;
+}
+
+/** A glitch-line illustration. Sizes are the SVG's own, so the browser reserves space and the layout never shifts. */
+export function renderArt(opts: ArtOptions): HTMLImageElement {
+  const img = document.createElement('img');
+  img.className = `art ${opts.className ?? ''}`.trim();
+  img.src = opts.src;
+  img.alt = opts.alt;
+  img.width = opts.width;
+  img.height = opts.height;
+  img.decoding = 'async';
+  if (opts.priority) img.setAttribute('fetchpriority', 'high');
+  else img.loading = 'lazy';
+  return img;
+}
+
+/** "Home > Page" breadcrumb, matching the BreadcrumbList structured data. */
+export function renderCrumbs(label: string, route: PageRoute, parent?: { label: string; route: PageRoute }): HTMLElement {
+  const nav = document.createElement('nav');
+  nav.className = 'breadcrumb';
+  nav.setAttribute('aria-label', 'Breadcrumb');
+  nav.innerHTML = `<a href="/">Home</a><span aria-hidden="true">/</span>`;
+  if (parent) {
+    const a = document.createElement('a');
+    a.href = pathForRoute(parent.route);
+    a.textContent = parent.label;
+    nav.append(a, Object.assign(document.createElement('span'), { textContent: '/' }));
+    nav.lastElementChild!.setAttribute('aria-hidden', 'true');
+  }
+  const current = document.createElement('a');
+  current.href = pathForRoute(route);
+  current.textContent = label;
+  current.setAttribute('aria-current', 'page');
+  nav.appendChild(current);
+  return nav;
+}
+
+/** Problem, Agitation, Solution: the three short beats every page opens with. */
+export interface Pas {
+  problem: string;
+  agitation: string;
+  solution: string;
+}
+
+export interface PageHeadOptions {
+  title: string;
+  sub?: string;
+  pas?: Pas;
+  art?: ArtOptions;
+}
+
+export function renderPas(pas: Pas, className = 'pas'): HTMLElement {
+  const wrap = document.createElement('div');
+  wrap.className = className;
+  for (const [key, text] of [
+    ['problem', pas.problem],
+    ['agitation', pas.agitation],
+    ['solution', pas.solution],
+  ] as const) {
+    const p = document.createElement('p');
+    p.className = `pas__${key}`;
+    p.textContent = text;
+    wrap.appendChild(p);
+  }
+  return wrap;
+}
+
+/** The page's single h1 in the pixel face, a one-line summary, and an optional illustration. */
+export function renderPageHead(opts: PageHeadOptions): HTMLElement {
+  const head = document.createElement('section');
+  head.className = 'page-head';
+
+  if (opts.art) head.appendChild(renderArt({ ...opts.art, className: `page-head__art ${opts.art.className ?? ''}` }));
+
+  const copy = document.createElement('div');
+  const h1 = document.createElement('h1');
+  h1.className = 'page-head__title';
+  h1.textContent = opts.title;
+  copy.appendChild(h1);
+  if (opts.pas) copy.appendChild(renderPas(opts.pas));
+  else if (opts.sub) {
+    const sub = document.createElement('p');
+    sub.className = 'page-head__sub';
+    sub.textContent = opts.sub;
+    copy.appendChild(sub);
+  }
+  head.appendChild(copy);
+  return head;
+}
+
+export interface NumberedStep {
+  title: string;
+  description: string;
+  art?: ArtOptions;
+}
+
+/** Numbered steps (01, 02, 03), optionally each with a small illustration. */
+export function renderStepList(steps: NumberedStep[]): HTMLElement {
+  const list = document.createElement('ol');
+  list.className = 'step-list';
+  steps.forEach((step, index) => {
+    const li = document.createElement('li');
+    li.className = 'step-list__item';
+    if (step.art) li.appendChild(renderArt({ ...step.art, className: 'step-list__art' }));
+    const no = document.createElement('span');
+    no.className = 'step-list__no';
+    no.setAttribute('aria-hidden', 'true');
+    no.textContent = String(index + 1).padStart(2, '0');
+    const h3 = document.createElement('h3');
+    h3.textContent = step.title;
+    const p = document.createElement('p');
+    p.textContent = step.description;
+    li.append(no, h3, p);
+    list.appendChild(li);
+  });
+  return list;
+}
+
+export interface ToolLink {
+  route: PageRoute;
+  name: string;
+  hint: string;
+}
+
+/** Big pixel-type links, one per converter, used wherever a page ends by pointing at the tools. */
+export function renderToolLinks(links: ToolLink[]): HTMLElement {
+  const list = document.createElement('ul');
+  list.className = 'tool-links';
+  for (const link of links) {
+    const li = document.createElement('li');
+    const a = document.createElement('a');
+    a.href = pathForRoute(link.route);
+    a.innerHTML = `<span class="tool-links__name"></span><span class="tool-links__hint"></span><span class="tool-links__arrow" aria-hidden="true">→</span>`;
+    a.querySelector('.tool-links__name')!.textContent = link.name;
+    a.querySelector('.tool-links__hint')!.textContent = link.hint;
+    li.appendChild(a);
+    list.appendChild(li);
+  }
+  return list;
+}
+
+/**
+ * The same converters as a slowly auto-scrolling carousel: pick any card at any time.
+ * It pauses while hovered or focused. The track is repeated once so the loop is seamless;
+ * that copy is hidden from assistive tech and keyboard focus. With reduced motion the
+ * carousel stops moving and becomes a normal swipe/scroll row.
+ */
+export function renderToolCarousel(links: ToolLink[], label = 'Converters'): HTMLElement {
+  const root = document.createElement('div');
+  root.className = 'carousel';
+  root.setAttribute('role', 'region');
+  root.setAttribute('aria-label', label);
+
+  const track = document.createElement('div');
+  track.className = 'carousel__track';
+
+  const buildSet = (hidden: boolean): HTMLElement => {
+    const set = document.createElement('ul');
+    set.className = 'carousel__set';
+    if (hidden) set.setAttribute('aria-hidden', 'true');
+    for (const link of links) {
+      const li = document.createElement('li');
+      const a = document.createElement('a');
+      a.className = 'carousel__card';
+      a.href = pathForRoute(link.route);
+      if (hidden) a.tabIndex = -1;
+      a.innerHTML = `<span class="carousel__name"></span><span class="carousel__hint"></span><span class="carousel__arrow" aria-hidden="true">→</span>`;
+      a.querySelector('.carousel__name')!.textContent = link.name;
+      a.querySelector('.carousel__hint')!.textContent = link.hint;
+      li.appendChild(a);
+      set.appendChild(li);
+    }
+    return set;
+  };
+
+  track.append(buildSet(false), buildSet(true));
+  root.appendChild(track);
+  return root;
+}
+
+/** A section with a heading, used to give every page the same rhythm. */
+export function renderPageSection(heading: string, content: HTMLElement, id?: string): HTMLElement {
+  const section = document.createElement('section');
+  section.className = 'page-section';
+  if (id) section.id = id;
+  const h2 = document.createElement('h2');
+  h2.textContent = heading;
+  section.append(h2, content);
+  return section;
+}

@@ -3,34 +3,34 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <title>thedroppic: Private Image Tools That Run in Your Browser</title>
+    <title>thedroppic: Convert Images Privately in Your Browser</title>
     <meta
       name="description"
-      content="Convert image formats, remove backgrounds and reduce file size in your browser. No account and no upload. Your images stay on your device."
+      content="Convert JPEG, PNG, WebP and HEIC images in your browser. Free, no account, and nothing is uploaded. Your files never leave your device."
     />
     <link rel="canonical" href="https://thedroppic.com/" />
 
     <meta property="og:type" content="website" />
     <meta property="og:site_name" content="thedroppic" />
-    <meta property="og:title" content="thedroppic: Private Image Tools That Run in Your Browser" />
+    <meta property="og:title" content="thedroppic: Convert Images Privately in Your Browser" />
     <meta
       property="og:description"
-      content="Convert image formats, remove backgrounds and reduce file size in your browser. No account and no upload. Your images stay on your device."
+      content="Convert JPEG, PNG, WebP and HEIC images in your browser. Free, no account, and nothing is uploaded. Your files never leave your device."
     />
     <meta property="og:url" content="https://thedroppic.com/" />
     <meta property="og:image" content="https://thedroppic.com/og-image.png" />
     <meta property="og:image:width" content="1200" />
     <meta property="og:image:height" content="630" />
-    <meta property="og:image:alt" content="thedroppic: private image tools that run in your browser" />
+    <meta property="og:image:alt" content="thedroppic: convert images privately in your browser" />
     <meta name="twitter:card" content="summary_large_image" />
-    <meta name="twitter:title" content="thedroppic: Private Image Tools That Run in Your Browser" />
+    <meta name="twitter:title" content="thedroppic: Convert Images Privately in Your Browser" />
     <meta
       name="twitter:description"
-      content="Convert image formats, remove backgrounds and reduce file size in your browser. No account and no upload. Your images stay on your device."
+      content="Convert JPEG, PNG, WebP and HEIC images in your browser. Free, no account, and nothing is uploaded. Your files never leave your device."
     />
     <meta name="twitter:image" content="https://thedroppic.com/og-image.png" />
 
-    <meta name="theme-color" content="#2563ff" />
+    <meta name="theme-color" content="#efefee" />
     <link rel="icon" href="/favicon.ico" sizes="32x32" />
     <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
     <link rel="icon" href="/favicon-32x32.png" type="image/png" sizes="32x32" />
@@ -38,135 +38,8 @@
     <link rel="apple-touch-icon" href="/apple-touch-icon.png" />
     <link rel="manifest" href="/site.webmanifest" />
 
-    <!--
-      Applies a saved dark-theme choice before first paint so there is no
-      flash of the wrong theme. Light is the default when nothing is saved.
-    -->
-    <script>
-      (function () {
-        try {
-          if (localStorage.getItem('thedroppic-theme') === 'dark') {
-            document.documentElement.setAttribute('data-theme', 'dark');
-            var m = document.querySelector('meta[name="theme-color"]');
-            if (m) m.setAttribute('content', '#0f1012');
-          }
-        } catch (e) {}
-      })();
-    </script>
-
-    <!--
-      Boot loader critical CSS: inlined so it paints before the bundled
-      stylesheet arrives (the whole point of this screen is to cover that
-      gap). Kept deliberately tiny and self-contained: no external fonts,
-      no image assets, just the cat SVG below and these few rules.
-    -->
-    <style>
-      #boot-loader {
-        position: fixed;
-        inset: 0;
-        z-index: 9999;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        background: #f8f8f9;
-        transition: opacity 220ms ease;
-      }
-      #boot-loader.is-hiding {
-        opacity: 0;
-        pointer-events: none;
-      }
-      #boot-loader__cat {
-        width: min(220px, 55vw);
-        height: auto;
-      }
-      #boot-loader__tail {
-        transform-origin: 128px 74px;
-        animation: boot-tail-sway 2.6s ease-in-out infinite;
-      }
-      #boot-loader__fill {
-        animation: boot-bar-sweep 2.4s ease-in-out infinite;
-      }
-      @keyframes boot-tail-sway {
-        0%,
-        100% {
-          transform: rotate(-6deg);
-        }
-        50% {
-          transform: rotate(8deg);
-        }
-      }
-      @keyframes boot-bar-sweep {
-        0% {
-          transform: translateX(-60%);
-        }
-        100% {
-          transform: translateX(160%);
-        }
-      }
-      html[data-theme='dark'] #boot-loader {
-        background: #0f1012;
-      }
-      html[data-theme='dark'] .cat-fill {
-        fill: #eceef2;
-      }
-      html[data-theme='dark'] .cat-stroke {
-        stroke: #eceef2;
-      }
-      html[data-theme='dark'] .cat-eye {
-        fill: #0f1012;
-      }
-      html[data-theme='dark'] .cat-track {
-        fill: #1a2440;
-        stroke: #3d404a;
-      }
-      @media (prefers-reduced-motion: reduce) {
-        #boot-loader {
-          transition: none;
-        }
-        #boot-loader__tail {
-          animation: none;
-        }
-        #boot-loader__fill {
-          animation: none;
-          opacity: 0.55;
-        }
-      }
-    </style>
-    <noscript><style>#boot-loader { display: none; }</style></noscript>
   </head>
   <body>
-    <!--
-      Boot loader: shown only for the very first paint of a fresh page
-      load, never during in-app navigation (the router only ever touches
-      #view-root inside #app, which this sits on top of and is removed
-      from the DOM entirely once the app has mounted, see main.ts).
-      Lives in the raw HTML, not a component, specifically so it can paint
-      before any JS has run.
-    -->
-    <div id="boot-loader" role="status" aria-live="polite" aria-label="Loading thedroppic">
-      <svg id="boot-loader__cat" viewBox="0 0 220 110" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
-        <rect class="cat-track" x="10" y="78" width="200" height="20" rx="10" fill="#eff6ff" stroke="#c7d2e3" stroke-width="1" />
-        <clipPath id="boot-bar-clip"><rect x="10" y="78" width="200" height="20" rx="10" /></clipPath>
-        <g clip-path="url(#boot-bar-clip)">
-          <rect id="boot-loader__fill" x="10" y="78" width="70" height="20" fill="#2563ff" opacity="0.22" />
-        </g>
-        <g id="boot-loader__tail">
-          <path class="cat-stroke" d="M128,74 Q150,38 178,55 Q188,63 176,72" fill="none" stroke="#0f172a" stroke-width="9" stroke-linecap="round" />
-        </g>
-        <ellipse class="cat-fill" cx="95" cy="72" rx="46" ry="15" fill="#0f172a" />
-        <polygon class="cat-fill" points="36,46 40,28 47,46" fill="#0f172a" />
-        <polygon class="cat-fill" points="45,46 52,26 58,46" fill="#0f172a" />
-        <circle class="cat-fill" cx="46" cy="56" r="14" fill="#0f172a" />
-        <circle class="cat-eye" cx="41" cy="55" r="1.7" fill="#ffffff" />
-        <circle class="cat-eye" cx="50" cy="55" r="1.7" fill="#ffffff" />
-      </svg>
-    </div>
-    <script>
-      // Timestamped the instant the loader itself is parsed/painted, so
-      // boot-loader.ts can measure real elapsed time rather than guessing.
-      // See MIN_VISIBLE_MS there.
-      window.__bootStart = Date.now();
-    </script>
     <div id="app"></div>
     <script type="module" src="/src/main.ts"></script>
   </body>

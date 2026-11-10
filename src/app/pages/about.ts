@@ -1,177 +1,78 @@
-import { renderHowItWorks, renderCtaBand, renderScrollCard } from '../sections';
-import { ICON } from '../icons';
-import { navigate, pathForRoute, type PageRoute } from '../router';
+import { TOOL_LINKS } from '../tools';
+import { pathForRoute } from '../router';
+import { renderArt, renderCrumbs, renderPageHead, renderPageSection, renderToolCarousel, renderToolFaq } from '../sections';
 
-interface ToolInfo {
-  route: PageRoute;
-  accent: string;
-  icon: string;
-  title: string;
-  description: string;
-  cta: string;
-}
-
-const TOOLS: ToolInfo[] = [
+const ABOUT_FAQ = [
   {
-    route: 'convert',
-    accent: 'accent-blue',
-    icon: ICON.arrowsLeftRight,
-    title: 'Convert Images',
-    description: 'Convert images between JPG, PNG, WebP, AVIF, TIFF and HEIC.',
-    cta: 'Convert images',
+    question: 'What is thedroppic?',
+    answer: 'thedroppic is a free image converter that runs in your browser. It converts JPEG, PNG, WebP and HEIC images without uploading them.',
   },
   {
-    route: 'remove-background',
-    accent: 'accent-mint',
-    icon: ICON.scissors,
-    title: 'Remove Backgrounds',
-    description: 'Cut out a subject and download a transparent PNG.',
-    cta: 'Remove a background',
+    question: 'Is it really free?',
+    answer: 'Yes. There is no account, no paywall, no watermark and no limit on how often you use it.',
   },
   {
-    route: 'optimize',
-    accent: 'accent-lavender',
-    icon: ICON.arrowsInLineVertical,
-    title: 'Optimize Image Files',
-    description: 'Reduce file size and see the exact before and after.',
-    cta: 'Compress images',
+    question: 'Are my images uploaded to a server?',
+    answer: 'No. Your browser converts the image on your device. The file never leaves it, so there is nothing for us to store or delete.',
+  },
+  {
+    question: 'Which image formats can I convert?',
+    answer: 'JPEG to PNG, PNG to JPEG, HEIC to JPEG, WebP to JPEG, WebP to PNG, JPEG to WebP and PNG to WebP.',
+  },
+  {
+    question: 'Does it work on my phone?',
+    answer: 'Yes. It runs in any modern browser on iPhone, Android, Windows, Mac and Linux. There is nothing to install.',
+  },
+  {
+    question: 'Do I need to install anything or sign up?',
+    answer: 'No. Open the page, drop your image, convert and download. There is no app, no account and no email to hand over.',
   },
 ];
 
+/** The privacy statement the footer links to (#privacy) lives here. */
 export function renderAboutPage(): HTMLElement {
   const wrap = document.createElement('div');
-  wrap.appendChild(renderHero());
-  wrap.appendChild(renderIntro());
-  wrap.appendChild(renderToolsSection());
-  wrap.appendChild(renderPrivacySection());
+
+  wrap.appendChild(renderCrumbs('About', 'about'));
   wrap.appendChild(
-    renderHowItWorks(
-      'How it works',
-      'No account and no setup.',
-      [
-        { icon: ICON.uploadSimple, title: 'Drop your images', description: 'Choose or drop up to 5 files.' },
-        { icon: ICON.slidersHorizontal, title: 'Pick a tool', description: 'Convert, remove a background or compress.' },
-        { icon: ICON.shieldCheck, title: 'Your browser does the work', description: 'Nothing is uploaded.' },
-        { icon: ICON.downloadSimple, title: 'Download the result', description: 'Save each file when it is ready.' },
-      ],
-      'accent-brand',
+    renderPageHead({
+      title: 'About',
+      pas: {
+        problem: "Converting a photo shouldn't mean handing it over.",
+        agitation: "Free converters upload your file to a server. You can't see where it goes or how long it stays.",
+        solution: 'thedroppic runs in your browser. Your images stay on your device. No account, no upload, no tracking.',
+      },
+    }),
+  );
+
+  wrap.appendChild(
+    renderPageSection(
+      'What you can do',
+      renderToolCarousel(TOOL_LINKS),
     ),
   );
-  wrap.appendChild(renderEverydayUse());
-  wrap.appendChild(
-    renderCtaBand(
-      'Try a tool',
-      '',
-      'Choose images',
-      'No account. No upload.',
-      'accent-brand',
-      () => navigate('convert'),
-    ),
-  );
-  wrap.appendChild(renderToolLinksRow());
+
+  const how = document.createElement('div');
+  how.className = 'prose';
+  how.innerHTML = `<p>Drop an image, click Convert, download the result. <a href="${pathForRoute('how-it-works')}">See how it works</a></p>`;
+  wrap.appendChild(renderPageSection('How it works', how));
+
+  const privacy = document.createElement('div');
+  privacy.className = 'about-privacy';
+  const text = document.createElement('div');
+  text.className = 'prose';
+  text.innerHTML = `
+    <p>Your images are processed on your device. They are not uploaded, stored or logged.</p>
+    <p>There is no account, no analytics and no tracking cookies.</p>
+    <p>Our host serves the site and may keep standard server logs, such as the page requested. Your images are never part of them.</p>
+  `;
+  privacy.appendChild(text);
+  privacy.appendChild(renderArt({ src: '/art/lock.svg', alt: '', width: 800, height: 800, className: 'about-privacy__art' }));
+  wrap.appendChild(renderPageSection('Privacy', privacy, 'privacy'));
+
+  const faq = renderToolFaq(ABOUT_FAQ, 'About thedroppic: questions');
+  faq.classList.add('page-section');
+  wrap.appendChild(faq);
 
   return wrap;
-}
-
-function renderHero(): HTMLElement {
-  const hero = document.createElement('section');
-  hero.className = 'about-hero';
-  hero.innerHTML = `
-    <div class="about-hero__copy">
-      <h1>Simple image tools, built with privacy in mind.</h1>
-      <p>Working with images should not mean installing software, creating an account or uploading files to a server.</p>
-    </div>
-  `;
-  return hero;
-}
-
-function renderIntro(): HTMLElement {
-  const section = document.createElement('section');
-  section.className = 'section about-intro';
-  section.innerHTML = `
-    <h2>Why thedroppic exists</h2>
-    <p>Most image tools upload your files to a server. For simple tasks, that is often not needed.</p>
-    <p>thedroppic does the work in your browser instead. Your files stay on your device.</p>
-  `;
-
-  const callout = document.createElement('p');
-  callout.className = 'about-callout';
-  callout.textContent = 'Runs in your browser. Nothing is uploaded.';
-  section.appendChild(callout);
-
-  return section;
-}
-
-function renderToolsSection(): HTMLElement {
-  const section = document.createElement('section');
-  section.className = 'section about-tools';
-  section.innerHTML = `<h2>What thedroppic does</h2>`;
-
-  const grid = document.createElement('div');
-  grid.className = 'tool-cards';
-  TOOLS.forEach((tool, index) => {
-    const card = document.createElement('a');
-    card.href = pathForRoute(tool.route);
-    card.className = `tool-card ${tool.accent}`;
-    card.setAttribute('data-reveal', '');
-    card.style.setProperty('--reveal-delay', `${index * 100}ms`);
-    card.innerHTML = `
-      <div class="tool-card__head"><span class="icon-badge tool-card__icon">${tool.icon}</span><h3></h3></div>
-      <p></p>
-      <span class="tool-card__cta"></span>
-    `;
-    card.querySelector('h3')!.textContent = tool.title;
-    card.querySelector('p')!.textContent = tool.description;
-    card.querySelector('.tool-card__cta')!.textContent = `${tool.cta} →`;
-    grid.appendChild(card);
-  });
-  section.appendChild(grid);
-
-  return section;
-}
-
-function renderPrivacySection(): HTMLElement {
-  const content = document.createElement('div');
-  content.className = 'about-privacy__content';
-  content.innerHTML = `
-    <p>Image processing happens in your browser. Your images are not sent to a server.</p>
-    <p>The background remover downloads an AI model once. That download contains none of your image data.</p>
-    <p class="about-privacy__highlight">Your images. Your device. Your control.</p>
-  `;
-  const section = renderScrollCard('How your privacy is protected', '', content, 'accent-brand');
-  section.id = 'privacy';
-  return section;
-}
-
-function renderEverydayUse(): HTMLElement {
-  const section = document.createElement('section');
-  section.className = 'section about-everyday';
-  section.innerHTML = `
-    <h2>Who it is for</h2>
-    <p>Anyone who needs to work with an image without opening editing software. For example:</p>
-    <ul class="about-list">
-      <li>Preparing images for a website</li>
-      <li>Shrinking files before sending them</li>
-      <li>Converting formats for a project</li>
-      <li>Removing the background from a product photo</li>
-    </ul>
-  `;
-  return section;
-}
-
-function renderToolLinksRow(): HTMLElement {
-  const row = document.createElement('div');
-  row.className = 'about-cta-links';
-  const links: Array<{ route: PageRoute; label: string }> = [
-    ...TOOLS.map((t) => ({ route: t.route, label: t.title })),
-    { route: 'learn', label: 'Read the guides' },
-  ];
-  links.forEach((item) => {
-    const link = document.createElement('a');
-    link.href = pathForRoute(item.route);
-    link.className = 'btn btn-secondary';
-    link.textContent = item.label;
-    row.appendChild(link);
-  });
-  return row;
 }

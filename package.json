@@ -10,11 +10,12 @@
     "preview": "vite preview",
     "test": "vitest run",
     "test:watch": "vitest",
-    "audit:seo": "node scripts/audit.mjs"
+    "audit:seo": "node scripts/audit.mjs",
+    "art": "node scripts/glitch-art.mjs"
   },
   "dependencies": {
-    "@fontsource-variable/geist": "^5.3.0",
     "@fontsource-variable/geist-mono": "^5.3.0",
+    "@fontsource-variable/plus-jakarta-sans": "^5.3.0",
     "@huggingface/transformers": "^4.2.0",
     "@jsquash/avif": "^2.1.1",
     "@jsquash/jpeg": "^1.4.0",

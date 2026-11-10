@@ -17,6 +17,8 @@ export interface ResultInfo {
   outputFormat: OutputFormat;
   /** Size of the file the user uploaded, for the before/after comparison. */
   originalByteLength?: number;
+  /** Overrides the default "this file got bigger" note: a string replaces it, `null` hides it. */
+  growthNote?: string | null;
 }
 
 /** Post-conversion panel: preview, download, and next-step actions. */
@@ -34,17 +36,19 @@ export function renderResultPanel(info: ResultInfo, handlers: ResultPanelHandler
     <span></span>
   `;
   badge.querySelector('span')!.textContent =
-    `Your image is ready: ${OUTPUT_FORMAT_LABEL[info.outputFormat]}, ${
+    `Done: ${OUTPUT_FORMAT_LABEL[info.outputFormat]}, ${
       info.originalByteLength ? describeSizeChange(info.originalByteLength, info.byteLength) : formatFileSize(info.byteLength)
     }`;
   panel.appendChild(badge);
 
-  if (info.originalByteLength && info.byteLength > info.originalByteLength) {
+  if (info.originalByteLength && info.byteLength > info.originalByteLength && info.growthNote !== null) {
     const note = document.createElement('p');
     note.className = 'result-note';
-    note.textContent = LOSSY_FORMATS.has(info.outputFormat)
-      ? 'This file is larger than the original. Try a lower quality.'
-      : `${OUTPUT_FORMAT_LABEL[info.outputFormat]} is lossless, so it is larger than a compressed original. Choose WebP or AVIF for a smaller file.`;
+    note.textContent =
+      info.growthNote ??
+      (LOSSY_FORMATS.has(info.outputFormat)
+        ? 'This file is larger than the original. Try a lower quality.'
+        : `${OUTPUT_FORMAT_LABEL[info.outputFormat]} is lossless, so it is larger than a compressed original. Choose WebP or AVIF for a smaller file.`);
     panel.appendChild(note);
   }
 

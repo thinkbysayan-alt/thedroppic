@@ -5,6 +5,23 @@ export interface UploadCardHandlers {
   onFiles: (files: File[]) => void;
 }
 
+/** Page-specific wording and file filter. Anything left out falls back to the generic multi-format card. */
+export interface UploadCardOptions {
+  title?: string;
+  buttonLabel?: string;
+  /** The file input's `accept` list. Drag/drop and paste are not limited by it, so callers still validate. */
+  accept?: string;
+  /** Line showing which formats are accepted; `null` hides it. */
+  formats?: string | null;
+  /** Decorative picture drawn faintly behind the controls. */
+  art?: string;
+  /** Just the icon, title, button and a paste hint (no limit or privacy lines), as in the Convert design. */
+  minimal?: boolean;
+}
+
+const ANY_IMAGE_ACCEPT =
+  'image/jpeg,image/png,image/webp,image/avif,image/tiff,image/heic,image/heif,.jpg,.jpeg,.png,.webp,.avif,.tif,.tiff,.heic,.heif';
+
 /**
  * Renders the primary upload card: file picker, drag/drop, and clipboard
  * paste all funnel into the same `onFiles` callback. Drag/drop is never the
@@ -12,30 +29,53 @@ export interface UploadCardHandlers {
  * keyboard/screen reader. Accepts up to MAX_FILES at once; anything past
  * that is dropped with a friendly notice rather than erroring.
  */
-export function renderUploadCard(handlers: UploadCardHandlers): HTMLElement {
+export function renderUploadCard(handlers: UploadCardHandlers, options: UploadCardOptions = {}): HTMLElement {
   const card = document.createElement('div');
   card.className = 'upload-card';
 
+  const title = options.title ?? `Drop up to ${MAX_FILES} images here`;
+  const formats = options.formats === undefined ? 'JPG, PNG, WebP, AVIF, TIFF, HEIC' : options.formats;
+  const describedBy = ['upload-limit', ...(formats ? ['upload-formats'] : [])].join(' ');
+
   card.innerHTML = `
     <svg class="upload-card__icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" aria-hidden="true">
-      <path d="M4 15.5V17a3 3 0 0 0 3 3h10a3 3 0 0 0 3-3v-1.5" stroke-linecap="round" stroke-linejoin="round"/>
-      <path d="M12 15V4m0 0-4 4m4-4 4 4" stroke-linecap="round" stroke-linejoin="round"/>
+      <path d="M4 15.5V17a3 3 0 0 0 3 3h10a3 3 0 0 0 3-3v-1.5" stroke-linecap="square" stroke-linejoin="miter"/>
+      <path d="M12 15V4m0 0-4 4m4-4 4 4" stroke-linecap="square" stroke-linejoin="miter"/>
     </svg>
-    <p class="upload-card__title" id="upload-title">Drop up to ${MAX_FILES} images here</p>
+    <p class="upload-card__title" id="upload-title"></p>
     <p class="upload-card__or">or</p>
-    <label class="btn btn-primary" for="file-input">
-      Choose images
-    </label>
-    <input type="file" id="file-input" multiple accept="image/jpeg,image/png,image/webp,image/avif,image/tiff,image/heic,image/heif,.jpg,.jpeg,.png,.webp,.avif,.tif,.tiff,.heic,.heif" aria-describedby="upload-formats upload-limit" />
-    <p class="upload-card__paste-hint">You can also paste an image from your clipboard.</p>
-    <p class="upload-card__limit" id="upload-limit">Up to ${MAX_FILES} images at once. Each is processed and downloaded separately.</p>
-    <p class="upload-card__formats" id="upload-formats">JPG, PNG, WebP, AVIF, TIFF, HEIC</p>
+    <label class="btn btn-primary" for="file-input"></label>
+    <input type="file" id="file-input" multiple accept="${options.accept ?? ANY_IMAGE_ACCEPT}" aria-describedby="${describedBy}" />
+    ${
+      options.minimal
+        ? '<p class="upload-card__paste-hint" id="upload-limit">You can also paste an image from your clipboard.</p>'
+        : `<p class="upload-card__limit" id="upload-limit">Up to ${MAX_FILES} files. Paste works too.</p>`
+    }
+    ${formats ? '<p class="upload-card__formats" id="upload-formats"></p>' : ''}
     <p class="upload-card__notice" role="status" aria-live="polite" hidden></p>
-    <p class="privacy-note">
+    ${
+      options.minimal
+        ? ''
+        : `<p class="privacy-note">
       <svg viewBox="0 0 20 20" fill="currentColor" aria-hidden="true"><path fill-rule="evenodd" d="M10 1.5c-3.5 0-6 2-6 5.2 0 1.9.7 3.4 1.6 4.6C4.6 12.9 4 14.6 4 16c0 .6.4 1 1 1h10c.6 0 1-.4 1-1 0-1.4-.6-3.1-1.6-4.7.9-1.2 1.6-2.7 1.6-4.6 0-3.2-2.5-5.2-6-5.2ZM10 9a2 2 0 1 0 0-4 2 2 0 0 0 0 4Z" clip-rule="evenodd"/></svg>
       Processed on your device. Never uploaded.
-    </p>
+    </p>`
+    }
   `;
+  if (options.art) {
+    const art = document.createElement('img');
+    art.className = 'upload-card__art';
+    art.src = options.art;
+    art.alt = '';
+    art.width = 1600;
+    art.height = 480;
+    art.decoding = 'async';
+    art.setAttribute('aria-hidden', 'true');
+    card.prepend(art);
+  }
+  card.querySelector('.upload-card__title')!.textContent = title;
+  card.querySelector('label.btn')!.textContent = options.buttonLabel ?? 'Choose images';
+  if (formats) card.querySelector('.upload-card__formats')!.textContent = formats;
 
   const fileInput = card.querySelector<HTMLInputElement>('#file-input')!;
   const notice = card.querySelector<HTMLParagraphElement>('.upload-card__notice')!;
@@ -46,7 +86,7 @@ export function renderUploadCard(handlers: UploadCardHandlers): HTMLElement {
     const files = all.slice(0, MAX_FILES);
     if (all.length > MAX_FILES) {
       notice.hidden = false;
-      notice.textContent = `You selected ${all.length} images. Only the first ${MAX_FILES} were added.`;
+      notice.textContent = `You chose ${all.length} files. Only the first ${MAX_FILES} were added.`;
     } else {
       notice.hidden = true;
     }

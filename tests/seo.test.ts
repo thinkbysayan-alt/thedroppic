@@ -12,9 +12,22 @@ describe('routing', () => {
     }
   });
 
-  it('treats unknown paths, including the old article slugs, as not-found', () => {
+  it('treats unknown paths, including the old /learn URLs (redirected at the edge), as not-found', () => {
     expect(routeForPath('/nope')).toBe('not-found');
+    expect(routeForPath('/learn')).toBe('not-found');
+    expect(routeForPath('/learn/best-image-format')).toBe('not-found');
     expect(routeForPath('/learn/which-image-format-should-you-use')).toBe('not-found');
+  });
+
+  it('gives each converter its own top-level URL', () => {
+    expect(ROUTE_PATHS['jpeg-to-png']).toBe('/jpeg-to-png');
+    expect(ROUTE_PATHS['png-to-jpeg']).toBe('/png-to-jpeg');
+    expect(ROUTE_PATHS['heic-to-jpeg']).toBe('/heic-to-jpeg');
+    expect(ROUTE_PATHS['webp-to-jpeg']).toBe('/webp-to-jpeg');
+    expect(ROUTE_PATHS['webp-to-png']).toBe('/webp-to-png');
+    expect(ROUTE_PATHS['jpeg-to-webp']).toBe('/jpeg-to-webp');
+    expect(ROUTE_PATHS['png-to-webp']).toBe('/png-to-webp');
+    expect(ROUTE_PATHS.blog).toBe('/blog');
   });
 
   it('uses short lowercase hyphenated slugs', () => {
@@ -67,15 +80,15 @@ describe('structured data', () => {
   });
 
   it('describes each tool as a WebApplication with breadcrumbs', () => {
-    for (const r of ['convert', 'remove-background', 'optimize'] as const) {
+    for (const r of ['jpeg-to-png', 'png-to-jpeg', 'heic-to-jpeg', 'webp-to-jpeg', 'webp-to-png', 'jpeg-to-webp', 'png-to-webp', 'convert', 'remove-background', 'optimize'] as const) {
       expect(types(r)).toContain('WebApplication');
       expect(types(r)).toContain('BreadcrumbList');
     }
   });
 
   it('only adds FAQPage when the page actually shows FAQ entries', () => {
-    expect(types('convert')).not.toContain('FAQPage');
-    expect(types('convert', [{ question: 'Q?', answer: 'A.' }])).toContain('FAQPage');
+    expect(types('jpeg-to-png')).not.toContain('FAQPage');
+    expect(types('jpeg-to-png', [{ question: 'Q?', answer: 'A.' }])).toContain('FAQPage');
   });
 
   it('never repeats a schema type on one page', () => {

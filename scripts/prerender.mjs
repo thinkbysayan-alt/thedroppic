@@ -41,7 +41,7 @@ function setMeta(html, attr, key, content) {
   return content === null ? html : html.replace('</head>', `    ${tag}\n  </head>`);
 }
 
-function buildHead(html, seo, fontPreload) {
+function buildHead(html, seo, fontPreloads) {
   html = html.replace(/<title>.*?<\/title>/s, `<title>${escapeAttr(seo.title).replace(/&quot;/g, '"')}</title>`);
   html = setMeta(html, 'name', 'description', seo.description);
   html = setMeta(html, 'property', 'og:title', seo.title);
@@ -53,7 +53,7 @@ function buildHead(html, seo, fontPreload) {
   html = html.replace(/<link\s+rel="canonical"[^>]*>\s*/s, seo.canonical ? `<link rel="canonical" href="${seo.canonical}" />\n    ` : '');
   if (seo.noindex) html = html.replace('</head>', '    <meta name="robots" content="noindex" />\n  </head>');
   const extra = [];
-  if (fontPreload) extra.push(`<link rel="preload" href="${fontPreload}" as="font" type="font/woff2" crossorigin />`);
+  for (const href of fontPreloads) extra.push(`<link rel="preload" href="${href}" as="font" type="font/woff2" crossorigin />`);
   if (seo.jsonld) {
     const json = JSON.stringify(seo.jsonld).replace(/</g, '\\u003c');
     extra.push(`<script type="application/ld+json" id="page-jsonld">${json}</script>`);
@@ -62,8 +62,11 @@ function buildHead(html, seo, fontPreload) {
 }
 
 const assets = fs.readdirSync(path.join(DIST, 'assets'));
-const latinFont = assets.find((f) => /^geist-latin-wght-normal-.*\.woff2$/.test(f));
-const fontPreload = latinFont ? `/assets/${latinFont}` : null;
+// Preload the latin face every page's text uses.
+const fontPreloads = ['plus-jakarta-sans-latin-wght-normal']
+  .map((prefix) => assets.find((f) => new RegExp(`^${prefix}-.*\\.woff2$`).test(f)))
+  .filter(Boolean)
+  .map((f) => `/assets/${f}`);
 
 const { ROUTE_PATHS } = await server.ssrLoadModule('/src/app/router.ts');
 const pages = Object.entries(ROUTE_PATHS).map(([route, urlPath]) => ({ route, urlPath }));
@@ -83,7 +86,7 @@ for (const { route, urlPath } of pages) {
 
     const seo = buildSeo(route, collectFaq(document.getElementById('view-root')));
     let html = template.replace('<div id="app"></div>', `<div id="app">${root.innerHTML}</div>`);
-    html = buildHead(html, seo, fontPreload);
+    html = buildHead(html, seo, fontPreloads);
 
     const outFile =
       route === 'home' ? path.join(DIST, 'index.html')

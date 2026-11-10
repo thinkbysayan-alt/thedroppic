@@ -2,7 +2,7 @@ import { detectFormat } from '../conversion/format-detector';
 import { getDefaultOutputFormat } from '../conversion/capability-matrix';
 import { generatePreview } from '../conversion/preview';
 import { convertImage, decodeForPreview } from '../conversion/conversion-manager';
-import { renderUploadCard, listenForClipboardPaste } from '../components/upload/upload';
+import { renderUploadCard, listenForClipboardPaste, type UploadCardOptions } from '../components/upload/upload';
 import { renderPreview } from '../components/preview/image-preview';
 import { renderFormatSelector } from '../components/format-selector/format-selector';
 import { renderQualityControl } from '../components/quality-control/quality-slider';
@@ -16,7 +16,7 @@ import { closeBitmap, revokeObjectUrl, trackObjectUrl } from '../utils/memory';
 import { downloadBlob } from '../utils/download';
 import { losslessGrowthWarning } from '../conversion/size-guard';
 import { buildOutputFilename, describeSizeChange } from '../utils/file';
-import { AppError, type CropRegion, type OutputFormat } from '../types';
+import { AppError, LOSSY_FORMATS, type CropRegion, type OutputFormat, type SourceFormat } from '../types';
 import type { BatchItem, BatchItemState, UploadedImage, View } from './state';
 
 /**
@@ -39,6 +39,18 @@ export interface ToolWorkspaceConfig {
   showFormatSelector: boolean;
   /** Convert shows the "Remove background" checkbox as an optional extra; Remove Background's own page doesn't need to repeat that toggle. */
   showBackgroundToggle: boolean;
+  /**
+   * Single-purpose converter pages (e.g. JPEG to PNG): the output format is fixed, so there is
+   * no format dropdown. Lossy outputs still get the quality slider.
+   */
+  fixedOutputFormat?: OutputFormat;
+  /** Source formats this page accepts. Anything else is rejected with `wrongFormatMessage`. */
+  allowedSources?: SourceFormat[];
+  wrongFormatMessage?: (detected: SourceFormat) => string;
+  /** Label for the main action button. */
+  convertLabel?: string;
+  /** Upload card wording and file filter. */
+  upload?: UploadCardOptions;
 }
 
 class Store {
@@ -109,12 +121,16 @@ export function createToolWorkspace(config: ToolWorkspaceConfig) {
     if (!sourceFormat) {
       throw new AppError('unsupported-format', "This image format isn't supported.");
     }
+    if (config.allowedSources && !config.allowedSources.includes(sourceFormat)) {
+      throw new AppError('unsupported-format', config.wrongFormatMessage?.(sourceFormat) ?? "This page can't convert that format.");
+    }
     const preview = await generatePreview(file, sourceFormat);
     trackObjectUrl(preview.url);
     return { file, sourceFormat, previewUrl: preview.url, width: preview.width, height: preview.height };
   }
 
   function initialOutputFormat(source: UploadedImage['sourceFormat']): OutputFormat {
+    if (config.fixedOutputFormat) return config.fixedOutputFormat;
     return config.forceRemoveBackground ? 'png' : getDefaultOutputFormat(source);
   }
 
@@ -321,7 +337,7 @@ export function createToolWorkspace(config: ToolWorkspaceConfig) {
   function renderUploadStage(): HTMLElement {
     const wrap = document.createElement('div');
     wrap.id = 'upload';
-    wrap.appendChild(renderUploadCard({ onFiles: (files) => void handleIncomingFiles(files) }));
+    wrap.appendChild(renderUploadCard({ onFiles: (files) => void handleIncomingFiles(files) }, config.upload));
     return wrap;
   }
 
@@ -371,6 +387,14 @@ export function createToolWorkspace(config: ToolWorkspaceConfig) {
       }
     }
 
+    if (!config.showFormatSelector && config.fixedOutputFormat && LOSSY_FORMATS.has(config.fixedOutputFormat)) {
+      controlsPanel.appendChild(
+        renderQualityControl(view.outputFormat, view.quality, {
+          onQualityChange: (quality) => setView({ ...view, quality }),
+        }),
+      );
+    }
+
     if (config.showBackgroundToggle) {
       controlsPanel.appendChild(
         renderBackgroundRemovalToggle(view.removeBackground, {
@@ -390,7 +414,7 @@ export function createToolWorkspace(config: ToolWorkspaceConfig) {
     const convertBtn = document.createElement('button');
     convertBtn.type = 'button';
     convertBtn.className = 'btn btn-primary btn-block';
-    convertBtn.textContent = config.forceRemoveBackground ? 'Remove background' : 'Convert image';
+    convertBtn.textContent = config.convertLabel ?? (config.forceRemoveBackground ? 'Remove background' : 'Convert image');
     convertBtn.addEventListener('click', () => void runConversion(view));
     actions.appendChild(convertBtn);
 
@@ -523,6 +547,7 @@ export function createToolWorkspace(config: ToolWorkspaceConfig) {
           height: view.resultHeight,
           outputFormat: view.outputFormat,
           originalByteLength: view.image.file.size,
+          growthNote: config.fixedOutputFormat ? null : undefined,
         },
         {
           onDownload: () => downloadBlob(view.resultBlob, view.resultFilename),
@@ -612,6 +637,14 @@ export function createToolWorkspace(config: ToolWorkspaceConfig) {
         card.appendChild(controlsRow);
       }
 
+      if (!config.showFormatSelector && config.fixedOutputFormat && LOSSY_FORMATS.has(config.fixedOutputFormat)) {
+        card.appendChild(
+          renderQualityControl(outputFormat, quality, {
+            onQualityChange: (nextQuality) => updateBatchItem(item.id, { ...readyState, quality: nextQuality }),
+          }),
+        );
+      }
+
       if (config.showBackgroundToggle) {
         card.appendChild(
           renderBackgroundRemovalToggle(removeBackground, {
@@ -624,7 +657,7 @@ export function createToolWorkspace(config: ToolWorkspaceConfig) {
       const convertBtn = document.createElement('button');
       convertBtn.type = 'button';
       convertBtn.className = 'btn btn-primary btn-block batch-item__action';
-      convertBtn.textContent = config.forceRemoveBackground ? 'Remove background' : 'Convert image';
+      convertBtn.textContent = config.convertLabel ?? (config.forceRemoveBackground ? 'Remove background' : 'Convert image');
       convertBtn.addEventListener('click', () => void runBatchItemConversion(item.id));
       card.appendChild(convertBtn);
     } else if (item.state.status === 'converting') {
