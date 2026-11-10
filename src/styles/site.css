@@ -378,9 +378,16 @@ input[type='checkbox'] {
   font-weight: 800;
   letter-spacing: -0.03em;
 }
+.home__lead {
+  margin: calc(40 * var(--u)) 0 0;
+  font-size: max(18px, calc(34 * var(--u)));
+  font-weight: 500;
+  line-height: 1.2;
+  letter-spacing: -0.02em;
+}
 .home__text {
   max-width: calc(565 * var(--u));
-  margin: calc(58 * var(--u)) 0 0;
+  margin: calc(22 * var(--u)) 0 0;
   font-size: max(16px, calc(30 * var(--u)));
   font-weight: 300;
   line-height: 1.23;
@@ -469,9 +476,13 @@ input[type='checkbox'] {
   .home__title {
     font-size: clamp(2rem, 9vw, 3.25rem);
   }
+  .home__lead {
+    margin-top: 16px;
+    font-size: 1.1875rem;
+  }
   .home__text {
     max-width: 38ch;
-    margin-top: 18px;
+    margin-top: 10px;
     font-size: 1.0625rem;
   }
   .home__cta {

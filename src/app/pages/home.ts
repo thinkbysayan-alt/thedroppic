@@ -14,8 +14,9 @@ export function renderHomePage(): HTMLElement {
   const copy = document.createElement('div');
   copy.className = 'home__copy';
   copy.innerHTML = `
-    <h1 class="home__title"><strong>HEIC? JPEG? PNG?</strong> Your photo is having an identity crisis.</h1>
-    <p class="home__text">Sort it out in seconds, right in your browser. Free, and your photo stays with you the whole time.</p>
+    <h1 class="home__title"><strong>JPG? PNG? WEBP?</strong> NO PROBLEM.</h1>
+    <p class="home__lead">Whatever the format, we've got you.</p>
+    <p class="home__text">Switch between image formats without the usual hassle. Free to use, easy to work with, and entirely browser-based.</p>
     <a class="home__cta" href="${pathForRoute('jpeg-to-png')}">
       <span>Fix My Photo</span>
       <svg viewBox="0 0 40 24" fill="none" stroke="currentColor" stroke-width="2.4" aria-hidden="true"><path d="M2 12h34M26 3l10 9-10 9" stroke-linecap="round" stroke-linejoin="round"/></svg>
