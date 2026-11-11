@@ -120,7 +120,8 @@ input[type='checkbox'] {
 .app-shell[data-route='webp-to-jpeg'] .app-main > .container,
 .app-shell[data-route='webp-to-png'] .app-main > .container,
 .app-shell[data-route='jpeg-to-webp'] .app-main > .container,
-.app-shell[data-route='png-to-webp'] .app-main > .container {
+.app-shell[data-route='png-to-webp'] .app-main > .container,
+.app-shell[data-route='remove-background'] .app-main > .container {
   padding-top: 0;
   padding-bottom: 0;
 }
@@ -367,7 +368,7 @@ input[type='checkbox'] {
 }
 .home__title {
   margin: 0;
-  font-size: max(30px, calc(62.2 * var(--u)));
+  font-size: max(34px, calc(76 * var(--u)));
   font-weight: 300;
   line-height: 1.24;
   letter-spacing: -0.025em;
@@ -380,7 +381,7 @@ input[type='checkbox'] {
 }
 .home__lead {
   margin: calc(40 * var(--u)) 0 0;
-  font-size: max(18px, calc(34 * var(--u)));
+  font-size: max(17px, calc(29 * var(--u)));
   font-weight: 500;
   line-height: 1.2;
   letter-spacing: -0.02em;
@@ -388,17 +389,23 @@ input[type='checkbox'] {
 .home__text {
   max-width: calc(565 * var(--u));
   margin: calc(22 * var(--u)) 0 0;
-  font-size: max(16px, calc(30 * var(--u)));
+  font-size: max(15px, calc(25 * var(--u)));
   font-weight: 300;
-  line-height: 1.23;
+  line-height: 1.25;
   letter-spacing: -0.01em;
+}
+.home__actions {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: calc(14 * var(--u)) max(10px, calc(16 * var(--u)));
+  margin-top: calc(46 * var(--u));
 }
 .home__cta {
   display: inline-flex;
   align-items: center;
   gap: calc(14 * var(--u));
   height: max(44px, calc(54 * var(--u)));
-  margin-top: calc(50 * var(--u));
   padding-inline: max(22px, calc(34 * var(--u)));
   border-radius: max(9px, calc(11 * var(--u)));
   background: var(--color-accent-fill);
@@ -412,6 +419,15 @@ input[type='checkbox'] {
 .home__cta:hover {
   background: var(--color-accent-fill-hover);
 }
+.home__cta--ghost {
+  border: 1px solid rgba(0, 0, 0, 0.3);
+  background: transparent;
+  color: var(--color-text);
+}
+.home__cta--ghost:hover {
+  border-color: var(--color-text);
+  background: transparent;
+}
 .home__cta svg {
   flex: none;
   width: max(20px, calc(28 * var(--u)));
@@ -419,22 +435,44 @@ input[type='checkbox'] {
 }
 
 /* The picture bleeds off the right edge and fades in from the left, as in the design. */
+/* Split screen: the copy takes the left half, the character fills the right half. */
 .home__art {
   position: absolute;
-  top: calc(52 * var(--u));
+  top: 0;
   right: 0;
-  bottom: calc(117 * var(--u));
-  width: calc(905 * var(--u));
+  bottom: 0;
+  width: 50%;
   pointer-events: none;
 }
-.home__art img {
+/* The character: a square picture, flush with the right edge, with live eyes on top. */
+.home__art {
+  display: flex;
+  justify-content: flex-end;
+}
+/* The character: a transparent cutout on white, sized to fill its half and standing on the bottom edge. */
+.character {
+  position: relative;
+  width: 100%;
+  height: 100%;
+  overflow: hidden;
+  container-type: size;
+}
+.character__stage {
+  position: absolute;
+  bottom: 0;
+  left: 50%;
+  width: min(max(100cqw, 100cqh), 104cqh);
+  aspect-ratio: 1 / 1;
+  transform: translateX(-50%);
+}
+.character__img,
+.character__hair,
+.character__eyes {
+  position: absolute;
+  inset: 0;
   width: 100%;
   height: 100%;
   max-width: none;
-  object-fit: contain;
-  object-position: right center;
-  -webkit-mask-image: linear-gradient(to right, transparent 0%, #000 24%);
-  mask-image: linear-gradient(to right, transparent 0%, #000 24%);
 }
 
 /* Home never scrolls on desktop: everything scales down together with the window height. */
@@ -474,21 +512,24 @@ input[type='checkbox'] {
     width: 100%;
   }
   .home__title {
-    font-size: clamp(2rem, 9vw, 3.25rem);
+    font-size: clamp(2.25rem, 10.5vw, 3.6rem);
   }
   .home__lead {
-    margin-top: 16px;
-    font-size: 1.1875rem;
+    margin-top: 14px;
+    font-size: 1.0625rem;
   }
   .home__text {
     max-width: 38ch;
-    margin-top: 10px;
-    font-size: 1.0625rem;
+    margin-top: 8px;
+    font-size: 0.9375rem;
+  }
+  .home__actions {
+    margin-top: 20px;
+    gap: 10px;
   }
   .home__cta {
-    height: 48px;
-    margin-top: 24px;
-    padding-inline: 24px;
+    height: 46px;
+    padding-inline: 20px;
     font-size: 1rem;
   }
   .home__cta svg {
@@ -498,12 +539,13 @@ input[type='checkbox'] {
     position: relative;
     inset: auto;
     flex: 1 1 0;
+    pointer-events: none;
     width: calc(100% + 2 * var(--pad-x));
     min-height: 0;
     margin-inline: calc(-1 * var(--pad-x));
   }
-  .home__art img {
-    object-position: right bottom;
+  .character__stage {
+    width: min(100cqw, 100cqh);
   }
 }
 /* Tiny phones: no room for the picture, so just centre the words. */
@@ -946,91 +988,110 @@ input[type='checkbox'] {
   color: rgba(255, 255, 255, 0.85);
 }
 
-/* ---------- Auto-scrolling carousel (converters) ---------- */
-.carousel {
-  --carousel-gap: clamp(12px, 1.6vw, 24px);
+/* ---------- Rotating arc of tool tiles ---------- */
+.arc {
+  --arc-card-w: 220px;
+  position: relative;
+  isolation: isolate; /* keeps the cards' stacking order from reaching over the menu */
+  /* Full screen width, like the reference: the arc runs off both edges. */
+  width: 100vw;
+  margin-inline: calc(50% - 50vw);
   overflow: hidden;
-  -webkit-mask-image: linear-gradient(to right, transparent 0, #000 6%, #000 94%, transparent 100%);
-  mask-image: linear-gradient(to right, transparent 0, #000 6%, #000 94%, transparent 100%);
+  padding-block: 12px;
+  text-align: left;
 }
-.carousel__track {
-  display: flex;
-  width: max-content;
-  animation: carousel-scroll 45s linear infinite;
+html {
+  overflow-x: clip;
 }
-.carousel:hover .carousel__track,
-.carousel:focus-within .carousel__track {
-  animation-play-state: paused;
+.arc__stage {
+  position: relative;
+  width: 100%;
 }
-.carousel__set {
-  display: flex;
-  gap: var(--carousel-gap);
-  margin: 0;
-  padding: 0 var(--carousel-gap) 0 0;
-  list-style: none;
+.arc__card {
+  position: absolute;
+  top: 0;
+  left: 50%;
+  width: var(--arc-card-w);
+  margin-left: calc(var(--arc-card-w) / -2);
+  transform-origin: 50% 50%;
+  will-change: transform, opacity;
 }
-.carousel__card {
+.arc:not(.is-ready) .arc__card {
+  visibility: hidden;
+}
+.arc-card {
   display: flex;
   flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  gap: var(--space-2);
-  width: clamp(210px, 20vw, 300px);
-  min-height: 180px;
-  height: 100%;
-  padding: var(--space-5);
-  border: 1px solid var(--color-text);
-  background: #fff;
-  color: var(--color-text);
-  text-align: center;
+  width: 100%;
+  color: #fff;
   text-decoration: none;
-  transition: background-color 0.2s ease, color 0.2s ease, border-color 0.2s ease;
+  transition: transform 0.3s ease;
 }
-.carousel__name {
-  font-size: clamp(1.25rem, 1.8vw, 1.625rem);
+.arc-card:hover,
+.arc-card:focus-visible {
+  transform: scale(1.07);
+}
+.arc-card__art {
+  display: block;
+  aspect-ratio: 600 / 396;
+  background: transparent;
+  transition: background-color 0.25s ease;
+}
+.arc-card__art img {
+  display: block;
+  width: 100%;
+  height: 100%;
+  transition: filter 0.25s ease;
+}
+.arc-card__art img.is-flipped {
+  transform: scaleX(-1);
+}
+.arc-card__body {
+  display: flex;
+  flex-direction: column;
+  gap: calc(var(--arc-card-w) * 0.03);
+  min-height: calc(var(--arc-card-w) * 0.82);
+  padding: calc(var(--arc-card-w) * 0.1);
+  background: var(--color-text);
+  transition: background-color 0.25s ease;
+}
+.arc-card__name {
+  font-size: max(15px, calc(var(--arc-card-w) * 0.105));
   font-weight: 650;
   letter-spacing: -0.03em;
-  line-height: 1.1;
+  line-height: 1.08;
 }
-.carousel__hint {
-  color: var(--color-text-muted);
-  font-size: 0.875rem;
-  transition: color 0.2s ease;
+.arc-card__hint {
+  color: rgba(255, 255, 255, 0.7);
+  font-size: max(11px, calc(var(--arc-card-w) * 0.056));
+  line-height: 1.25;
 }
-.carousel__arrow {
-  color: var(--color-cta);
-  font-weight: 500;
-  transition: color 0.2s ease;
+.arc-card__foot {
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: 8px;
+  margin-top: auto;
+  font-size: max(11px, calc(var(--arc-card-w) * 0.056));
 }
-.carousel__card:hover,
-.carousel__card:focus-visible {
-  border-color: var(--color-cta);
+.arc-card__logo {
+  height: calc(var(--arc-card-w) * 0.1);
+  width: auto;
+  color: #fff;
+}
+.arc-card:hover .arc-card__art,
+.arc-card:focus-visible .arc-card__art,
+.arc-card:hover .arc-card__body,
+.arc-card:focus-visible .arc-card__body {
   background: var(--color-cta);
-  color: #fff;
 }
-.carousel__card:hover .carousel__hint,
-.carousel__card:hover .carousel__arrow,
-.carousel__card:focus-visible .carousel__hint,
-.carousel__card:focus-visible .carousel__arrow {
-  color: #fff;
+.arc-card:hover .arc-card__art img,
+.arc-card:focus-visible .arc-card__art img {
+  filter: brightness(0.78);
 }
-@keyframes carousel-scroll {
-  to {
-    transform: translateX(-50%);
-  }
-}
-@media (prefers-reduced-motion: reduce) {
-  .carousel {
-    overflow-x: auto;
-    -webkit-mask-image: none;
-    mask-image: none;
-  }
-  .carousel__track {
-    animation: none;
-  }
-  .carousel__set[aria-hidden='true'] {
-    display: none;
-  }
+.arc-card:hover .arc-card__hint,
+.arc-card:focus-visible .arc-card__hint {
+  color: rgba(255, 255, 255, 0.9);
 }
 
 /* ---------- About, how it works ---------- */
@@ -1053,7 +1114,104 @@ input[type='checkbox'] {
   gap: var(--space-6);
 }
 .about-privacy__art {
-  width: min(100%, 220px);
+  width: min(100%, 560px);
+  height: auto;
+}
+
+/* ---------- About hero (left copy, character on the right) ---------- */
+.about-hero {
+  position: relative;
+  display: flex;
+  align-items: center;
+  min-height: 460px;
+  text-align: left;
+}
+.about-hero__copy {
+  position: relative;
+  z-index: 1;
+  width: min(100%, calc(700 * var(--u)));
+}
+.about-hero__eyebrow {
+  margin: 0 0 calc(28 * var(--u));
+  font-size: max(13px, calc(20 * var(--u)));
+  font-weight: 500;
+  letter-spacing: 0.02em;
+  color: var(--color-text-muted);
+}
+.about-hero__problem {
+  margin: 0;
+  font-size: max(28px, calc(56 * var(--u)));
+  font-weight: 800;
+  line-height: 1.12;
+  letter-spacing: -0.03em;
+}
+.about-hero__agitation {
+  max-width: 34ch;
+  margin: calc(32 * var(--u)) 0 0;
+  font-size: max(16px, calc(30 * var(--u)));
+  font-weight: 300;
+  line-height: 1.23;
+}
+.about-hero__solution {
+  max-width: 30ch;
+  margin: calc(28 * var(--u)) 0 0;
+  font-size: max(17px, calc(32 * var(--u)));
+  font-weight: 500;
+  line-height: 1.22;
+  letter-spacing: -0.015em;
+}
+.about-hero__art {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  right: calc(-1 * var(--pad-x));
+  width: calc(50% + var(--pad-x));
+  pointer-events: none;
+}
+.about-hero__img {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  max-width: none;
+  object-fit: cover;
+  object-position: 45% bottom;
+  /* Mirrored so the character faces the copy on the left. */
+  transform: scaleX(-1);
+  /* Soft bottom edge so the cut-off shirt never shows as a hard line. */
+  -webkit-mask-image: linear-gradient(to bottom, #000 82%, transparent 100%);
+  mask-image: linear-gradient(to bottom, #000 82%, transparent 100%);
+}
+.about-hero__img--shout {
+  opacity: 0;
+}
+.about-hero .breadcrumb {
+  justify-content: flex-start;
+  margin: 0 0 calc(24 * var(--u));
+}
+/* About keeps its menu in view while you scroll. */
+.app-shell[data-route='about'] .site-header {
+  position: sticky;
+  top: 0;
+  background: #fff;
+}
+@media (max-width: 999px) {
+  .about-hero {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 20px;
+    padding-top: 8px;
+  }
+  .about-hero__copy {
+    width: 100%;
+  }
+  .about-hero__art {
+    position: relative;
+    inset: auto;
+    width: calc(100% + 2 * var(--pad-x));
+    margin-inline: calc(-1 * var(--pad-x));
+    aspect-ratio: 3 / 2;
+  }
 }
 
 /* ---------- Not found ---------- */
@@ -1139,7 +1297,8 @@ input[type='checkbox'] {
    note with fact cards beside it, FAQ, call-to-action band, Learn more.
    ===================================================================== */
 .conv {
-  padding-bottom: calc(117 * var(--u));
+  position: relative;
+  padding-bottom: 0; /* the page ends with the grey band, flush with the footer */
 }
 .conv-row {
   display: grid;
@@ -1445,40 +1604,6 @@ input[type='checkbox'] {
 }
 
 /* Learn more */
-.conv-more {
-  width: min(100%, calc(1320 * var(--u)));
-  margin: calc(70 * var(--u)) auto 0;
-}
-.conv-more h2 {
-  margin: 0 0 calc(30 * var(--u));
-  font-size: max(26px, calc(40 * var(--u)));
-  font-weight: 500;
-  letter-spacing: -0.035em;
-  line-height: 1.15;
-}
-.conv-more__list {
-  margin: 0;
-  padding: 0;
-  list-style: none;
-  border-top: 1px solid #2a2a2a;
-}
-.conv-more__list a {
-  display: grid;
-  grid-template-columns: calc(585 * var(--u)) minmax(0, 1fr);
-  align-items: center;
-  gap: var(--space-4);
-  min-height: max(54px, calc(72 * var(--u)));
-  color: #000;
-  font-size: max(15px, calc(21 * var(--u)));
-  text-decoration: none;
-}
-.conv-more__text {
-  color: #a0a0b4;
-  font-weight: 300;
-}
-.conv-more__list a:hover .conv-more__label {
-  opacity: 0.6;
-}
 
 /* Phones and small tablets: one column. */
 @media (max-width: 999px) {
@@ -1554,4 +1679,44 @@ input[type='checkbox'] {
 /* Links in the older components were underlined until hovered; keep them plain. */
 .related-links__list a {
   text-decoration: none;
+}
+
+/* About is left-aligned, so its breadcrumb is too. */
+.app-shell[data-route='about'] .crumbs {
+  justify-content: flex-start;
+}
+
+/* ---------- Brand-blue cursor and sparkle trail (see utils/cursor.ts) ---------- */
+html.has-custom-cursor,
+html.has-custom-cursor *:not(input):not(textarea):not(select) {
+  cursor: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='30' height='30' viewBox='-14 -14 578 568'%3E%3Cpath d='M46 9C28 2 12 18 22 42L198 518C207 538 232 536 238 514L268 368C278 320 298 292 342 283L484 256C508 250 508 226 484 215Z' fill='%23fff' stroke='%23fff' stroke-width='24' stroke-linejoin='round'/%3E%3Cpath d='M46 9C28 2 12 18 22 42L198 518C207 538 232 536 238 514L268 368C278 320 298 292 342 283L484 256C508 250 508 226 484 215Z' fill='%232563ff'/%3E%3C/svg%3E") 2 1, auto;
+}
+.cursor-trail {
+  position: fixed;
+  inset: 0;
+  width: 100vw;
+  height: 100vh;
+  pointer-events: none;
+  z-index: 2147483000;
+}
+
+/* ---------- Character pointing at the "Choose images" button (see utils/cta-pointer.ts) ---------- */
+.cta-pointer {
+  position: absolute;
+  top: 0;
+  left: 0;
+  z-index: 6;
+  pointer-events: none;
+}
+.cta-pointer__body {
+  position: relative;
+  width: 100%;
+  height: 100%;
+}
+.cta-pointer__img {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  width: auto;
+  max-width: none;
 }

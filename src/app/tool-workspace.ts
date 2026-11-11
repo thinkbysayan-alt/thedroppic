@@ -547,7 +547,7 @@ export function createToolWorkspace(config: ToolWorkspaceConfig) {
           height: view.resultHeight,
           outputFormat: view.outputFormat,
           originalByteLength: view.image.file.size,
-          growthNote: config.fixedOutputFormat ? null : undefined,
+          growthNote: config.fixedOutputFormat || config.forceRemoveBackground ? null : undefined,
         },
         {
           onDownload: () => downloadBlob(view.resultBlob, view.resultFilename),

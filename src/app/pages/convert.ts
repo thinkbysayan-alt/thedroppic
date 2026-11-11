@@ -67,7 +67,6 @@ export function renderConvertPage(): HTMLElement {
   wrap.appendChild(renderToolFaq(CONVERT_FAQ, 'Image converter questions'));
   wrap.appendChild(
     renderRelatedLinks('Related tools and guides', [
-      { route: 'article-formats', label: 'Which image format should you use?', description: 'A short guide to JPG, PNG, WebP, AVIF, TIFF and HEIC.' },
       { route: 'optimize', label: 'Compress images', description: 'Reduce the file size after you convert.' },
       { route: 'remove-background', label: 'Remove an image background', description: 'Get a transparent PNG cutout.' },
     ]),

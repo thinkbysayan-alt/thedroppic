@@ -1,115 +1,80 @@
 import { createToolWorkspace } from '../tool-workspace';
-import { ICON } from '../icons';
-import {
-  renderBreadcrumb,
-  renderHowItWorks,
-  renderCtaBand,
-  renderToolFaq,
-  renderScrollCard,
-  renderSwipeStack,
-  renderMediaCard,
-  renderRelatedLinks,
-} from '../sections';
-import { renderFeatureCarousel } from '../feature-carousel';
+import { pathForRoute } from '../router';
+import { renderConvCta, renderConvFaq, renderConvSide, type FaqEntry } from './conv-parts';
 
-const USE_CASES = [
-  { title: 'E-commerce', description: 'Clean product photos for your store.', image: '/img/use-cases/mug.jpg', alt: 'A printed ceramic mug on a wooden table' },
-  { title: 'Social Media', description: 'Cutouts for posts and profile images.', image: '/img/use-cases/portrait.jpg', alt: 'Portrait of a person holding wildflowers' },
-  { title: 'Design Projects', description: 'Use subjects in slides and mockups.', image: '/img/use-cases/design-desk.jpg', alt: 'A designer desk with monitor, tablet and keyboard' },
-  { title: 'Personal Photos', description: 'Turn snapshots into collages and stickers.', image: '/img/use-cases/puppy.jpg', alt: 'A black puppy looking up at the camera' },
-  { title: 'Logos & Graphics', description: 'Isolate an object from its background.', image: '/img/use-cases/brand-books.jpg', alt: 'A brand identity book open on a desk' },
-];
-
+/**
+ * Remove Background: the same layout as the Convert page (one bordered box
+ * holding the tool, a privacy note and three fact cards beside it, FAQ,
+ * call-to-action band, "Learn more"). The AI model runs in the browser, so
+ * nothing is uploaded.
+ */
 export function renderRemoveBackgroundPage(): HTMLElement {
   const wrap = document.createElement('div');
-  wrap.appendChild(renderBreadcrumb('Remove Background', 'remove-background'));
-  wrap.appendChild(renderHero());
+  wrap.className = 'conv';
 
-  const workspaceHost = document.createElement('div');
-  workspaceHost.id = 'upload';
-  wrap.appendChild(workspaceHost);
+  const h1 = document.createElement('h1');
+  h1.className = 'visually-hidden';
+  h1.textContent = 'Remove Background';
+  wrap.appendChild(h1);
+
+  const row = document.createElement('section');
+  row.className = 'conv-row';
+
+  const box = document.createElement('div');
+  box.className = 'conv-box';
+
+  const tabs = document.createElement('nav');
+  tabs.className = 'conv-tabs';
+  tabs.setAttribute('aria-label', 'Tool');
+  const tab = document.createElement('a');
+  tab.href = pathForRoute('remove-background');
+  tab.textContent = 'Remove Background';
+  tab.setAttribute('aria-current', 'page');
+  tabs.appendChild(tab);
+  box.appendChild(tabs);
+
+  const body = document.createElement('div');
+  body.className = 'conv-box__body';
+  const host = document.createElement('div');
+  host.id = 'upload';
+  body.appendChild(host);
+  box.appendChild(body);
+  row.appendChild(box);
 
   const workspace = createToolWorkspace({
     forceRemoveBackground: true,
     showFormatSelector: false,
     showBackgroundToggle: false,
+    convertLabel: 'Remove background',
+    upload: {
+      title: 'Drop up to 5 images here',
+      buttonLabel: 'Choose images',
+      formats: null,
+      minimal: true,
+    },
   });
-  workspace.mount(workspaceHost);
+  workspace.mount(host);
 
-  wrap.appendChild(
-    renderFeatureCarousel(
+  row.appendChild(
+    renderConvSide(
+      'Your photo never leaves your device. The AI model runs in your browser, so there is no upload, no queue and nothing to delete afterwards.',
       [
-        { icon: ICON.magicWand, title: 'AI cutouts', description: 'Works on people, products and pets.' },
-        { icon: ICON.lockKey, title: 'Private', description: 'Your image stays on your device.' },
-        { icon: ICON.lightning, title: 'No upload wait', description: 'Processing runs on your own device.' },
-        { icon: ICON.crop, title: 'Square crop', description: 'Crop the cutout in the app if you need to.' },
+        { value: 'Free', label: 'Always', text: 'No account, no limits, no watermark.' },
+        { value: 'PNG', label: 'Transparent result', text: 'A cutout with no background.' },
+        { value: 'AI', label: 'Works best on people', text: 'Portraits cut out cleanest. Other subjects vary.' },
       ],
-      'accent-mint',
-      'Why use the background remover',
     ),
   );
-
-  wrap.appendChild(
-    renderHowItWorks(
-      'How to remove a background',
-      '',
-      [
-        { icon: ICON.uploadSimple, title: 'Add your image', description: 'Choose or drop up to 5 images.' },
-        { icon: ICON.cpu, title: 'AI removes the background', description: 'A model running in your browser finds the subject.' },
-        { icon: ICON.downloadSimple, title: 'Download', description: 'Save a transparent PNG.' },
-      ],
-      'accent-mint',
-    ),
-  );
-
-  wrap.appendChild(renderUseCases());
-  wrap.appendChild(renderToolFaq(BG_FAQ, 'Background remover questions'));
-  wrap.appendChild(
-    renderRelatedLinks('Related tools and guides', [
-      { route: 'optimize', label: 'Compress images', description: 'Make a large PNG cutout smaller.' },
-      { route: 'convert', label: 'Convert image formats', description: 'Change the format of any image.' },
-      { route: 'article-formats', label: 'Which image format should you use?', description: 'Learn when PNG and its transparency are the right choice.' },
-    ]),
-  );
-  wrap.appendChild(
-    renderCtaBand(
-      'Ready to remove a background?',
-      '',
-      'Choose images',
-      '',
-      'accent-mint',
-      () => document.getElementById('upload')?.scrollIntoView({ behavior: 'smooth', block: 'center' }),
-    ),
-  );
+  wrap.appendChild(row);
+  wrap.appendChild(renderConvFaq(BG_FAQ));
+  wrap.appendChild(renderConvCta());
 
   return wrap;
 }
 
-function renderHero(): HTMLElement {
-  const hero = document.createElement('section');
-  hero.className = 'tool-hero accent-mint';
-  hero.innerHTML = `
-    <h1>Remove image backgrounds <br /><span class="tool-hero__accent">with AI, in your browser.</span></h1>
-    <p>Get a transparent PNG cutout. Nothing is uploaded.</p>
-    <p class="tool-hero__note">Works best on people and portraits. Results on other subjects may vary.</p>
-  `;
-  return hero;
-}
-
-function renderUseCases(): HTMLElement {
-  const cards = USE_CASES.map((u) => renderMediaCard(u));
-
-  return renderScrollCard(
-    'Common uses for cutouts',
-    'Transparent images for stores, posts and design work.',
-    renderSwipeStack(cards, 'accent-mint'),
-    'accent-mint',
-  );
-}
-
-const BG_FAQ = [
+const BG_FAQ: FaqEntry[] = [
   { question: 'Is my image uploaded?', answer: 'No. The AI model runs in your browser. Your image never leaves your device.' },
-  { question: 'Why is the first cutout slower?', answer: 'The AI model is a large one-time download that your browser keeps. After that, cutouts start faster.' },
+  { question: 'Why is the first cutout slower?', answer: 'The AI model is a one-time download that your browser keeps. After that, cutouts start faster.' },
   { question: 'How good are the results?', answer: 'Edges are soft, so hair and fine detail blend in. Results are best on people and portraits and vary on other subjects.' },
   { question: 'How many images can I process at once?', answer: 'Up to 5. Each one is processed separately.' },
   { question: 'Can I edit the cutout?', answer: 'You can crop it to a square. There is no brush for touching up edges yet.' },

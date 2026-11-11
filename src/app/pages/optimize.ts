@@ -64,7 +64,6 @@ export function renderOptimizePage(): HTMLElement {
   wrap.appendChild(
     renderRelatedLinks('Related tools and guides', [
       { route: 'convert', label: 'Convert image formats', description: 'Switch to WebP or AVIF for smaller files.' },
-      { route: 'article-formats', label: 'Which image format should you use?', description: 'Compare formats by size and quality.' },
       { route: 'remove-background', label: 'Remove an image background', description: 'Get a transparent PNG cutout.' },
     ]),
   );

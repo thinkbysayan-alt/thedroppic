@@ -19,11 +19,7 @@ export type Route =
   | 'webp-to-png'
   | 'jpeg-to-webp'
   | 'png-to-webp'
-  | 'how-it-works'
   | 'about'
-  | 'blog'
-  | 'article-formats'
-  | 'article-browser-processing'
   // The original multi-format tools. Still served at their old URLs, but no longer linked from the site.
   | 'convert'
   | 'remove-background'
@@ -52,13 +48,9 @@ export const ROUTE_PATHS: Record<PageRoute, string> = {
   'webp-to-png': '/webp-to-png',
   'jpeg-to-webp': '/jpeg-to-webp',
   'png-to-webp': '/png-to-webp',
-  'how-it-works': '/how-it-works',
   about: '/about',
-  blog: '/blog',
-  'article-formats': '/blog/best-image-format',
-  'article-browser-processing': '/blog/browser-based-image-processing',
   convert: '/tools/convert',
-  'remove-background': '/tools/remove-background',
+  'remove-background': '/remove-background',
   optimize: '/tools/optimize',
 };
 

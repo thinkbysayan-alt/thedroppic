@@ -8,10 +8,10 @@ import { logoMarkup } from './logo';
  */
 const CONVERTER_ROUTES = new Set<Route>(['jpeg-to-png', 'png-to-jpeg', 'heic-to-jpeg', 'webp-to-jpeg', 'webp-to-png', 'jpeg-to-webp', 'png-to-webp']);
 
-/** The nav is three links: Convert (opens the first converter tab), Blog and About. */
+/** The nav: Convert (opens the first converter tab), Remove Background and About. */
 const NAV_ITEMS: Array<{ route: PageRoute; label: string }> = [
   { route: 'jpeg-to-png', label: 'Convert' },
-  { route: 'blog', label: 'Blog' },
+  { route: 'remove-background', label: 'Remove Background' },
   { route: 'about', label: 'About' },
 ];
 
@@ -47,7 +47,6 @@ export function mountChrome(root: HTMLElement): { viewRoot: HTMLElement } {
           <p class="site-footer__tagline">Free. Private. In your browser.</p>
           <ul class="site-footer__links">
             <li><a href="${pathForRoute('about')}">About</a></li>
-            <li><a href="${pathForRoute('blog')}">Blog</a></li>
             <li><a href="${pathForRoute('about')}#privacy">Privacy</a></li>
           </ul>
         </div>
@@ -75,9 +74,8 @@ export function mountChrome(root: HTMLElement): { viewRoot: HTMLElement } {
   return { viewRoot };
 }
 
-/** Which top-level nav item a route belongs to (articles live under Blog, converters under Convert). */
+/** Which top-level nav item a route belongs to (converters live under Convert). */
 function navRouteFor(route: Route): Route | null {
-  if (route === 'article-formats' || route === 'article-browser-processing') return 'blog';
   // All three converter tabs live under the single "Convert" nav item.
   if (CONVERTER_ROUTES.has(route)) return 'jpeg-to-png';
   return route;

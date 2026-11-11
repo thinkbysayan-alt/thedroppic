@@ -21,7 +21,7 @@ function prefersReducedMotion(): boolean {
 let gsapPromise: Promise<Gsap | null> | null = null;
 
 /** Lazy singleton load of GSAP core. Resolves to null (never rejects) if motion is off or the import fails. */
-function loadGsap(): Promise<Gsap | null> {
+export function loadGsap(): Promise<Gsap | null> {
   if (prefersReducedMotion()) return Promise.resolve(null);
   if (!gsapPromise) {
     gsapPromise = import('gsap')
@@ -139,7 +139,7 @@ export async function transitionPage(viewRoot: HTMLElement, swap: () => void): P
 }
 
 /** Elements that gently rise in as they scroll into view. Kept short on purpose: sections and tiles only. */
-const SCROLL_TARGETS = '.page-section:not(.faq), .tiles > li, .conv-faq, .conv-cta__inner, .conv-more, .article-callout, .article-tool-links';
+const SCROLL_TARGETS = '.page-section:not(.faq), .conv-faq, .conv-cta__inner';
 
 let scrollTriggers: Array<{ kill: () => void }> = [];
 let removeSafetyNet: (() => void) | null = null;
@@ -205,5 +205,89 @@ export async function initScrollMotion(root: HTMLElement, route: string): Promis
       el.style.opacity = '';
       el.style.transform = '';
     });
+  }
+}
+
+let aboutCleanup: (() => void) | null = null;
+
+/**
+ * About hero: the screen stays put while you scroll a little. The calm picture snaps into the shouting
+ * one and the solution line appears (a quick timed change, not tied to scroll distance). Without motion nothing is hidden.
+ */
+export async function initAboutHero(root: HTMLElement, route: string): Promise<void> {
+  aboutCleanup?.();
+  aboutCleanup = null;
+  const hero = root.querySelector<HTMLElement>('.about-hero');
+  if (route !== 'about' || !hero || prefersReducedMotion() || /HappyDOM/i.test(navigator.userAgent)) return;
+
+  try {
+    const [gsap, st] = await Promise.all([loadGsap(), import('gsap/ScrollTrigger')]);
+    if (!gsap || !hero.isConnected) return;
+    gsap.registerPlugin(st.ScrollTrigger);
+    const calm = hero.querySelector<HTMLElement>('.about-hero__img--calm');
+    const shout = hero.querySelector<HTMLElement>('.about-hero__img--shout');
+    const line = hero.querySelector<HTMLElement>('.about-hero__solution');
+    const header = document.querySelector<HTMLElement>('.site-header');
+    if (!calm || !shout || !line || !header) return;
+
+    // A quick, sharp change that plays on its own as soon as you scroll a little (and reverses when you scroll
+    // back to the top): the shouting picture snaps in over the calm one, then the calm one drops out beneath it,
+    // so at the end only the shouting character is left (no double image).
+    const snap = gsap.timeline({ paused: true, defaults: { ease: 'power3.out' } });
+    snap
+      .to(shout, { opacity: 1, duration: 0.26 }, 0)
+      .to(calm, { opacity: 0, duration: 0.14 }, 0.14)
+      .to(line, { opacity: 1, y: 0, duration: 0.32 }, 0.05);
+    const toggle = (on: boolean): void => {
+      if (on) snap.play();
+      else snap.reverse();
+    };
+
+    const mm = gsap.matchMedia();
+    mm.add('(min-width: 1000px)', () => {
+      // The menu stays in view (sticky on this page); the hero fills the rest of the screen and is held in place
+      // for just a short scroll while the change plays.
+      const fit = (): void => {
+        hero.style.height = `${Math.max(460, window.innerHeight - (hero.getBoundingClientRect().top + window.scrollY))}px`;
+      };
+      fit();
+      window.addEventListener('resize', fit);
+      gsap.set(shout, { opacity: 0 });
+      gsap.set(line, { opacity: 0, y: 14 });
+      const trigger = st.ScrollTrigger.create({
+        trigger: hero,
+        start: () => `top ${Math.round(hero.getBoundingClientRect().top + window.scrollY)}px`,
+        end: '+=28%',
+        pin: true,
+        anticipatePin: 1,
+        invalidateOnRefresh: true,
+        onUpdate: (self) => toggle(self.progress > 0.1),
+      });
+      void document.fonts?.ready.then(() => st.ScrollTrigger.refresh());
+      return () => {
+        trigger.kill();
+        window.removeEventListener('resize', fit);
+        hero.style.height = '';
+        snap.progress(0).pause();
+        gsap.set([calm, shout, line], { clearProps: 'opacity,transform' });
+      };
+    });
+    mm.add('(max-width: 999px)', () => {
+      gsap.set(shout, { opacity: 0 });
+      gsap.set(line, { opacity: 0, y: 14 });
+      const trigger = st.ScrollTrigger.create({
+        trigger: hero,
+        start: 'top 55%',
+        onToggle: (self) => toggle(self.isActive),
+      });
+      return () => {
+        trigger.kill();
+        snap.progress(0).pause();
+        gsap.set([calm, shout, line], { clearProps: 'opacity,transform' });
+      };
+    });
+    aboutCleanup = () => mm.revert();
+  } catch {
+    // Motion failed to load: the calm picture and all the copy stay visible.
   }
 }

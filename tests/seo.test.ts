@@ -27,7 +27,8 @@ describe('routing', () => {
     expect(ROUTE_PATHS['webp-to-png']).toBe('/webp-to-png');
     expect(ROUTE_PATHS['jpeg-to-webp']).toBe('/jpeg-to-webp');
     expect(ROUTE_PATHS['png-to-webp']).toBe('/png-to-webp');
-    expect(ROUTE_PATHS.blog).toBe('/blog');
+    expect(routeForPath('/blog')).toBe('not-found');
+    expect(routeForPath('/blog/best-image-format')).toBe('not-found');
   });
 
   it('uses short lowercase hyphenated slugs', () => {

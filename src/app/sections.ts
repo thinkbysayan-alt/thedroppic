@@ -1,4 +1,5 @@
 import { setRevealDelay } from '../utils/reveal';
+import { renderArcCarousel } from './arc-carousel';
 import type { PageRoute } from './router';
 import { pathForRoute } from './router';
 
@@ -533,43 +534,9 @@ export function renderToolLinks(links: ToolLink[]): HTMLElement {
   return list;
 }
 
-/**
- * The same converters as a slowly auto-scrolling carousel: pick any card at any time.
- * It pauses while hovered or focused. The track is repeated once so the loop is seamless;
- * that copy is hidden from assistive tech and keyboard focus. With reduced motion the
- * carousel stops moving and becomes a normal swipe/scroll row.
- */
-export function renderToolCarousel(links: ToolLink[], label = 'Converters'): HTMLElement {
-  const root = document.createElement('div');
-  root.className = 'carousel';
-  root.setAttribute('role', 'region');
-  root.setAttribute('aria-label', label);
-
-  const track = document.createElement('div');
-  track.className = 'carousel__track';
-
-  const buildSet = (hidden: boolean): HTMLElement => {
-    const set = document.createElement('ul');
-    set.className = 'carousel__set';
-    if (hidden) set.setAttribute('aria-hidden', 'true');
-    for (const link of links) {
-      const li = document.createElement('li');
-      const a = document.createElement('a');
-      a.className = 'carousel__card';
-      a.href = pathForRoute(link.route);
-      if (hidden) a.tabIndex = -1;
-      a.innerHTML = `<span class="carousel__name"></span><span class="carousel__hint"></span><span class="carousel__arrow" aria-hidden="true">→</span>`;
-      a.querySelector('.carousel__name')!.textContent = link.name;
-      a.querySelector('.carousel__hint')!.textContent = link.hint;
-      li.appendChild(a);
-      set.appendChild(li);
-    }
-    return set;
-  };
-
-  track.append(buildSet(false), buildSet(true));
-  root.appendChild(track);
-  return root;
+/** The tools as a slowly rotating arc of tiles (see arc-carousel.ts). */
+export function renderToolCarousel(links: ToolLink[], label = 'Tools'): HTMLElement {
+  return renderArcCarousel(links, label);
 }
 
 /** A section with a heading, used to give every page the same rhythm. */

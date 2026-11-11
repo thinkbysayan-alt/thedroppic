@@ -1,6 +1,6 @@
 import { createToolWorkspace } from '../tool-workspace';
-import { renderArt } from '../sections';
-import { pathForRoute, type ConverterRoute, type PageRoute } from '../router';
+import { renderConvCta, renderConvFaq, renderConvSide, type FaqEntry } from './conv-parts';
+import { pathForRoute, type ConverterRoute } from '../router';
 import type { OutputFormat, SourceFormat } from '../../types';
 
 /**
@@ -100,23 +100,26 @@ const CONVERTERS: Record<ConverterRoute, ConverterDef> = {
   },
 };
 
-const FAQ = [
+const FAQ: FaqEntry[] = [
   { question: 'Are my images uploaded?', answer: 'No. The conversion runs in your browser. Your image never leaves your device.' },
   { question: 'Do I need an account?', answer: 'No. There is no sign-up or login.' },
-  { question: 'What can thedroppic do?', answer: 'It converts images between JPEG, PNG, WebP and HEIC, right in your browser.' },
+  { question: 'What can thedroppic do?', answer: 'It converts images between JPEG, PNG, WebP and HEIC, and removes image backgrounds, right in your browser.' },
   { question: 'How many images can I process at once?', answer: 'Up to 5. Each one is converted and downloaded separately.' },
   { question: 'Which image formats are supported?', answer: 'JPEG, PNG, WebP and HEIC. Pick the tab for the conversion you need.' },
   { question: 'Is it free?', answer: 'Yes. There is no limit on how often you use it.' },
+  {
+    question: 'How do I convert a HEIC photo to JPEG for free?',
+    answer: 'Open the HEIC to JPEG tab, drop your iPhone photo, click Convert and download the JPEG. It is free, needs no account and runs in your browser.',
+  },
+  {
+    question: 'Which image format should I use: JPEG, PNG or WebP?',
+    answer: 'Use JPEG for photos, PNG for graphics, screenshots and transparency, and WebP for smaller files on a website. If a file will not open, convert it to JPEG.',
+  },
+  {
+    question: 'Is there a free image converter that does not upload my files?',
+    answer: 'Yes. thedroppic converts JPEG, PNG, WebP and HEIC images in your browser, so your files stay on your device and are never sent to a server.',
+  },
 ];
-
-const LEARN_MORE: Array<{ route: PageRoute; label: string; text: string }> = [
-  { route: 'article-formats', label: 'Which image format should you use?', text: 'A short guide to JPG, PNG, WebP, AVIF, TIFF and HEIC.' },
-  { route: 'article-browser-processing', label: 'How browser-based image processing works', text: 'What happens to your image, step by step.' },
-  { route: 'about', label: 'About thedroppic', text: 'Why the tools run in your browser.' },
-];
-
-const CHEVRON =
-  '<svg class="conv-faq__chevron" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.5" aria-hidden="true"><path d="m5 7.5 5 5 5-5" stroke-linecap="round" stroke-linejoin="round"/></svg>';
 
 export function renderConverterPage(route: ConverterRoute): HTMLElement {
   const def = CONVERTERS[route];
@@ -180,92 +183,19 @@ export function renderConverterPage(route: ConverterRoute): HTMLElement {
   workspace.mount(host);
 
   // ---- Side column: lock, privacy note, three fact cards
-  const side = document.createElement('aside');
-  side.className = 'conv-side';
-  side.appendChild(renderArt({ src: '/art/lock-sm.svg', alt: '', width: 460, height: 600, className: 'conv-side__lock', priority: true }));
-
-  const note = document.createElement('p');
-  note.className = 'conv-side__text';
-  note.textContent = 'Your photo never leaves your device. Your browser does the work, so there is no upload, no queue and nothing to delete afterwards.';
-  side.appendChild(note);
-
-  const cards = document.createElement('div');
-  cards.className = 'conv-cards';
-  const facts = [
-    { cls: 'a', value: 'Free', label: 'Always', text: 'No account, no limits, no watermark.' },
-    { cls: 'b', value: '5', label: 'Files at once', text: 'Drop up to 5 images and convert them together.' },
-    { cls: 'c', ...def.fact },
-  ];
-  for (const fact of facts) {
-    const card = document.createElement('div');
-    card.className = `stat-card stat-card--${fact.cls}`;
-    card.innerHTML = '<p class="stat-card__value"></p><p class="stat-card__label"></p><p class="stat-card__text"></p>';
-    card.querySelector('.stat-card__value')!.textContent = fact.value;
-    card.querySelector('.stat-card__label')!.textContent = fact.label;
-    card.querySelector('.stat-card__text')!.textContent = fact.text;
-    cards.appendChild(card);
-  }
-  side.appendChild(cards);
-  row.appendChild(side);
+  row.appendChild(
+    renderConvSide(
+      'Your photo never leaves your device. Your browser does the work, so there is no upload, no queue and nothing to delete afterwards.',
+      [
+        { value: 'Free', label: 'Always', text: 'No account, no limits, no watermark.' },
+        { value: '5', label: 'Files at once', text: 'Drop up to 5 images and convert them together.' },
+        def.fact,
+      ],
+    ),
+  );
   wrap.appendChild(row);
-
-  // ---- FAQ
-  const faq = document.createElement('section');
-  faq.className = 'conv-faq';
-  faq.setAttribute('aria-labelledby', 'faq-heading');
-  faq.innerHTML = '<h2 id="faq-heading">Frequently asked questions</h2>';
-  for (const item of FAQ) {
-    const details = document.createElement('details');
-    details.className = 'faq-item conv-faq__item';
-    const summary = document.createElement('summary');
-    const q = document.createElement('span');
-    q.textContent = item.question;
-    summary.appendChild(q);
-    summary.insertAdjacentHTML('beforeend', CHEVRON);
-    const answer = document.createElement('p');
-    answer.textContent = item.answer;
-    details.append(summary, answer);
-    faq.appendChild(details);
-  }
-  wrap.appendChild(faq);
-
-  // ---- Call-to-action band
-  const cta = document.createElement('section');
-  cta.className = 'conv-cta';
-  cta.innerHTML = `
-    <div class="conv-cta__inner">
-      <h2 class="conv-cta__title">Drop an image to get started.</h2>
-      <div class="conv-cta__action">
-        <button type="button" class="conv-cta__btn">Choose images</button>
-        <p>No account. No upload.</p>
-      </div>
-    </div>
-  `;
-  // "Choose images" takes you back up to the drop area at the top of the page.
-  cta.querySelector<HTMLButtonElement>('.conv-cta__btn')!.addEventListener('click', () => {
-    const reduce = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
-    window.scrollTo({ top: 0, behavior: reduce ? 'auto' : 'smooth' });
-    document.getElementById('file-input')?.focus({ preventScroll: true });
-  });
-  wrap.appendChild(cta);
-
-  // ---- Learn more
-  const more = document.createElement('section');
-  more.className = 'conv-more';
-  more.setAttribute('aria-labelledby', 'more-heading');
-  more.innerHTML = '<h2 id="more-heading">Learn more</h2><ul class="conv-more__list"></ul>';
-  const list = more.querySelector('ul')!;
-  for (const item of LEARN_MORE) {
-    const li = document.createElement('li');
-    const a = document.createElement('a');
-    a.href = pathForRoute(item.route);
-    a.innerHTML = '<span class="conv-more__label"></span><span class="conv-more__text"></span>';
-    a.querySelector('.conv-more__label')!.textContent = item.label;
-    a.querySelector('.conv-more__text')!.textContent = item.text;
-    li.appendChild(a);
-    list.appendChild(li);
-  }
-  wrap.appendChild(more);
+  wrap.appendChild(renderConvFaq(FAQ));
+  wrap.appendChild(renderConvCta());
 
   return wrap;
 }

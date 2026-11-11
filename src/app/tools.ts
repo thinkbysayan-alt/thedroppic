@@ -9,4 +9,5 @@ export const TOOL_LINKS: ToolLink[] = [
   { route: 'webp-to-png', name: 'WebP to PNG', hint: 'I need a PNG from a WebP' },
   { route: 'jpeg-to-webp', name: 'JPEG to WebP', hint: 'I want a lighter web image' },
   { route: 'png-to-webp', name: 'PNG to WebP', hint: 'Make my PNG smaller for the web' },
+  { route: 'remove-background', name: 'Remove Background', hint: 'I need a see-through cutout' },
 ];

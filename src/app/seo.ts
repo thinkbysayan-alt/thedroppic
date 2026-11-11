@@ -1,6 +1,4 @@
 import { ROUTE_PATHS, type PageRoute, type Route } from './router';
-import { ARTICLE_FORMATS_META } from './pages/article-formats';
-import { ARTICLE_BROWSER_META } from './pages/article-browser-processing';
 
 /**
  * Single source of truth for per-page metadata (title, description,
@@ -71,35 +69,11 @@ export const PAGE_META: Record<PageRoute, PageMeta> = {
       'Convert PNG to WebP in your browser and get smaller files. Set the quality, convert up to 5 files, and nothing is uploaded.',
     crumb: 'PNG to WebP',
   },
-  'how-it-works': {
-    title: 'How thedroppic Works: Private Image Conversion',
-    description:
-      'See how thedroppic converts images in your browser in three steps: drop, convert, download. Nothing is uploaded to a server.',
-    crumb: 'How it works',
-  },
   about: {
     title: 'About thedroppic: Private Image Converters',
     description:
       'thedroppic converts images in your browser. No account, no upload, no tracking. Learn how it protects your privacy.',
     crumb: 'About',
-  },
-  blog: {
-    title: 'Blog: Image Format Guides | thedroppic',
-    description:
-      'Short guides on choosing image formats and on how browser-based image processing keeps your files private.',
-    crumb: 'Blog',
-  },
-  'article-formats': {
-    title: 'Which Image Format Should You Use? | thedroppic',
-    description: ARTICLE_FORMATS_META.excerpt,
-    crumb: ARTICLE_FORMATS_META.title,
-    parent: 'blog',
-  },
-  'article-browser-processing': {
-    title: 'How Browser-Based Image Processing Works | thedroppic',
-    description: ARTICLE_BROWSER_META.excerpt,
-    crumb: ARTICLE_BROWSER_META.title,
-    parent: 'blog',
   },
   convert: {
     title: 'Image Converter: JPG, PNG, WebP, AVIF, TIFF & HEIC | thedroppic',
@@ -108,9 +82,9 @@ export const PAGE_META: Record<PageRoute, PageMeta> = {
     crumb: 'Convert Images',
   },
   'remove-background': {
-    title: 'AI Background Remover: No Upload Needed | thedroppic',
+    title: 'Remove Image Background: Free, No Upload | thedroppic',
     description:
-      'Remove image backgrounds with AI in your browser and download a transparent PNG. Works best on people and portraits. Nothing is uploaded.',
+      'Remove the background from a photo in your browser and download a transparent PNG. Free, works best on people, and nothing is uploaded.',
     crumb: 'Remove Background',
   },
   optimize: {
@@ -255,16 +229,6 @@ function buildGraph(route: PageRoute, faq: FaqEntry[]): object[] {
     });
   }
   if (route === 'about') graph.push({ '@type': 'AboutPage', url, name: meta.title, description: meta.description });
-  if (route === 'blog') graph.push({ '@type': 'CollectionPage', url, name: meta.title, description: meta.description });
-  if (route === 'article-formats' || route === 'article-browser-processing') {
-    graph.push({
-      '@type': 'Article',
-      headline: meta.crumb,
-      description: meta.description,
-      mainEntityOfPage: url,
-      publisher: { '@id': `${SITE_URL}/#organization` },
-    });
-  }
 
   if (faq.length > 0) {
     graph.push({
@@ -292,7 +256,7 @@ export function buildSeo(route: Route, faq: FaqEntry[] = []): SeoData {
     description: meta.description,
     canonical: canonicalFor(route),
     noindex: false,
-    ogType: route.startsWith('article-') ? 'article' : 'website',
+    ogType: 'website',
     jsonld: { '@context': 'https://schema.org', '@graph': buildGraph(route, faq) },
   };
 }
