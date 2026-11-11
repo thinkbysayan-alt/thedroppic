@@ -7,6 +7,6 @@ export async function encodeJpeg(imageData: ImageData, quality: number): Promise
     return await encode(imageData, { quality });
   } catch (err) {
     if (err instanceof AppError) throw err;
-    throw new AppError('conversion-failed', "We couldn't convert this image. Please try again.");
+    throw new AppError('conversion-failed', "Well, that didn't go to plan. Give it another go?");
   }
 }

@@ -210,6 +210,7 @@ function warmUp(): void {
         await withTimeout(segmenter([blank]), SEGMENT_TIMEOUT_MS, 'Warm-up timed out');
       }),
     )
+    .then(() => ctx.postMessage({ kind: 'ready' }))
     .catch(() => {
       // Ignored on purpose, see above.
     });

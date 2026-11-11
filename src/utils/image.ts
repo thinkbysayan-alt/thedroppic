@@ -39,7 +39,7 @@ export function assertSafePixelCount(width: number, height: number): void {
   if (width * height > MAX_PIXELS) {
     throw new AppError(
       'too-large',
-      'This image is too large for your browser to process reliably.',
+      "That one's a bit of a whopper. Try a smaller version?",
     );
   }
 }
@@ -99,7 +99,7 @@ export async function imageDataToBlob(imageData: ImageData, type = 'image/png'):
   return new Promise((resolve, reject) => {
     (canvas as HTMLCanvasElement).toBlob((blob) => {
       if (blob) resolve(blob);
-      else reject(new AppError('conversion-failed', "We couldn't convert this image. Please try again."));
+      else reject(new AppError('conversion-failed', "Well, that didn't go to plan. Give it another go?"));
     }, type);
   });
 }

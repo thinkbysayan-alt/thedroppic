@@ -1,32 +1,43 @@
 import { AppError } from '../types';
-import type { BackgroundRemovalMessage, BackgroundRemovalRequest, BackgroundRemovalResponse } from '../workers/background-removal-protocol';
+import type {
+  BackgroundRemovalMessage,
+  BackgroundRemovalReady,
+  BackgroundRemovalRequest,
+  BackgroundRemovalResponse,
+} from '../workers/background-removal-protocol';
 
 /**
- * AI background removal — MODNet (ZHKKKe/MODNet, Apache-2.0), a trimap-free
- * portrait-matting model, run via Transformers.js (huggingface/transformers.js,
- * Apache-2.0) on top of ONNX Runtime Web.
+ * AI background removal: BiRefNet Lite (ZhengPeng7/BiRefNet_lite, MIT), a general subject-segmentation model, in
+ * the web export studioludens/birefnet-lite-512, run through Transformers.js and ONNX Runtime Web, on the visitor's
+ * graphics chip (WebGPU) or, failing that, their processor (WASM).
  *
- * This is a thin main-thread facade: the actual model load + inference +
- * matte refinement all happen in a dedicated Worker (see
- * workers/background-removal.worker.ts) so the UI thread is never blocked,
- * not even briefly — model loading, WebGPU/WASM setup, and the inference
- * itself all run off-thread. Communication is raw pixel bytes only
- * (transferred, not copied), matching the pattern the codec worker already
- * uses for format conversion.
+ * This is a thin main-thread facade: model load, inference and matte refinement all happen in a dedicated Worker
+ * (see workers/background-removal.worker.ts), so the page never freezes. Only raw pixel bytes cross to the worker
+ * (transferred, not copied), and the photo is never sent over the network.
  *
- * Model + WASM runtime are self-hosted (public/models/, public/ort/) — no
- * calls to Hugging Face's or anyone else's CDN at runtime, matching the
- * app's privacy stance. Lazy-loaded: the worker (and everything it needs)
- * is only created the first time the user enables "Remove background".
+ * The model file itself (about 94 MB) is a plain public file download from huggingface.co on first use, then kept
+ * in the browser's cache. There is no API key, no account, no per-image request and no billing involved; the ONNX
+ * runtime files are served from this site (public/ort). Lazy-loaded: nothing here runs until the Remove Background
+ * page starts preparing it.
  */
 let worker: Worker | null = null;
 let nextId = 1;
+let ready = false;
+
+/** True once the model has loaded and warmed up (or a cut-out has finished), so the next one starts quickly. */
+export function isBackgroundRemovalReady(): boolean {
+  return ready;
+}
 const pending = new Map<number, { resolve: (v: BackgroundRemovalResponse) => void; reject: (e: Error) => void }>();
 
 function getWorker(): Worker {
   if (!worker) {
     worker = new Worker(new URL('../workers/background-removal.worker.ts', import.meta.url), { type: 'module' });
-    worker.onmessage = (event: MessageEvent<BackgroundRemovalResponse>) => {
+    worker.onmessage = (event: MessageEvent<BackgroundRemovalResponse | BackgroundRemovalReady>) => {
+      if ('kind' in event.data) {
+        ready = true;
+        return;
+      }
       const entry = pending.get(event.data.id);
       if (!entry) return;
       pending.delete(event.data.id);
@@ -75,6 +86,7 @@ export async function removeBackground(imageData: ImageData): Promise<ImageData>
   const buffer = imageData.data.buffer.slice(0);
   const response = await callWorker({ kind: 'segment', id, data: buffer, width: imageData.width, height: imageData.height });
   if (!response.ok) throw new AppError(response.errorCode, response.message);
+  ready = true;
   console.info('[background-removal]', `${imageData.width}x${imageData.height}`, response.timings);
   return new ImageData(new Uint8ClampedArray(response.data), response.width, response.height);
 }

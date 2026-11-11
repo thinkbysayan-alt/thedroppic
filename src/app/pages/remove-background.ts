@@ -1,21 +1,39 @@
 import { createToolWorkspace } from '../tool-workspace';
 import { pathForRoute } from '../router';
-import { renderConvCta, renderConvFaq, renderConvSide, type FaqEntry } from './conv-parts';
+import { preloadBackgroundRemoval } from '../../conversion/background-removal';
+import { renderConvCta, renderConvFaq, renderConvHead, renderConvSide, type FaqEntry } from './conv-parts';
 
 /**
  * Remove Background: the same layout as the Convert page (one bordered box
  * holding the tool, a privacy note and three fact cards beside it, FAQ,
- * call-to-action band, "Learn more"). The AI model runs in the browser, so
- * nothing is uploaded.
+ * call-to-action band). The AI model runs in the browser, so nothing is uploaded.
  */
+/**
+ * Starts getting the AI model ready while the person is still choosing a photo, so the cut-out itself is quick
+ * (otherwise the model's first-time load and warm-up, about half a minute, happens after they click). Skipped on
+ * data-saver and slow connections, where the download should wait until a photo is actually chosen.
+ */
+function prepareCutoutModel(): void {
+  if (/HappyDOM/i.test(navigator.userAgent) || typeof Worker === 'undefined') return;
+  const connection = (navigator as Navigator & { connection?: { saveData?: boolean; effectiveType?: string } }).connection;
+  if (connection?.saveData || /^(slow-2g|2g|3g)$/.test(connection?.effectiveType ?? '')) return;
+  const start = (): void => preloadBackgroundRemoval();
+  const idle: ((cb: () => void, opts?: { timeout: number }) => number) | undefined = window.requestIdleCallback?.bind(window);
+  if (idle) idle(start, { timeout: 3000 });
+  else setTimeout(start, 1500);
+}
+
 export function renderRemoveBackgroundPage(): HTMLElement {
   const wrap = document.createElement('div');
   wrap.className = 'conv';
 
-  const h1 = document.createElement('h1');
-  h1.className = 'visually-hidden';
-  h1.textContent = 'Remove Background';
-  wrap.appendChild(h1);
+  wrap.appendChild(
+    renderConvHead(
+      'Remove Background',
+      "Now you see it. Now you don't.",
+      'Drop a photo and get back just the subject, on a see-through background, ready for slides, stickers or that LinkedIn photo.',
+    ),
+  );
 
   const row = document.createElement('section');
   row.className = 'conv-row';
@@ -47,21 +65,22 @@ export function renderRemoveBackgroundPage(): HTMLElement {
     showBackgroundToggle: false,
     convertLabel: 'Remove background',
     upload: {
-      title: 'Drop up to 5 images here',
-      buttonLabel: 'Choose images',
+      title: 'Drop up to 5 photos here',
+      buttonLabel: 'Pick photos',
       formats: null,
       minimal: true,
     },
   });
   workspace.mount(host);
+  prepareCutoutModel();
 
   row.appendChild(
     renderConvSide(
-      'Your photo never leaves your device. The AI model runs in your browser, so there is no upload, no queue and nothing to delete afterwards.',
+      "The cut-out happens right on your device. Nothing gets sent anywhere.",
       [
-        { value: 'Free', label: 'Always', text: 'No account, no limits, no watermark.' },
-        { value: 'PNG', label: 'Transparent result', text: 'A cutout with no background.' },
-        { value: 'AI', label: 'Works best on people', text: 'Portraits cut out cleanest. Other subjects vary.' },
+        { value: 'Zero', label: 'sign-ups', text: 'Open, drop, done.' },
+        { value: 'Same size', label: 'or smaller', text: 'See-through. Plop it onto anything.' },
+        { value: 'AI', label: 'Loves a portrait', text: 'People come out cleanest. Cats, cars and coffee cups are a bit more hit and miss.' },
       ],
     ),
   );
@@ -73,11 +92,18 @@ export function renderRemoveBackgroundPage(): HTMLElement {
 }
 
 const BG_FAQ: FaqEntry[] = [
-  { question: 'Is my image uploaded?', answer: 'No. The AI model runs in your browser. Your image never leaves your device.' },
-  { question: 'Why is the first cutout slower?', answer: 'The AI model is a one-time download that your browser keeps. After that, cutouts start faster.' },
-  { question: 'How good are the results?', answer: 'Edges are soft, so hair and fine detail blend in. Results are best on people and portraits and vary on other subjects.' },
-  { question: 'How many images can I process at once?', answer: 'Up to 5. Each one is processed separately.' },
-  { question: 'Can I edit the cutout?', answer: 'You can crop it to a square. There is no brush for touching up edges yet.' },
-  { question: 'Which formats can I use?', answer: 'Upload JPG, PNG, WebP, AVIF, TIFF or HEIC. The result downloads as a transparent PNG.' },
-  { question: 'Is it free?', answer: 'Yes. There is no limit on how often you use it.' },
+  { question: 'Is my photo uploaded?', answer: 'No. The cut-out happens on your device.' },
+  {
+    question: 'Why is the first one slower?',
+    answer: 'The first time, your browser downloads the little AI that does the cutting. It keeps it, so every cut-out after that is quicker.',
+  },
+  {
+    question: 'How good are the results?',
+    answer: 'Really good on people and portraits. Hair and soft edges blend in nicely. Other things (pets, products, plants) can be a bit hit and miss.',
+  },
+  {
+    question: 'Can I touch up the edges?',
+    answer: 'Not yet. You can crop to a square for now, and a touch-up brush is on the wish list.',
+  },
+  { question: 'What can I upload?', answer: "JPG, PNG, WebP, AVIF, TIFF or HEIC. You get back a see-through image that's never bigger than the file you put in: a WebP for photos, or a PNG when that fits." },
 ];

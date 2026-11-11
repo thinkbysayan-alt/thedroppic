@@ -1,5 +1,5 @@
 import { createToolWorkspace } from '../tool-workspace';
-import { renderConvCta, renderConvFaq, renderConvSide, type FaqEntry } from './conv-parts';
+import { renderConvCta, renderConvFaq, renderConvHead, renderConvSide, type FaqEntry } from './conv-parts';
 import { pathForRoute, type ConverterRoute } from '../router';
 import type { OutputFormat, SourceFormat } from '../../types';
 
@@ -18,6 +18,11 @@ interface ConverterDef {
   fromLabel: string;
   toLabel: string;
   title: string;
+  /** The page's own headline and the one-liner under it. */
+  headline: string;
+  oneLiner: string;
+  /** How the format is named in "Drop up to 5 ___ here". */
+  plural: string;
   accept: string;
   /** The third fact card (the other two are the same on every converter). */
   fact: { value: string; label: string; text: string };
@@ -41,8 +46,11 @@ const CONVERTERS: Record<ConverterRoute, ConverterDef> = {
     fromLabel: 'JPEG',
     toLabel: 'PNG',
     title: 'JPEG to PNG',
+    headline: 'Give your JPEG a glow-up.',
+    oneLiner: 'PNG keeps every pixel crisp, so edges stay sharp and screenshots stay readable.',
+    plural: 'JPEGs',
     accept: 'image/jpeg,.jpg,.jpeg,.jfif',
-    fact: { value: '100%', label: 'Lossless', text: 'PNG keeps every pixel of your JPEG.' },
+    fact: { value: '100%', label: 'Every pixel', text: 'PNG keeps all of it, nothing smudged.' },
   },
   'png-to-jpeg': {
     from: 'png',
@@ -50,8 +58,11 @@ const CONVERTERS: Record<ConverterRoute, ConverterDef> = {
     fromLabel: 'PNG',
     toLabel: 'JPEG',
     title: 'PNG to JPEG',
+    headline: 'Same picture. Way lighter.',
+    oneLiner: 'Shrink that chunky PNG into a JPEG that actually fits in an email.',
+    plural: 'PNGs',
     accept: 'image/png,.png',
-    fact: { value: '1-100', label: 'Quality you choose', text: 'Balance file size against detail.' },
+    fact: { value: '1-100', label: 'Way smaller', text: 'You pick the quality. Lower it and the file shrinks fast.' },
   },
   'heic-to-jpeg': {
     from: 'heic',
@@ -59,8 +70,11 @@ const CONVERTERS: Record<ConverterRoute, ConverterDef> = {
     fromLabel: 'HEIC',
     toLabel: 'JPEG',
     title: 'HEIC to JPEG',
+    headline: 'iPhone photo, meet the rest of the world.',
+    oneLiner: 'Turn HEIC files into JPEGs that open on Windows, Android, and that one ancient office laptop.',
+    plural: 'HEICs',
     accept: '.heic,.heif,image/heic,image/heif',
-    fact: { value: 'JPEG', label: 'Opens anywhere', text: 'Works on any PC, phone, app or website.' },
+    fact: { value: 'JPEG', label: 'Opens anywhere', text: 'Windows, Android, that old office laptop. All fine.' },
   },
   'webp-to-jpeg': {
     from: 'webp',
@@ -68,8 +82,11 @@ const CONVERTERS: Record<ConverterRoute, ConverterDef> = {
     fromLabel: 'WebP',
     toLabel: 'JPEG',
     title: 'WebP to JPEG',
+    headline: "Saved an image and it won't open? Classic WebP.",
+    oneLiner: 'Turn it into a good old JPEG that works everywhere.',
+    plural: 'WebPs',
     accept: 'image/webp,.webp',
-    fact: { value: 'JPEG', label: 'Opens anywhere', text: 'Works on any PC, phone, app or website.' },
+    fact: { value: 'JPEG', label: 'Opens anywhere', text: 'Works in every app, on every device.' },
   },
   'webp-to-png': {
     from: 'webp',
@@ -77,8 +94,11 @@ const CONVERTERS: Record<ConverterRoute, ConverterDef> = {
     fromLabel: 'WebP',
     toLabel: 'PNG',
     title: 'WebP to PNG',
+    headline: 'WebP in, PNG out.',
+    oneLiner: "Handy when you need transparency and an app that won't throw a tantrum.",
+    plural: 'WebPs',
     accept: 'image/webp,.webp',
-    fact: { value: 'Alpha', label: 'Keeps transparency', text: 'Transparent areas stay transparent.' },
+    fact: { value: 'Alpha', label: 'See-through stays', text: 'Transparent parts stay transparent.' },
   },
   'jpeg-to-webp': {
     from: 'jpeg',
@@ -86,8 +106,11 @@ const CONVERTERS: Record<ConverterRoute, ConverterDef> = {
     fromLabel: 'JPEG',
     toLabel: 'WebP',
     title: 'JPEG to WebP',
+    headline: 'Make your site a little faster.',
+    oneLiner: 'WebP files are smaller than JPEGs at the same quality. Your page speed score will thank you.',
+    plural: 'JPEGs',
     accept: 'image/jpeg,.jpg,.jpeg,.jfif',
-    fact: { value: '1-100', label: 'Quality you choose', text: 'WebP files are usually lighter than JPEG.' },
+    fact: { value: '1-100', label: 'Lighter files', text: 'You pick the quality. WebP keeps it small.' },
   },
   'png-to-webp': {
     from: 'png',
@@ -95,29 +118,27 @@ const CONVERTERS: Record<ConverterRoute, ConverterDef> = {
     fromLabel: 'PNG',
     toLabel: 'WebP',
     title: 'PNG to WebP',
+    headline: 'Keep the transparency, lose the weight.',
+    oneLiner: 'Perfect for logos and graphics on the web.',
+    plural: 'PNGs',
     accept: 'image/png,.png',
-    fact: { value: 'Lighter', label: 'Smaller files', text: 'WebP files are usually much smaller than PNG.' },
+    fact: { value: 'Lighter', label: 'Same look, less weight', text: 'Your logo keeps its see-through edges.' },
   },
 };
 
 const FAQ: FaqEntry[] = [
-  { question: 'Are my images uploaded?', answer: 'No. The conversion runs in your browser. Your image never leaves your device.' },
-  { question: 'Do I need an account?', answer: 'No. There is no sign-up or login.' },
-  { question: 'What can thedroppic do?', answer: 'It converts images between JPEG, PNG, WebP and HEIC, and removes image backgrounds, right in your browser.' },
-  { question: 'How many images can I process at once?', answer: 'Up to 5. Each one is converted and downloaded separately.' },
-  { question: 'Which image formats are supported?', answer: 'JPEG, PNG, WebP and HEIC. Pick the tab for the conversion you need.' },
-  { question: 'Is it free?', answer: 'Yes. There is no limit on how often you use it.' },
+  { question: 'Are my images uploaded?', answer: 'Nope. Your browser does the converting, so your photos never leave your device.' },
+  { question: 'Do I need an account?', answer: 'Not even a little bit. Open the page and go.' },
+  { question: 'How many images can I convert at once?', answer: 'Up to 5. Each one comes back as its own download.' },
+  { question: 'Which formats are supported?', answer: 'JPEG, PNG, WebP and HEIC. Pick the tab that matches what you have and what you need.' },
+  { question: 'Does it cost anything?', answer: "No, and there's no daily limit either. Convert to your heart's content." },
   {
-    question: 'How do I convert a HEIC photo to JPEG for free?',
-    answer: 'Open the HEIC to JPEG tab, drop your iPhone photo, click Convert and download the JPEG. It is free, needs no account and runs in your browser.',
+    question: 'How do I turn an iPhone HEIC photo into a JPEG?',
+    answer: 'Open the HEIC to JPEG tab, drop your photo in, hit Convert, and download. About ten seconds, start to finish.',
   },
   {
-    question: 'Which image format should I use: JPEG, PNG or WebP?',
-    answer: 'Use JPEG for photos, PNG for graphics, screenshots and transparency, and WebP for smaller files on a website. If a file will not open, convert it to JPEG.',
-  },
-  {
-    question: 'Is there a free image converter that does not upload my files?',
-    answer: 'Yes. thedroppic converts JPEG, PNG, WebP and HEIC images in your browser, so your files stay on your device and are never sent to a server.',
+    question: 'JPEG, PNG or WebP: which should I use?',
+    answer: "Quick cheat sheet: JPEG for photos, PNG for screenshots, logos and anything that needs a see-through background, WebP for images on a website. If a file won't open somewhere, JPEG is the safe bet.",
   },
 ];
 
@@ -126,11 +147,8 @@ export function renderConverterPage(route: ConverterRoute): HTMLElement {
   const wrap = document.createElement('div');
   wrap.className = 'conv';
 
-  // The page's h1: the design has no visible heading, only the tabs.
-  const h1 = document.createElement('h1');
-  h1.className = 'visually-hidden';
-  h1.textContent = def.title;
-  wrap.appendChild(h1);
+  // The page's own heading (the h1): plain format name as a label, then this tab's headline and one-liner.
+  wrap.appendChild(renderConvHead(def.title, def.headline, def.oneLiner));
 
   // ---- Tool box with tabs
   const row = document.createElement('section');
@@ -165,16 +183,16 @@ export function renderConverterPage(route: ConverterRoute): HTMLElement {
     showBackgroundToggle: false,
     fixedOutputFormat: def.to,
     allowedSources: [def.from],
-    convertLabel: `Convert to ${def.toLabel}`,
+    convertLabel: 'Convert it',
     wrongFormatMessage: (detected) => {
-      const that = `That file is ${SOURCE_LABEL[detected]}.`;
+      const that = `Hmm, that's not ${SOURCE_LABEL[def.from]}.`;
       const tabsForIt = TAB_ORDER.filter((r) => CONVERTERS[r].from === detected).map((r) => CONVERTERS[r].title);
-      if (tabsForIt.length === 0) return `${that} This tab converts ${def.fromLabel} to ${def.toLabel}.`;
-      return `${that} Use the ${tabsForIt.join(' or ')} tab instead.`;
+      if (tabsForIt.length === 0) return `${that} Try a different file.`;
+      return `${that} It looks like ${SOURCE_LABEL[detected]}, so try the ${tabsForIt.join(' or ')} tab instead.`;
     },
     upload: {
-      title: `Drop up to 5 ${def.fromLabel} images here`,
-      buttonLabel: 'Choose images',
+      title: `Drop up to 5 ${def.plural} here`,
+      buttonLabel: 'Pick photos',
       accept: def.accept,
       formats: null,
       minimal: true,
@@ -185,10 +203,10 @@ export function renderConverterPage(route: ConverterRoute): HTMLElement {
   // ---- Side column: lock, privacy note, three fact cards
   row.appendChild(
     renderConvSide(
-      'Your photo never leaves your device. Your browser does the work, so there is no upload, no queue and nothing to delete afterwards.',
+      "Your photos stay on your device the whole time. Your browser does the heavy lifting, so there's nothing to upload and nothing left behind.",
       [
-        { value: 'Free', label: 'Always', text: 'No account, no limits, no watermark.' },
-        { value: '5', label: 'Files at once', text: 'Drop up to 5 images and convert them together.' },
+        { value: '0', label: 'sign-ups', text: "Just open the page and go. No watermark stamped on your stuff, either." },
+        { value: '5', label: 'at a time', text: 'Got a batch? Drop them all in together.' },
         def.fact,
       ],
     ),

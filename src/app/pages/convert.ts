@@ -68,7 +68,7 @@ export function renderConvertPage(): HTMLElement {
   wrap.appendChild(
     renderRelatedLinks('Related tools and guides', [
       { route: 'optimize', label: 'Compress images', description: 'Reduce the file size after you convert.' },
-      { route: 'remove-background', label: 'Remove an image background', description: 'Get a transparent PNG cutout.' },
+      { route: 'remove-background', label: 'Remove an image background', description: 'Get a see-through cutout.' },
     ]),
   );
   wrap.appendChild(

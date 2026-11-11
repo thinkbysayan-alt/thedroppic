@@ -1410,13 +1410,9 @@ html {
 .conv-side {
   padding-top: calc(18 * var(--u));
 }
-.conv-side__lock {
-  width: max(64px, calc(115 * var(--u)));
-  height: auto;
-}
 .conv-side__text {
   max-width: calc(505 * var(--u));
-  margin: calc(28 * var(--u)) 0 0;
+  margin: 0;
   font-size: max(17px, calc(30 * var(--u)));
   font-weight: 300;
   line-height: 1.23;
@@ -1428,8 +1424,33 @@ html {
   margin-top: calc(29 * var(--u));
 }
 .stat-card {
+  position: relative;
   padding: 18px 22px;
   background: var(--color-surface);
+  transform-origin: 50% 60%;
+  transition: rotate 0.35s cubic-bezier(0.34, 1.56, 0.64, 1), scale 0.35s cubic-bezier(0.34, 1.56, 0.64, 1), box-shadow 0.25s ease;
+}
+/* Hover: each card gives a little twist and lifts, a different way each. */
+.stat-card:hover {
+  z-index: 2;
+  rotate: -3deg;
+  scale: 1.05;
+  box-shadow: 0 16px 32px rgba(0, 0, 0, 0.12);
+}
+.stat-card--b:hover {
+  rotate: 3.5deg;
+}
+.stat-card--c:hover {
+  rotate: -2.5deg;
+}
+@media (prefers-reduced-motion: reduce) {
+  .stat-card {
+    transition: none;
+  }
+  .stat-card:hover {
+    rotate: none;
+    scale: none;
+  }
 }
 .stat-card p {
   margin: 0;
@@ -1626,10 +1647,7 @@ html {
   .conv-side {
     padding-top: 0;
   }
-  .conv-side__lock {
-    width: 72px;
-  }
-  .conv-side__text {
+    .conv-side__text {
     max-width: 44ch;
     margin-top: 20px;
     font-size: 1.125rem;
@@ -1719,4 +1737,130 @@ html.has-custom-cursor *:not(input):not(textarea):not(select) {
   left: 0;
   width: auto;
   max-width: none;
+}
+
+/* ---------- Page heading on the converter and Remove Background pages ---------- */
+.conv-head {
+  margin: calc(56 * var(--u)) calc(-15 * var(--u)) 0;
+  max-width: calc(1000 * var(--u));
+}
+.conv-head__title {
+  margin: 0;
+  font-size: max(28px, calc(52 * var(--u)));
+  font-weight: 800;
+  line-height: 1.1;
+  letter-spacing: -0.03em;
+}
+.conv-head__label {
+  display: block;
+  margin-bottom: calc(14 * var(--u));
+  font-size: max(13px, calc(19 * var(--u)));
+  font-weight: 500;
+  letter-spacing: 0.02em;
+  color: var(--color-text-muted);
+}
+.conv-head__text {
+  max-width: 44ch;
+  margin: calc(18 * var(--u)) 0 0;
+  font-size: max(16px, calc(26 * var(--u)));
+  font-weight: 300;
+  line-height: 1.25;
+  letter-spacing: -0.01em;
+}
+.conv-head + .conv-row {
+  margin-top: calc(44 * var(--u));
+}
+@media (max-width: 999px) {
+  .conv-head {
+    margin: 20px 0 0;
+  }
+  .conv-head + .conv-row {
+    margin-top: 24px;
+  }
+}
+
+/* About: the second story paragraph sits close under the first; the privacy caption is quiet. */
+.about-hero__agitation--second {
+  margin-top: calc(16 * var(--u));
+}
+.about-privacy__caption {
+  margin: 0;
+  color: var(--color-text-muted);
+  font-size: 0.9375rem;
+}
+.not-found__home {
+  margin: var(--space-4) 0 0;
+}
+
+/* ---------- Speech bubble over the home-page character ---------- */
+.home__bubble {
+  position: absolute;
+  top: 16%;
+  left: 4%;
+  z-index: 2;
+  max-width: min(36%, calc(360 * var(--u)));
+  margin: 0;
+  padding: calc(16 * var(--u)) calc(24 * var(--u));
+  border: 1.5px solid var(--color-text);
+  border-radius: calc(24 * var(--u));
+  background: #fff;
+  color: var(--color-text);
+  font-size: max(13px, calc(25 * var(--u)));
+  font-weight: 500;
+  line-height: 1.2;
+  letter-spacing: -0.015em;
+  text-wrap: balance;
+  pointer-events: none;
+  transform-origin: 80% 110%;
+  animation: bubble-in 0.55s 0.7s cubic-bezier(0.34, 1.56, 0.64, 1) both;
+}
+.home__bubble::after {
+  content: '';
+  position: absolute;
+  right: calc(46 * var(--u));
+  bottom: calc(-12 * var(--u));
+  width: calc(22 * var(--u));
+  height: calc(22 * var(--u));
+  min-width: 10px;
+  min-height: 10px;
+  border-right: 1.5px solid var(--color-text);
+  border-bottom: 1.5px solid var(--color-text);
+  background: #fff;
+  transform: rotate(45deg);
+}
+@keyframes bubble-in {
+  from {
+    opacity: 0;
+    transform: translateY(8px) scale(0.92);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .home__bubble {
+    animation: none;
+  }
+}
+@media (max-width: 999px) {
+  .home__bubble {
+    top: 4%;
+    left: 6%;
+    max-width: 62%;
+    padding: 8px 12px;
+    border-radius: 14px;
+    font-size: 0.8125rem;
+  }
+  .home__bubble::after {
+    right: 28px;
+    bottom: -7px;
+    width: 12px;
+    height: 12px;
+  }
+}
+
+/* Section links land just below the menu instead of under it. */
+.page-section[id] {
+  scroll-margin-top: calc(200 * var(--u));
 }

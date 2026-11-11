@@ -44,7 +44,7 @@ export function mountChrome(root: HTMLElement): { viewRoot: HTMLElement } {
       <footer class="site-footer">
         <div class="container site-footer__bar">
           <p>&copy; ${new Date().getFullYear()} thedroppic</p>
-          <p class="site-footer__tagline">Free. Private. In your browser.</p>
+          <p class="site-footer__tagline">Made with tiny pixels and big feelings.</p>
           <ul class="site-footer__links">
             <li><a href="${pathForRoute('about')}">About</a></li>
             <li><a href="${pathForRoute('about')}#privacy">Privacy</a></li>

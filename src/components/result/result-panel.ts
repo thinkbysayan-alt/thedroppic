@@ -35,10 +35,13 @@ export function renderResultPanel(info: ResultInfo, handlers: ResultPanelHandler
     </svg>
     <span></span>
   `;
-  badge.querySelector('span')!.textContent =
-    `Done: ${OUTPUT_FORMAT_LABEL[info.outputFormat]}, ${
-      info.originalByteLength ? describeSizeChange(info.originalByteLength, info.byteLength) : formatFileSize(info.byteLength)
-    }`;
+  // Three success lines, picked by result so they don't repeat on every conversion.
+  // The site calls it JPEG everywhere; the shared label says JPG.
+  const format = info.outputFormat === 'jpeg' ? 'JPEG' : OUTPUT_FORMAT_LABEL[info.outputFormat];
+  const lines = [`Ta-da! Your ${format} is ready.`, `Done and dusted. Your ${format} is ready.`, `Fresh out the oven. Your ${format} is ready.`];
+  badge.querySelector('span')!.textContent = `${lines[info.byteLength % lines.length]} ${
+    info.originalByteLength ? describeSizeChange(info.originalByteLength, info.byteLength) : formatFileSize(info.byteLength)
+  }`;
   panel.appendChild(badge);
 
   if (info.originalByteLength && info.byteLength > info.originalByteLength && info.growthNote !== null) {
@@ -69,7 +72,7 @@ export function renderResultPanel(info: ResultInfo, handlers: ResultPanelHandler
   const downloadBtn = document.createElement('button');
   downloadBtn.type = 'button';
   downloadBtn.className = 'btn btn-primary btn-block';
-  downloadBtn.textContent = 'Download image';
+  downloadBtn.textContent = 'Grab it';
   downloadBtn.addEventListener('click', handlers.onDownload);
   actions.appendChild(downloadBtn);
 
@@ -86,7 +89,7 @@ export function renderResultPanel(info: ResultInfo, handlers: ResultPanelHandler
   const anotherBtn = document.createElement('button');
   anotherBtn.type = 'button';
   anotherBtn.className = 'btn btn-secondary btn-block';
-  anotherBtn.textContent = 'Convert another image';
+  anotherBtn.textContent = 'Do another';
   anotherBtn.addEventListener('click', handlers.onConvertAnother);
   secondaryRow.appendChild(anotherBtn);
 

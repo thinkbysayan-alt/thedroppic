@@ -22,57 +22,57 @@ interface PageMeta {
 
 export const PAGE_META: Record<PageRoute, PageMeta> = {
   home: {
-    title: 'thedroppic: Convert Images Privately in Your Browser',
+    title: 'thedroppic: Fix Any Image Format in Your Browser',
     description:
-      'Convert JPEG, PNG, WebP and HEIC images in your browser. Free, no account, and nothing is uploaded. Your files never leave your device.',
+      'Wrong format? Drop it in. Swap between JPEG, PNG, WebP and HEIC or cut out a background, right in your browser. No upload, no sign-up.',
     crumb: 'Home',
   },
   'jpeg-to-png': {
-    title: 'JPEG to PNG Converter: Free, No Upload | thedroppic',
+    title: 'JPEG to PNG Converter, No Upload | thedroppic',
     description:
-      'Convert JPEG to PNG in your browser. Free, up to 5 files at once, and nothing is uploaded. Your images stay on your device.',
+      'Turn JPEGs into crisp PNGs in seconds, up to 5 at once. It all happens in your browser, so your photos stay put.',
     crumb: 'JPEG to PNG',
   },
   'png-to-jpeg': {
-    title: 'PNG to JPEG Converter: Free, No Upload | thedroppic',
+    title: 'PNG to JPEG: Shrink Big PNGs | thedroppic',
     description:
-      'Convert PNG to JPEG in your browser and get smaller files. Set the quality, convert up to 5 files, and nothing is uploaded.',
+      'Make chunky PNGs light enough to email. Convert up to 5 at once, right in your browser. No upload, no account.',
     crumb: 'PNG to JPEG',
   },
   'heic-to-jpeg': {
-    title: 'HEIC to JPEG Converter: Free, No Upload | thedroppic',
+    title: 'HEIC to JPEG: Open iPhone Photos Anywhere | thedroppic',
     description:
-      'Convert iPhone HEIC photos to JPEG in your browser. Free, up to 5 files at once, and nothing is uploaded.',
+      "iPhone photo won't open? Turn HEIC into JPEG in seconds, in your browser. Nothing uploaded, nothing to install.",
     crumb: 'HEIC to JPEG',
   },
   'webp-to-jpeg': {
-    title: 'WebP to JPEG Converter: Free, No Upload | thedroppic',
+    title: 'WebP to JPEG Converter | thedroppic',
     description:
-      'Convert WebP to JPEG in your browser so it opens anywhere. Free, up to 5 files at once, and nothing is uploaded.',
+      "Saved an image as .webp and it won't open? Turn it into a JPEG that works everywhere, right in your browser.",
     crumb: 'WebP to JPEG',
   },
   'webp-to-png': {
-    title: 'WebP to PNG Converter: Free, No Upload | thedroppic',
+    title: 'WebP to PNG Converter | thedroppic',
     description:
-      'Convert WebP to PNG in your browser and keep transparency. Free, up to 5 files at once, and nothing is uploaded.',
+      'Convert WebP images to PNG and keep the transparency. Up to 5 at once, all in your browser.',
     crumb: 'WebP to PNG',
   },
   'jpeg-to-webp': {
-    title: 'JPEG to WebP Converter: Free, No Upload | thedroppic',
+    title: 'JPEG to WebP: Faster Web Images | thedroppic',
     description:
-      'Convert JPEG to WebP in your browser and get lighter web images. Set the quality, convert up to 5 files, and nothing is uploaded.',
+      'Make your site quicker. Turn JPEGs into lighter WebP files, up to 5 at once, without uploading a thing.',
     crumb: 'JPEG to WebP',
   },
   'png-to-webp': {
-    title: 'PNG to WebP Converter: Free, No Upload | thedroppic',
+    title: 'PNG to WebP Converter | thedroppic',
     description:
-      'Convert PNG to WebP in your browser and get smaller files. Set the quality, convert up to 5 files, and nothing is uploaded.',
+      'Shrink PNG logos and graphics into WebP and keep the transparency. Runs right in your browser.',
     crumb: 'PNG to WebP',
   },
   about: {
-    title: 'About thedroppic: Private Image Converters',
+    title: 'About thedroppic: Small Tools for Stubborn Pictures',
     description:
-      'thedroppic converts images in your browser. No account, no upload, no tracking. Learn how it protects your privacy.',
+      'Why thedroppic exists, how it works, and where your photos go (spoiler: nowhere).',
     crumb: 'About',
   },
   convert: {
@@ -82,9 +82,9 @@ export const PAGE_META: Record<PageRoute, PageMeta> = {
     crumb: 'Convert Images',
   },
   'remove-background': {
-    title: 'Remove Image Background: Free, No Upload | thedroppic',
+    title: 'Remove Image Background, No Upload | thedroppic',
     description:
-      'Remove the background from a photo in your browser and download a transparent PNG. Free, works best on people, and nothing is uploaded.',
+      'Cut the background out of any photo and get a see-through image, never bigger than the original. Works best on portraits. Happens on your device.',
     crumb: 'Remove Background',
   },
   optimize: {
@@ -165,7 +165,7 @@ const TOOL_APPS: Partial<Record<PageRoute, { name: string; features: string[] }>
     name: 'thedroppic Background Remover',
     features: [
       'AI background removal',
-      'Transparent PNG output',
+      'Transparent output, never larger than the original',
       'Runs in your browser, nothing is uploaded',
     ],
   },

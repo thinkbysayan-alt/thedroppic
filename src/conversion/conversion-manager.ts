@@ -1,9 +1,9 @@
-import { AppError, type ConvertOptions, type ConvertResult, type SourceFormat } from '../types';
+import { AppError, type ConvertOptions, type ConvertResult, type OutputFormat, type SourceFormat } from '../types';
 import type { WorkerRequest, WorkerResponse } from '../workers/protocol';
 import { decodeSource } from './decode';
 import { removeBackground } from './background-removal';
 import { cropImageData } from '../utils/image';
-import { enforceNoGrowth } from './size-guard';
+import { encodeCutoutWithinLimit, enforceNoGrowth } from './size-guard';
 
 let worker: Worker | null = null;
 let nextId = 1;
@@ -22,7 +22,7 @@ function getWorker(): Worker {
       // Reject every in-flight request; a worker-level error means we can't
       // trust any pending response to still arrive.
       for (const [id, entry] of pending) {
-        entry.reject(new AppError('conversion-failed', "We couldn't convert this image. Please try again."));
+        entry.reject(new AppError('conversion-failed', "Well, that didn't go to plan. Give it another go?"));
         pending.delete(id);
       }
     };
@@ -47,7 +47,7 @@ export async function decodeForPreview(
   const response = await callWorker({ id, kind: 'decode-preview', sourceFormat, buffer }, [buffer]);
   if (!response.ok) throw new AppError(response.errorCode, response.message);
   if (response.kind !== 'decode-preview') {
-    throw new AppError('conversion-failed', "We couldn't convert this image. Please try again.");
+    throw new AppError('conversion-failed', "Well, that didn't go to plan. Give it another go?");
   }
   return response;
 }
@@ -87,17 +87,23 @@ async function convertWithBackgroundRemoval(
   const cropped = options.crop ? cropImageData(decoded, options.crop) : decoded;
   const withAlpha = await removeBackground(cropped);
 
-  const id = nextId++;
-  const response = await callWorker({ id, kind: 'encode-processed', imageData: withAlpha, options }, [
-    withAlpha.data.buffer,
-  ]);
-  return unwrapConvertResponse(response);
+  // Each encode hands its pixels to the worker, so give every attempt its own copy.
+  const encode = async (outputFormat: OutputFormat, quality: number): Promise<ConvertResult> => {
+    const copy = new ImageData(new Uint8ClampedArray(withAlpha.data), withAlpha.width, withAlpha.height);
+    const id = nextId++;
+    const response = await callWorker({ id, kind: 'encode-processed', imageData: copy, options: { ...options, outputFormat, quality } }, [
+      copy.data.buffer,
+    ]);
+    return unwrapConvertResponse(response);
+  };
+  const lossless = sourceFormat === 'png' || sourceFormat === 'tiff';
+  return encodeCutoutWithinLimit(file.size, lossless, encode);
 }
 
 function unwrapConvertResponse(response: WorkerResponse): ConvertResult {
   if (!response.ok) throw new AppError(response.errorCode, response.message);
   if (response.kind !== 'convert') {
-    throw new AppError('conversion-failed', "We couldn't convert this image. Please try again.");
+    throw new AppError('conversion-failed', "Well, that didn't go to plan. Give it another go?");
   }
   const blob = new Blob([response.buffer], { type: response.mime });
   return { blob, width: response.width, height: response.height, byteLength: response.buffer.byteLength };

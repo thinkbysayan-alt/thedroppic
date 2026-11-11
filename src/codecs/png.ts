@@ -7,6 +7,6 @@ export async function encodePng(imageData: ImageData): Promise<ArrayBuffer> {
     return await encode(imageData);
   } catch (err) {
     if (err instanceof AppError) throw err;
-    throw new AppError('conversion-failed', "We couldn't convert this image. Please try again.");
+    throw new AppError('conversion-failed', "Well, that didn't go to plan. Give it another go?");
   }
 }

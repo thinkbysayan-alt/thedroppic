@@ -6,9 +6,8 @@
  */
 import { loadGsap } from './motion';
 
-// Natural size of the pointing picture, and how far along it the fingertip is.
+// Natural size of the pointing picture.
 const POINT = { w: 358, h: 496 };
-const FINGERTIP = 0.915;
 
 let cleanup: (() => void) | null = null;
 
@@ -41,27 +40,50 @@ export async function initCtaPointer(root: HTMLElement): Promise<void> {
 
   // Stand on the lower line, with the fingertip a little way from the button.
   let height = 120;
+  // Layout position of an element inside the page column, ignoring any transform on it or its parents (the strip
+  // slides up 14px while it fades in, and measuring it mid-slide put the character too low).
+  const within = (el: HTMLElement): { left: number; top: number; width: number; height: number } => {
+    let left = 0;
+    let top = 0;
+    let node: HTMLElement | null = el;
+    while (node && node !== conv) {
+      left += node.offsetLeft;
+      top += node.offsetTop;
+      node = node.offsetParent as HTMLElement | null;
+    }
+    return { left, top, width: el.offsetWidth, height: el.offsetHeight };
+  };
+
   const place = (): void => {
-    const c = conv.getBoundingClientRect();
-    const i = inner.getBoundingClientRect();
-    const b = button.getBoundingClientRect();
+    const i = within(inner);
+    const b = within(button);
     height = Math.round(Math.min(150, Math.max(96, i.height * 0.74)));
     const width = (height * POINT.w) / POINT.h;
     holder.style.width = `${width}px`;
     holder.style.height = `${height}px`;
     img.style.height = `${height}px`;
-    const x = b.left - c.left - 14 - FINGERTIP * width;
-    const y = i.bottom - c.top - 1 - height;
+    // Stand left of the button and of the line of text under it, whichever reaches further left.
+    const noteEl = band.querySelector<HTMLElement>('.conv-cta__action p');
+    const edge = Math.min(b.left, noteEl ? within(noteEl).left : b.left);
+    // The whole picture (motion lines included) stays left of the text, not just the fingertip.
+    const x = edge - 16 - width;
+    // Feet rest on top of the lower black line (the 1px border at the bottom of the strip).
+    const y = i.top + i.height - 1 - height;
     holder.style.transform = `translate(${x}px, ${y}px)`;
   };
   place();
 
+  // Measure again whenever anything that decides the spot changes size: the window, the strip, the button, the
+  // line under it, and the page font arriving (which makes that line wider than it first measured).
   let ro: ResizeObserver | null = null;
   if (typeof ResizeObserver !== 'undefined') {
     ro = new ResizeObserver(place);
-    ro.observe(conv);
+    for (const el of [conv, inner, button, band.querySelector<HTMLElement>('.conv-cta__action p')]) if (el) ro.observe(el);
   }
+  void document.fonts?.ready.then(place);
+  window.addEventListener('resize', place);
   cleanup = () => {
+    window.removeEventListener('resize', place);
     ro?.disconnect();
     holder.remove();
   };

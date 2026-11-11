@@ -1,4 +1,3 @@
-import { renderArt } from '../sections';
 
 /** Page sections shared by the Convert page and the Remove Background page (the Figma "Convert" layout). */
 
@@ -17,12 +16,27 @@ const CHEVRON =
   '<svg class="conv-faq__chevron" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.5" aria-hidden="true"><path d="m5 7.5 5 5 5-5" stroke-linecap="round" stroke-linejoin="round"/></svg>';
 
 
-/** The right-hand column: lock picture, privacy note and three fact cards. */
+/** The page's own heading: the plain tool name as a small label (for clarity and search), a headline and a one-liner. */
+export function renderConvHead(label: string, headline: string, oneLiner: string): HTMLElement {
+  const head = document.createElement('header');
+  head.className = 'conv-head';
+  const h1 = document.createElement('h1');
+  h1.className = 'conv-head__title';
+  const tag = document.createElement('span');
+  tag.className = 'conv-head__label';
+  tag.textContent = label;
+  h1.append(tag, ` ${headline}`);
+  const p = document.createElement('p');
+  p.className = 'conv-head__text';
+  p.textContent = oneLiner;
+  head.append(h1, p);
+  return head;
+}
+
+/** The right-hand column: privacy note and three fact cards. */
 export function renderConvSide(note: string, facts: [Fact, Fact, Fact]): HTMLElement {
   const side = document.createElement('aside');
   side.className = 'conv-side';
-  side.appendChild(renderArt({ src: '/art/lock-sm.svg', alt: '', width: 460, height: 600, className: 'conv-side__lock', priority: true }));
-
   const p = document.createElement('p');
   p.className = 'conv-side__text';
   p.textContent = note;
@@ -48,7 +62,7 @@ export function renderConvFaq(items: FaqEntry[]): HTMLElement {
   const faq = document.createElement('section');
   faq.className = 'conv-faq';
   faq.setAttribute('aria-labelledby', 'faq-heading');
-  faq.innerHTML = '<h2 id="faq-heading">Frequently asked questions</h2>';
+  faq.innerHTML = '<h2 id="faq-heading">Things people ask us</h2>';
   for (const item of items) {
     const details = document.createElement('details');
     details.className = 'faq-item conv-faq__item';
@@ -65,16 +79,16 @@ export function renderConvFaq(items: FaqEntry[]): HTMLElement {
   return faq;
 }
 
-/** The grey band: "Choose images" returns to the drop area at the top of the page. */
+/** The grey band: "Pick photos" returns to the drop area at the top of the page. */
 export function renderConvCta(): HTMLElement {
   const cta = document.createElement('section');
   cta.className = 'conv-cta';
   cta.innerHTML = `
     <div class="conv-cta__inner">
-      <h2 class="conv-cta__title">Drop an image to get started.</h2>
+      <h2 class="conv-cta__title">Got one more? Drop it in.</h2>
       <div class="conv-cta__action">
-        <button type="button" class="conv-cta__btn">Choose images</button>
-        <p>No account. No upload.</p>
+        <button type="button" class="conv-cta__btn">Pick photos</button>
+        <p>Pixel's ready when you are.</p>
       </div>
     </div>
   `;

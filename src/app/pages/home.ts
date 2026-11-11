@@ -1,6 +1,7 @@
 import { pathForRoute } from '../router';
 import { renderCharacter, trackEyes } from '../character';
 import { trackHair } from '../hair';
+import { trackBubble } from '../bubble';
 
 /**
  * The home page, from the Figma design: a two-part headline (the problem in
@@ -15,15 +16,15 @@ export function renderHomePage(): HTMLElement {
   const copy = document.createElement('div');
   copy.className = 'home__copy';
   copy.innerHTML = `
-    <h1 class="home__title"><strong>JPG? PNG? WEBP?</strong> NO PROBLEM.</h1>
-    <p class="home__lead">Whatever the format, we've got you.</p>
-    <p class="home__text">Switch between image formats without the usual hassle. Free to use, easy to work with, and entirely browser-based.</p>
+    <h1 class="home__title"><strong>Wrong format?</strong> Not for long.</h1>
+    <p class="home__lead">Drop in the picture that won't cooperate. Get back the one you actually needed.</p>
+    <p class="home__text">JPG, PNG, WebP, HEIC, and background removal too. It all happens right here in your browser, in about the time it takes to blink.</p>
     <div class="home__actions">
       <a class="home__cta" href="${pathForRoute('jpeg-to-png')}">
-        <span>Convert my photo</span>
+        <span>Fix my photo</span>
         <svg viewBox="0 0 40 24" fill="none" stroke="currentColor" stroke-width="2.4" aria-hidden="true"><path d="M2 12h34M26 3l10 9-10 9" stroke-linecap="round" stroke-linejoin="round"/></svg>
       </a>
-      <a class="home__cta home__cta--ghost" href="${pathForRoute('remove-background')}"><span>Remove background</span></a>
+      <a class="home__cta home__cta--ghost" href="${pathForRoute('remove-background')}"><span>Ditch the background</span></a>
     </div>
   `;
   section.appendChild(copy);
@@ -32,6 +33,11 @@ export function renderHomePage(): HTMLElement {
   art.className = 'home__art';
   const character = renderCharacter();
   art.appendChild(character);
+  const bubble = document.createElement('p');
+  bubble.className = 'home__bubble';
+  bubble.textContent = "Go on, drop it. I don't bite.";
+  art.appendChild(bubble);
+  trackBubble(bubble);
   section.appendChild(art);
   trackEyes(character);
   trackHair(character);

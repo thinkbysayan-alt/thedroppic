@@ -14,6 +14,11 @@ export interface BackgroundRemovalWarmup {
   kind: 'warmup';
 }
 
+/** Sent by the worker once the model is loaded and warmed up, so the page knows the next cut-out will be quick. */
+export interface BackgroundRemovalReady {
+  kind: 'ready';
+}
+
 export type BackgroundRemovalMessage = BackgroundRemovalRequest | BackgroundRemovalWarmup;
 
 export interface BackgroundRemovalTimings {

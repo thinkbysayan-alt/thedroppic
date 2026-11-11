@@ -1,8 +1,11 @@
 export const MAX_FILES = 5;
 
+/** Shown when more than MAX_FILES were chosen and only the first MAX_FILES were kept. */
+export const TOO_MANY_FILES_MESSAGE = `Whoa, that's a lot! ${MAX_FILES} at a time, please. We've kept the first ${MAX_FILES}.`;
+
 export interface UploadCardHandlers {
   /** Called with 1-5 files (already capped to MAX_FILES) from the picker, drag/drop, or clipboard paste. */
-  onFiles: (files: File[]) => void;
+  onFiles: (files: File[], total?: number) => void;
 }
 
 /** Page-specific wording and file filter. Anything left out falls back to the generic multi-format card. */
@@ -25,7 +28,7 @@ const ANY_IMAGE_ACCEPT =
 /**
  * Renders the primary upload card: file picker, drag/drop, and clipboard
  * paste all funnel into the same `onFiles` callback. Drag/drop is never the
- * only way in — the "Choose images" button and file input always work via
+ * only way in — the "Pick photos" button and file input always work via
  * keyboard/screen reader. Accepts up to MAX_FILES at once; anything past
  * that is dropped with a friendly notice rather than erroring.
  */
@@ -43,12 +46,12 @@ export function renderUploadCard(handlers: UploadCardHandlers, options: UploadCa
       <path d="M12 15V4m0 0-4 4m4-4 4 4" stroke-linecap="square" stroke-linejoin="miter"/>
     </svg>
     <p class="upload-card__title" id="upload-title"></p>
-    <p class="upload-card__or">or</p>
+    <p class="upload-card__or">or pick them from your files.</p>
     <label class="btn btn-primary" for="file-input"></label>
     <input type="file" id="file-input" multiple accept="${options.accept ?? ANY_IMAGE_ACCEPT}" aria-describedby="${describedBy}" />
     ${
       options.minimal
-        ? '<p class="upload-card__paste-hint" id="upload-limit">You can also paste an image from your clipboard.</p>'
+        ? '<p class="upload-card__paste-hint" id="upload-limit">Psst: you can paste an image with Ctrl/Cmd + V.</p>'
         : `<p class="upload-card__limit" id="upload-limit">Up to ${MAX_FILES} files. Paste works too.</p>`
     }
     ${formats ? '<p class="upload-card__formats" id="upload-formats"></p>' : ''}
@@ -74,7 +77,7 @@ export function renderUploadCard(handlers: UploadCardHandlers, options: UploadCa
     card.prepend(art);
   }
   card.querySelector('.upload-card__title')!.textContent = title;
-  card.querySelector('label.btn')!.textContent = options.buttonLabel ?? 'Choose images';
+  card.querySelector('label.btn')!.textContent = options.buttonLabel ?? 'Pick photos';
   if (formats) card.querySelector('.upload-card__formats')!.textContent = formats;
 
   const fileInput = card.querySelector<HTMLInputElement>('#file-input')!;
@@ -86,11 +89,11 @@ export function renderUploadCard(handlers: UploadCardHandlers, options: UploadCa
     const files = all.slice(0, MAX_FILES);
     if (all.length > MAX_FILES) {
       notice.hidden = false;
-      notice.textContent = `You chose ${all.length} files. Only the first ${MAX_FILES} were added.`;
+      notice.textContent = TOO_MANY_FILES_MESSAGE;
     } else {
       notice.hidden = true;
     }
-    handlers.onFiles(files);
+    handlers.onFiles(files, all.length);
   }
 
   fileInput.addEventListener('change', () => {
@@ -98,11 +101,14 @@ export function renderUploadCard(handlers: UploadCardHandlers, options: UploadCa
     fileInput.value = '';
   });
 
+  const titleEl = card.querySelector<HTMLElement>('.upload-card__title')!;
+  const restTitle = title;
   let dragDepth = 0;
   card.addEventListener('dragenter', (e) => {
     e.preventDefault();
     dragDepth++;
     card.classList.add('is-dragover');
+    titleEl.textContent = "Ooh, what've you got?";
   });
   card.addEventListener('dragover', (e) => {
     e.preventDefault();
@@ -110,12 +116,16 @@ export function renderUploadCard(handlers: UploadCardHandlers, options: UploadCa
   });
   card.addEventListener('dragleave', () => {
     dragDepth = Math.max(0, dragDepth - 1);
-    if (dragDepth === 0) card.classList.remove('is-dragover');
+    if (dragDepth === 0) {
+      card.classList.remove('is-dragover');
+      titleEl.textContent = restTitle;
+    }
   });
   card.addEventListener('drop', (e) => {
     e.preventDefault();
     dragDepth = 0;
     card.classList.remove('is-dragover');
+    titleEl.textContent = restTitle;
     acceptFiles(e.dataTransfer?.files);
   });
 

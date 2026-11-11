@@ -11,7 +11,8 @@ export function renderNotFoundPage(): HTMLElement {
   head.innerHTML = `
     <div>
       <h1 class="page-head__title">Page not found</h1>
-      <div class="pas"><p class="pas__problem">That page isn't here.</p><p class="pas__solution">Pick a converter below and you're one click from done.</p></div>
+      <div class="pas"><p class="pas__problem">This page has wandered off.</p><p class="pas__solution">Pixel's looking for it.</p></div>
+      <p class="not-found__home"><a class="link-cta" href="/">Back home</a></p>
     </div>
   `;
   head.appendChild(renderArt({ src: '/art/not-found.svg', alt: '', width: 800, height: 800, className: 'page-head__art' }));

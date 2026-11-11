@@ -30,6 +30,6 @@ export async function encodeTiff(imageData: ImageData): Promise<ArrayBuffer> {
     return UTIF.encodeImage(imageData.data, imageData.width, imageData.height);
   } catch (err) {
     if (err instanceof AppError) throw err;
-    throw new AppError('conversion-failed', "We couldn't convert this image. Please try again.");
+    throw new AppError('conversion-failed', "Well, that didn't go to plan. Give it another go?");
   }
 }

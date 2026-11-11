@@ -11,7 +11,7 @@
 - [WebP to PNG](https://thedroppic.com/webp-to-png): Convert WebP images to PNG and keep transparency.
 - [JPEG to WebP](https://thedroppic.com/jpeg-to-webp): Make lighter web images from JPEG with an adjustable quality.
 - [PNG to WebP](https://thedroppic.com/png-to-webp): Make smaller files from PNG with an adjustable quality.
-- [Remove Background](https://thedroppic.com/remove-background): Cut the background out of a photo with an AI model that runs in the browser. Download a transparent PNG.
+- [Remove Background](https://thedroppic.com/remove-background): Cut the background out of a photo with an AI model that runs in the browser. Download a see-through image (WebP or PNG) that is never larger than the original.
 
 ## Guides and information
 

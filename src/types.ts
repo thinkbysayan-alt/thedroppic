@@ -51,8 +51,8 @@ export class AppError extends Error {
 export const ERROR_MESSAGES: Record<AppErrorCode, string> = {
   'unsupported-format': "This image format isn't supported.",
   'corrupt-file': "We couldn't read this image. Try another file.",
-  'conversion-failed': "We couldn't convert this image. Please try again.",
-  'too-large': 'This image is too large for your browser to process reliably.',
+  'conversion-failed': "Well, that didn't go to plan. Give it another go?",
+  'too-large': "That one's a bit of a whopper. Try a smaller version?",
   'browser-unsupported': "Your browser doesn't support this conversion yet.",
   'clipboard-empty': 'No image was found on your clipboard.',
 };
@@ -84,4 +84,6 @@ export interface ConvertResult {
   width: number;
   height: number;
   byteLength: number;
+  /** Set when the format actually produced differs from the one asked for (a cut-out may fall back to WebP to stay small). */
+  outputFormat?: OutputFormat;
 }

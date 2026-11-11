@@ -2,11 +2,11 @@ import { detectFormat } from '../conversion/format-detector';
 import { getDefaultOutputFormat } from '../conversion/capability-matrix';
 import { generatePreview } from '../conversion/preview';
 import { convertImage, decodeForPreview } from '../conversion/conversion-manager';
-import { renderUploadCard, listenForClipboardPaste, type UploadCardOptions } from '../components/upload/upload';
+import { renderUploadCard, listenForClipboardPaste, TOO_MANY_FILES_MESSAGE, MAX_FILES, type UploadCardOptions } from '../components/upload/upload';
 import { renderPreview } from '../components/preview/image-preview';
 import { renderFormatSelector } from '../components/format-selector/format-selector';
 import { renderQualityControl } from '../components/quality-control/quality-slider';
-import { preloadBackgroundRemoval } from '../conversion/background-removal';
+import { isBackgroundRemovalReady, preloadBackgroundRemoval } from '../conversion/background-removal';
 import { renderBackgroundRemovalToggle } from '../components/quality-control/background-removal-toggle';
 import { renderCropper } from '../components/cropper/cropper';
 import { renderResultPanel } from '../components/result/result-panel';
@@ -72,6 +72,8 @@ class Store {
 export function createToolWorkspace(config: ToolWorkspaceConfig) {
   const store = new Store();
   let unlistenPaste: (() => void) | null = null;
+  /** Set when more files were chosen than fit, so the batch view can say so (the drop box is gone by then). */
+  let overflowNote: string | null = null;
   let batchIdCounter = 0;
 
   function collectUrls(view: View): Set<string> {
@@ -174,7 +176,7 @@ export function createToolWorkspace(config: ToolWorkspaceConfig) {
           const appError =
             err instanceof AppError
               ? err
-              : new AppError('conversion-failed', "We couldn't convert this image. Please try again.");
+              : new AppError('conversion-failed', "Well, that didn't go to plan. Give it another go?");
           return { id, state: { status: 'error', fileName: file.name, error: appError } };
         }
       }),
@@ -216,30 +218,32 @@ export function createToolWorkspace(config: ToolWorkspaceConfig) {
         trackObjectUrl(displayUrl);
       }
 
+      // A cut-out may come back as WebP (to stay no bigger than the photo), so trust what was actually produced.
+      const producedFormat = result.outputFormat ?? outputFormat;
       updateBatchItem(id, {
         status: 'result',
         image,
-        outputFormat,
+        outputFormat: producedFormat,
         quality,
         removeBackground,
         displayUrl,
         resultBlob: result.blob,
         resultUrl,
-        resultFilename: buildOutputFilename(image.file.name, outputFormat),
+        resultFilename: buildOutputFilename(image.file.name, producedFormat),
         resultByteLength: result.byteLength,
         resultWidth: result.width,
         resultHeight: result.height,
       });
     } catch (err) {
       const appError =
-        err instanceof AppError ? err : new AppError('conversion-failed', "We couldn't convert this image. Please try again.");
+        err instanceof AppError ? err : new AppError('conversion-failed', "Well, that didn't go to plan. Give it another go?");
       updateBatchItem(id, { status: 'error', fileName: image.file.name, error: appError });
     }
   }
 
   function setError(err: unknown): void {
     const appError =
-      err instanceof AppError ? err : new AppError('conversion-failed', "We couldn't convert this image. Please try again.");
+      err instanceof AppError ? err : new AppError('conversion-failed', "Well, that didn't go to plan. Give it another go?");
     setView({ kind: 'error', error: appError, recoverable: true });
   }
 
@@ -272,17 +276,18 @@ export function createToolWorkspace(config: ToolWorkspaceConfig) {
         trackObjectUrl(displayUrl);
       }
 
+      const producedFormat = result.outputFormat ?? view.outputFormat;
       setView({
         kind: 'result',
         image: view.image,
-        outputFormat: view.outputFormat,
+        outputFormat: producedFormat,
         quality: view.quality,
         crop: view.crop,
         removeBackground: view.removeBackground,
         displayUrl,
         resultBlob: result.blob,
         resultUrl,
-        resultFilename: buildOutputFilename(view.image.file.name, view.outputFormat),
+        resultFilename: buildOutputFilename(view.image.file.name, producedFormat),
         resultByteLength: result.byteLength,
         resultWidth: result.width,
         resultHeight: result.height,
@@ -304,6 +309,7 @@ export function createToolWorkspace(config: ToolWorkspaceConfig) {
   }
 
   function resetToUpload(): void {
+    overflowNote = null;
     setView({ kind: 'idle' });
   }
 
@@ -337,7 +343,17 @@ export function createToolWorkspace(config: ToolWorkspaceConfig) {
   function renderUploadStage(): HTMLElement {
     const wrap = document.createElement('div');
     wrap.id = 'upload';
-    wrap.appendChild(renderUploadCard({ onFiles: (files) => void handleIncomingFiles(files) }, config.upload));
+    wrap.appendChild(
+      renderUploadCard(
+        {
+          onFiles: (files, total) => {
+            overflowNote = total !== undefined && total > MAX_FILES ? TOO_MANY_FILES_MESSAGE : null;
+            void handleIncomingFiles(files);
+          },
+        },
+        config.upload,
+      ),
+    );
     return wrap;
   }
 
@@ -356,6 +372,10 @@ export function createToolWorkspace(config: ToolWorkspaceConfig) {
         height: view.crop ? Math.round(view.crop.size) : view.image.height,
       }),
     );
+    const readyNote = document.createElement('p');
+    readyNote.className = 'result-note';
+    readyNote.textContent = `Nice one. Hit ${config.forceRemoveBackground ? 'Remove background' : 'Convert'} when you're ready.`;
+    previewPanel.appendChild(readyNote);
     wrap.appendChild(previewPanel);
 
     const controlsPanel = document.createElement('div');
@@ -525,10 +545,17 @@ export function createToolWorkspace(config: ToolWorkspaceConfig) {
     status.setAttribute('role', 'status');
     status.setAttribute('aria-live', 'polite');
     status.innerHTML = `<span class="spinner" aria-hidden="true"></span> ${
-      config.forceRemoveBackground ? 'Removing background…' : 'Converting your image…'
+      config.forceRemoveBackground ? 'Snipping carefully around the edges…' : 'Shuffling pixels…'
     }`;
     status.style.marginTop = 'var(--space-4)';
     panel.appendChild(status);
+    if (config.forceRemoveBackground && !isBackgroundRemovalReady()) {
+      // Only while the model is still getting ready (its first-ever load on this device).
+      const firstRun = document.createElement('p');
+      firstRun.className = 'result-note';
+      firstRun.textContent = "Warming up the scissors. This only takes a moment the first time, then it's quick.";
+      panel.appendChild(firstRun);
+    }
 
     wrap.appendChild(panel);
     return wrap;
@@ -571,10 +598,18 @@ export function createToolWorkspace(config: ToolWorkspaceConfig) {
     const wrap = document.createElement('div');
     wrap.className = 'workspace workspace--batch';
 
+    if (overflowNote) {
+      const note = document.createElement('p');
+      note.className = 'result-note';
+      note.textContent = overflowNote;
+      wrap.appendChild(note);
+    }
+
     const heading = document.createElement('p');
     heading.className = 'batch-heading';
     const doneCount = view.items.filter((it) => it.state.status === 'result').length;
-    heading.textContent = `${view.items.length} images: ${doneCount} of ${view.items.length} converted`;
+    heading.textContent =
+      doneCount === view.items.length ? `All ${view.items.length} done. Not bad for a browser.` : `${view.items.length} images: ${doneCount} of ${view.items.length} done`;
     wrap.appendChild(heading);
 
     const grid = document.createElement('div');
@@ -666,7 +701,7 @@ export function createToolWorkspace(config: ToolWorkspaceConfig) {
       status.setAttribute('role', 'status');
       status.setAttribute('aria-live', 'polite');
       status.innerHTML = `<span class="spinner" aria-hidden="true"></span> ${
-        config.forceRemoveBackground ? 'Removing…' : 'Converting…'
+        config.forceRemoveBackground ? 'Snipping…' : 'Shuffling pixels…'
       }`;
       card.appendChild(status);
     } else {
@@ -684,7 +719,7 @@ export function createToolWorkspace(config: ToolWorkspaceConfig) {
       const downloadBtn = document.createElement('button');
       downloadBtn.type = 'button';
       downloadBtn.className = 'btn btn-primary btn-block batch-item__action';
-      downloadBtn.textContent = 'Download image';
+      downloadBtn.textContent = 'Grab it';
       downloadBtn.addEventListener('click', () => downloadBlob(resultState.resultBlob, resultState.resultFilename));
       card.appendChild(downloadBtn);
     }

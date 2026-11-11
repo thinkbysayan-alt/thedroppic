@@ -67,8 +67,22 @@ export function mountApp(root: HTMLElement): void {
       applySeo(route, viewRoot);
       initScrollReveal(viewRoot);
       void initScrollMotion(viewRoot, route);
-      void initAboutHero(viewRoot, route);
       void initCtaPointer(viewRoot);
+      // A link to a section (like the footer's Privacy link) must scroll once the new page is actually on screen,
+      // and again when the About hero has taken its pinned layout, which moves everything below it.
+      const hash = window.location.hash;
+      const scrollToSection = (): void => {
+        if (hash) document.getElementById(decodeURIComponent(hash.slice(1)))?.scrollIntoView({ block: 'start' });
+      };
+      if (hash) {
+        scrollToSection();
+        void initAboutHero(viewRoot, route).then(() => {
+          scrollToSection();
+          window.setTimeout(scrollToSection, 350);
+        });
+      } else {
+        void initAboutHero(viewRoot, route);
+      }
     };
 
     // No transition on the very first paint — only between navigations, so the initial page load is never delayed.

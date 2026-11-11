@@ -14,7 +14,7 @@ export async function encodeAvif(imageData: ImageData, quality: number): Promise
     return await encode(imageData, { quality, speed: 8 });
   } catch (err) {
     if (err instanceof AppError) throw err;
-    throw new AppError('conversion-failed', "We couldn't convert this image. Please try again.");
+    throw new AppError('conversion-failed', "Well, that didn't go to plan. Give it another go?");
   }
 }
 
