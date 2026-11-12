@@ -94,12 +94,20 @@ export function trackEyes(wrap: HTMLElement): void {
     });
   };
 
+  // The picture is built a moment before a page change puts it on screen. Until it has been attached once, a pointer
+  // move must not count as "the page is gone"; only stop listening after it has been shown and then removed.
+  let seen = false;
   const frame = (): void => {
     if (!wrap.isConnected) {
-      window.removeEventListener('pointermove', onMove);
-      document.removeEventListener('pointerleave', onLeave);
+      raf = 0;
+      if (seen) {
+        window.removeEventListener('pointermove', onMove);
+        document.removeEventListener('pointerleave', onLeave);
+        window.removeEventListener('blur', onLeave);
+      }
       return;
     }
+    seen = true;
     let moving = false;
     EYES.forEach((e, i) => {
       const c = cur[i]!;

@@ -17,8 +17,14 @@ export function trackBubble(bubble: HTMLElement): void {
   let cy = 0;
   let raf = 0;
 
+  // Built slightly before a page change puts it on screen: only treat it as gone once it has been shown.
+  let seen = false;
   const frame = (): void => {
-    if (!bubble.isConnected) return; // page changed
+    if (!bubble.isConnected) {
+      raf = 0;
+      return;
+    }
+    seen = true;
     cx += (tx - cx) * EASE;
     cy += (ty - cy) * EASE;
     bubble.style.translate = `${cx.toFixed(2)}px ${cy.toFixed(2)}px`;
@@ -28,7 +34,7 @@ export function trackBubble(bubble: HTMLElement): void {
 
   const onMove = (e: PointerEvent): void => {
     if (!bubble.isConnected) {
-      window.removeEventListener('pointermove', onMove);
+      if (seen) window.removeEventListener('pointermove', onMove);
       return;
     }
     if (e.pointerType !== 'mouse') return;
