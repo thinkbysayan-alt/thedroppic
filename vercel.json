@@ -13,6 +13,10 @@
   "redirects": [
     { "source": "/how-it-works", "destination": "/jpeg-to-png", "statusCode": 301 },
     { "source": "/tools/remove-background", "destination": "/remove-background", "statusCode": 301 },
+    { "source": "/tools/convert", "destination": "/jpeg-to-png", "statusCode": 301 },
+    { "source": "/tools/optimize", "destination": "/png-to-jpeg", "statusCode": 301 },
+    { "source": "/tools", "destination": "/", "statusCode": 301 },
+    { "source": "/tools/:path*", "destination": "/", "statusCode": 301 },
     { "source": "/blog", "destination": "/", "statusCode": 301 },
     { "source": "/blog/:path*", "destination": "/", "statusCode": 301 },
     { "source": "/learn", "destination": "/", "statusCode": 301 },

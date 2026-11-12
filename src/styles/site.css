@@ -17,9 +17,7 @@ body {
   color: var(--color-bg);
 }
 
-h1,
-h2,
-h3 {
+h1, h2, h3 {
   letter-spacing: -0.01em;
 }
 
@@ -46,13 +44,11 @@ a {
   border-radius: var(--radius-sm);
 }
 
-input[type='range'],
-input[type='checkbox'] {
+input[type='range'], input[type='checkbox'] {
   accent-color: var(--color-text);
 }
 
-.eyebrow,
-.label {
+.eyebrow, .label {
   display: inline-block;
   font-family: var(--font-mono);
   font-size: 0.75rem;
@@ -67,19 +63,6 @@ input[type='checkbox'] {
   display: block;
   max-width: 100%;
   height: auto;
-}
-
-/* One accent class family still set by legacy pages: it no longer carries colour. */
-.accent-blue,
-.accent-mint,
-.accent-lavender,
-.accent-brand {
-  --tool-accent: var(--color-text);
-  --tool-accent-soft: var(--color-accent-soft);
-}
-.icon-badge,
-.tool-hero__accent {
-  color: inherit;
 }
 
 /* The skip link only appears on keyboard focus; keep it black and white like everything else. */
@@ -114,14 +97,7 @@ input[type='checkbox'] {
   padding-block: clamp(8px, 2vw, 24px) clamp(56px, 9vw, 112px);
 }
 /* The Convert page starts right under the header, like the design. */
-.app-shell[data-route='jpeg-to-png'] .app-main > .container,
-.app-shell[data-route='png-to-jpeg'] .app-main > .container,
-.app-shell[data-route='heic-to-jpeg'] .app-main > .container,
-.app-shell[data-route='webp-to-jpeg'] .app-main > .container,
-.app-shell[data-route='webp-to-png'] .app-main > .container,
-.app-shell[data-route='jpeg-to-webp'] .app-main > .container,
-.app-shell[data-route='png-to-webp'] .app-main > .container,
-.app-shell[data-route='remove-background'] .app-main > .container {
+.app-shell[data-route='jpeg-to-png'] .app-main > .container, .app-shell[data-route='png-to-jpeg'] .app-main > .container, .app-shell[data-route='heic-to-jpeg'] .app-main > .container, .app-shell[data-route='webp-to-jpeg'] .app-main > .container, .app-shell[data-route='webp-to-png'] .app-main > .container, .app-shell[data-route='jpeg-to-webp'] .app-main > .container, .app-shell[data-route='png-to-webp'] .app-main > .container, .app-shell[data-route='remove-background'] .app-main > .container {
   padding-top: 0;
   padding-bottom: 0;
 }
@@ -300,8 +276,7 @@ input[type='checkbox'] {
   .site-footer__tagline {
     display: none;
   }
-  .site-footer__bar,
-  .site-footer__links {
+  .site-footer__bar, .site-footer__links {
     gap: 0 var(--space-5);
   }
 }
@@ -465,9 +440,7 @@ input[type='checkbox'] {
   aspect-ratio: 1 / 1;
   transform: translateX(-50%);
 }
-.character__img,
-.character__hair,
-.character__eyes {
+.character__img, .character__hair, .character__eyes {
   position: absolute;
   inset: 0;
   width: 100%;
@@ -560,8 +533,7 @@ input[type='checkbox'] {
 }
 
 /* ---------- Inner pages (everything is centred) ---------- */
-.crumbs,
-.breadcrumb {
+.crumbs, .breadcrumb {
   display: flex;
   flex-wrap: wrap;
   align-items: center;
@@ -571,16 +543,13 @@ input[type='checkbox'] {
   font-size: 0.75rem;
   color: var(--color-text-muted);
 }
-.breadcrumb a,
-.crumbs a {
+.breadcrumb a, .crumbs a {
   color: var(--color-text-muted);
 }
-.breadcrumb a:hover,
-.crumbs a:hover {
+.breadcrumb a:hover, .crumbs a:hover {
   color: var(--color-text);
 }
-.breadcrumb a[aria-current],
-.crumbs [aria-current] {
+.breadcrumb a[aria-current], .crumbs [aria-current] {
   color: var(--color-text);
   font-weight: 500;
 }
@@ -615,18 +584,6 @@ input[type='checkbox'] {
   margin: 0 0 var(--space-5);
   font-size: clamp(1.25rem, 2.6vw, 1.625rem);
   letter-spacing: -0.025em;
-}
-
-/* Converter tool column: centred, same width before and after upload. */
-.tool-column {
-  max-width: 760px;
-  margin-inline: auto;
-  text-align: center;
-}
-.tool-column .upload-card,
-.tool-column .workspace {
-  max-width: none;
-  margin-inline: 0;
 }
 
 /* ---------- Upload card ---------- */
@@ -671,10 +628,7 @@ input[type='checkbox'] {
   font-size: 0.8125rem;
   color: var(--color-text-muted);
 }
-.upload-card__paste-hint,
-.upload-card__limit,
-.upload-card__formats,
-.privacy-note {
+.upload-card__paste-hint, .upload-card__limit, .upload-card__formats, .privacy-note {
   font-size: 0.8125rem;
   color: var(--color-text-muted);
 }
@@ -732,8 +686,7 @@ input[type='checkbox'] {
   border-radius: var(--radius-lg);
   background: transparent;
 }
-.result-note,
-.lossless-note {
+.result-note, .lossless-note {
   font-size: 0.8125rem;
   color: var(--color-text-muted);
 }
@@ -765,60 +718,15 @@ input[type='checkbox'] {
   font-weight: 600;
 }
 
-/* ---------- Numbered steps ---------- */
-.step-list {
-  display: grid;
-  gap: var(--space-6);
-  margin: 0;
-  padding: 0;
-  list-style: none;
-}
-.step-list__item {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: var(--space-2);
-  padding-top: var(--space-4);
-  border-top: 1px solid var(--color-text);
-  text-align: center;
-}
-.step-list__no {
-  font-family: var(--font-mono);
-  font-size: 0.8125rem;
-  font-weight: 500;
-  color: var(--color-text-muted);
-}
-.step-list__item h3 {
-  margin: 0;
-  font-size: 1.125rem;
-}
-.step-list__item p {
-  max-width: 30ch;
-  margin: 0;
-  color: var(--color-text-muted);
-}
-.step-list__art {
-  width: min(100%, 200px);
-  margin-bottom: var(--space-3);
-}
-@media (min-width: 720px) {
-  .step-list {
-    grid-template-columns: repeat(3, minmax(0, 1fr));
-    gap: var(--space-7);
-  }
-}
-
 /* ---------- FAQ and related links ---------- */
-.faq,
-.related-links {
+.faq {
   text-align: center;
 }
 .faq > * {
   max-width: 760px;
   margin-inline: auto;
 }
-.faq h2,
-.related-links h2 {
+.faq h2 {
   margin-inline: auto;
   font-size: clamp(1.25rem, 2.6vw, 1.625rem);
   letter-spacing: -0.025em;
@@ -834,20 +742,6 @@ input[type='checkbox'] {
 }
 .faq-item p {
   margin-inline: auto;
-}
-.related-links__list {
-  max-width: 760px;
-  margin-inline: auto;
-}
-.related-links__list li {
-  grid-template-columns: 1fr;
-  justify-items: center;
-  text-align: center;
-  gap: var(--space-1);
-}
-.related-links__list a:hover {
-  color: var(--color-text);
-  opacity: 0.7;
 }
 
 /* ---------- Tool link rows ---------- */
@@ -907,86 +801,6 @@ input[type='checkbox'] {
   color: #ffffff;
   text-decoration: none;
 }
-.tile__art {
-  display: block;
-  aspect-ratio: 600 / 396;
-}
-.tile__art .art {
-  width: 100%;
-  height: 100%;
-}
-.tile__body {
-  display: flex;
-  flex: 1;
-  flex-direction: column;
-  justify-content: space-between;
-  gap: var(--space-6);
-  min-height: 260px;
-  padding: var(--space-6) var(--space-6) var(--space-5);
-  background: var(--color-text);
-  text-align: left;
-}
-.tile__meta,
-.tile__read {
-  color: rgba(255, 255, 255, 0.65);
-  font-size: 0.8125rem;
-}
-.tile__title {
-  margin: var(--space-2) 0 0;
-  color: #ffffff;
-  font-size: clamp(1.5rem, 3vw, 1.875rem);
-  font-weight: 600;
-  letter-spacing: -0.035em;
-  line-height: 1.08;
-  text-wrap: balance;
-}
-.tile__foot {
-  display: flex;
-  align-items: flex-end;
-  justify-content: space-between;
-  gap: var(--space-4);
-}
-.tile__logo {
-  height: 30px;
-  width: auto;
-  flex: none;
-  color: #ffffff;
-}
-/* Hover: the whole tile turns blue and the headline grows a little. */
-.tile__body,
-.tile__title {
-  transition: background-color 0.25s ease, transform 0.25s ease;
-}
-.tile__title {
-  transform-origin: left top;
-}
-.tile__art {
-  background: transparent;
-  transition: background-color 0.25s ease;
-}
-.tile__art .art {
-  transition: filter 0.25s ease;
-}
-.tile:hover .tile__art,
-.tile:focus-visible .tile__art {
-  background: var(--color-cta);
-}
-.tile:hover .tile__art .art,
-.tile:focus-visible .tile__art .art {
-  filter: brightness(0.78);
-}
-.tile:hover .tile__body,
-.tile:focus-visible .tile__body {
-  background: var(--color-cta);
-}
-.tile:hover .tile__title,
-.tile:focus-visible .tile__title {
-  transform: scale(1.08);
-}
-.tile:hover .tile__meta,
-.tile:hover .tile__read {
-  color: rgba(255, 255, 255, 0.85);
-}
 
 /* ---------- Rotating arc of tool tiles ---------- */
 .arc {
@@ -1027,8 +841,7 @@ html {
   text-decoration: none;
   transition: transform 0.3s ease;
 }
-.arc-card:hover,
-.arc-card:focus-visible {
+.arc-card:hover, .arc-card:focus-visible {
   transform: scale(1.07);
 }
 .arc-card__art {
@@ -1079,18 +892,13 @@ html {
   width: auto;
   color: #fff;
 }
-.arc-card:hover .arc-card__art,
-.arc-card:focus-visible .arc-card__art,
-.arc-card:hover .arc-card__body,
-.arc-card:focus-visible .arc-card__body {
+.arc-card:hover .arc-card__art, .arc-card:focus-visible .arc-card__art, .arc-card:hover .arc-card__body, .arc-card:focus-visible .arc-card__body {
   background: var(--color-cta);
 }
-.arc-card:hover .arc-card__art img,
-.arc-card:focus-visible .arc-card__art img {
+.arc-card:hover .arc-card__art img, .arc-card:focus-visible .arc-card__art img {
   filter: brightness(0.78);
 }
-.arc-card:hover .arc-card__hint,
-.arc-card:focus-visible .arc-card__hint {
+.arc-card:hover .arc-card__hint, .arc-card:focus-visible .arc-card__hint {
   color: rgba(255, 255, 255, 0.9);
 }
 
@@ -1219,77 +1027,9 @@ html {
   width: min(100%, 240px);
 }
 
-/* ---------- Article page ---------- */
-.article-page {
-  text-align: center;
-}
-.article-header {
-  text-align: center;
-}
-.article-header h1 {
-  font-size: clamp(1.9rem, 5vw, 2.75rem);
-  line-height: 1.08;
-  letter-spacing: -0.035em;
-}
-.article-body h2 {
-  font-size: 1.375rem;
-  letter-spacing: -0.025em;
-}
-.article-list {
-  padding: 0;
-  list-style-position: inside;
-}
-.article-callout {
-  margin: var(--space-6) auto;
-  padding: var(--space-4) 0;
-  border-left: 0;
-  border-block: 1px solid var(--color-text);
-  font-size: 1.125rem;
-  text-align: center;
-}
-.article-table-wrap {
-  width: fit-content;
-  max-width: 100%;
-  margin-inline: auto;
-}
-.article-table th,
-.article-table td {
-  text-align: center;
-}
-.article-flow,
-.article-tool-links {
-  justify-content: center;
-}
-.article-flow__step {
-  border: 1px solid var(--color-border-strong);
-  background: transparent;
-  color: var(--color-text);
-}
-.article-tool-links__link {
-  color: var(--color-cta);
-}
-
 /* ---------- Legacy tool pages (still served, no longer linked) ---------- */
-.tool-hero,
-.section,
-.how-it-works,
-.cta-band,
-.batch-heading {
+.section, .batch-heading {
   text-align: center;
-}
-.tool-hero h1 {
-  font-size: clamp(2rem, 5.5vw, 3.25rem);
-  letter-spacing: -0.04em;
-  line-height: 1.05;
-}
-.tool-hero p {
-  margin-inline: auto;
-}
-.cta-band {
-  justify-content: center;
-}
-.cta-band__action {
-  align-items: center;
 }
 
 /* =====================================================================
@@ -1512,14 +1252,10 @@ html {
     margin-bottom: calc(14 * var(--u));
     font-size: max(18px, calc(26 * var(--u)));
   }
-  .stat-card--a .stat-card__label,
-  .stat-card--a .stat-card__text {
+  .stat-card--a .stat-card__label, .stat-card--a .stat-card__text {
     font-size: max(11px, calc(15 * var(--u)));
   }
-  .stat-card--b .stat-card__label,
-  .stat-card--b .stat-card__text,
-  .stat-card--c .stat-card__label,
-  .stat-card--c .stat-card__text {
+  .stat-card--b .stat-card__label, .stat-card--b .stat-card__text, .stat-card--c .stat-card__label, .stat-card--c .stat-card__text {
     font-size: max(10px, calc(12 * var(--u)));
   }
 }
@@ -1536,8 +1272,7 @@ html {
   letter-spacing: -0.035em;
   line-height: 1.15;
 }
-.conv-faq .faq-item,
-.conv-faq .faq-item:last-of-type {
+.conv-faq .faq-item, .conv-faq .faq-item:last-of-type {
   border: 0;
 }
 .conv-faq__item summary {
@@ -1659,12 +1394,10 @@ html {
   .stat-card--c {
     grid-column: 1 / -1;
   }
-  .conv-faq,
-  .conv-more {
+  .conv-faq {
     margin-top: 64px;
   }
-  .conv-faq h2,
-  .conv-more h2 {
+  .conv-faq h2 {
     font-size: 1.625rem;
   }
   .conv-faq__item summary {
@@ -1686,17 +1419,6 @@ html {
   .conv-cta__action {
     align-items: flex-start;
   }
-  .conv-more__list a {
-    grid-template-columns: minmax(0, 1fr);
-    gap: 2px;
-    padding-block: 14px;
-    font-size: 1rem;
-  }
-}
-
-/* Links in the older components were underlined until hovered; keep them plain. */
-.related-links__list a {
-  text-decoration: none;
 }
 
 /* About is left-aligned, so its breadcrumb is too. */
@@ -1705,8 +1427,7 @@ html {
 }
 
 /* ---------- Brand-blue cursor and sparkle trail (see utils/cursor.ts) ---------- */
-html.has-custom-cursor,
-html.has-custom-cursor *:not(input):not(textarea):not(select) {
+html.has-custom-cursor, html.has-custom-cursor *:not(input):not(textarea):not(select) {
   cursor: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='30' height='30' viewBox='-14 -14 578 568'%3E%3Cpath d='M46 9C28 2 12 18 22 42L198 518C207 538 232 536 238 514L268 368C278 320 298 292 342 283L484 256C508 250 508 226 484 215Z' fill='%23fff' stroke='%23fff' stroke-width='24' stroke-linejoin='round'/%3E%3Cpath d='M46 9C28 2 12 18 22 42L198 518C207 538 232 536 238 514L268 368C278 320 298 292 342 283L484 256C508 250 508 226 484 215Z' fill='%232563ff'/%3E%3C/svg%3E") 2 1, auto;
 }
 .cursor-trail {

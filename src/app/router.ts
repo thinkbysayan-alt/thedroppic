@@ -21,9 +21,7 @@ export type Route =
   | 'png-to-webp'
   | 'about'
   // The original multi-format tools. Still served at their old URLs, but no longer linked from the site.
-  | 'convert'
   | 'remove-background'
-  | 'optimize'
   | 'not-found';
 
 /** Routes that exist as real, indexable pages. `not-found` is deliberately not one. */
@@ -49,9 +47,7 @@ export const ROUTE_PATHS: Record<PageRoute, string> = {
   'jpeg-to-webp': '/jpeg-to-webp',
   'png-to-webp': '/png-to-webp',
   about: '/about',
-  convert: '/tools/convert',
   'remove-background': '/remove-background',
-  optimize: '/tools/optimize',
 };
 
 const PATH_ROUTES: Record<string, PageRoute> = Object.fromEntries(

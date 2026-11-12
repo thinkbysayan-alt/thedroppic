@@ -1,4 +1,4 @@
-import { navigate, pathForRoute, type PageRoute, type Route } from './router';
+import { pathForRoute, type PageRoute, type Route } from './router';
 import { logoMarkup } from './logo';
 
 /**
@@ -91,7 +91,3 @@ export function setActiveNavRoute(root: HTMLElement, route: Route): void {
   });
 }
 
-/** Small helper so page modules can navigate without importing the router directly everywhere. */
-export function goTo(route: PageRoute): void {
-  navigate(route);
-}

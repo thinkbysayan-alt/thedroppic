@@ -81,7 +81,7 @@ describe('structured data', () => {
   });
 
   it('describes each tool as a WebApplication with breadcrumbs', () => {
-    for (const r of ['jpeg-to-png', 'png-to-jpeg', 'heic-to-jpeg', 'webp-to-jpeg', 'webp-to-png', 'jpeg-to-webp', 'png-to-webp', 'convert', 'remove-background', 'optimize'] as const) {
+    for (const r of ['jpeg-to-png', 'png-to-jpeg', 'heic-to-jpeg', 'webp-to-jpeg', 'webp-to-png', 'jpeg-to-webp', 'png-to-webp', 'remove-background'] as const) {
       expect(types(r)).toContain('WebApplication');
       expect(types(r)).toContain('BreadcrumbList');
     }

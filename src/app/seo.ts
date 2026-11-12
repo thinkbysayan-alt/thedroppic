@@ -75,23 +75,11 @@ export const PAGE_META: Record<PageRoute, PageMeta> = {
       'Why thedroppic exists, how it works, and where your photos go (spoiler: nowhere).',
     crumb: 'About',
   },
-  convert: {
-    title: 'Image Converter: JPG, PNG, WebP, AVIF, TIFF & HEIC | thedroppic',
-    description:
-      'Convert images between JPG, PNG, WebP, AVIF, TIFF and HEIC in your browser. Up to 5 files at once. Nothing is uploaded.',
-    crumb: 'Convert Images',
-  },
   'remove-background': {
     title: 'Remove Image Background, No Upload | thedroppic',
     description:
       'Cut the background out of any photo and get a see-through image, never bigger than the original. Works best on portraits. Happens on your device.',
     crumb: 'Remove Background',
-  },
-  optimize: {
-    title: 'Image Compressor: Reduce Image File Size | thedroppic',
-    description:
-      'Reduce image file size in your browser. Choose Small, Medium or Original quality and see the exact before and after size. Nothing is uploaded.',
-    crumb: 'Optimize / Compress',
   },
 };
 
@@ -153,27 +141,11 @@ const TOOL_APPS: Partial<Record<PageRoute, { name: string; features: string[] }>
     name: 'thedroppic PNG to WebP Converter',
     features: ['Convert PNG to WebP with adjustable quality', 'Up to 5 images at once', 'Runs in your browser, nothing is uploaded'],
   },
-  convert: {
-    name: 'thedroppic Image Converter',
-    features: [
-      'Convert between JPG, PNG, WebP, AVIF, TIFF and HEIC',
-      'Up to 5 images at once',
-      'Runs in your browser, nothing is uploaded',
-    ],
-  },
   'remove-background': {
     name: 'thedroppic Background Remover',
     features: [
       'AI background removal',
       'Transparent output, never larger than the original',
-      'Runs in your browser, nothing is uploaded',
-    ],
-  },
-  optimize: {
-    name: 'thedroppic Image Optimizer',
-    features: [
-      'Small, Medium and Original quality levels',
-      'Shows the exact file size before and after',
       'Runs in your browser, nothing is uploaded',
     ],
   },

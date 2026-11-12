@@ -1,9 +1,7 @@
 import { mountChrome, setActiveNavRoute } from './chrome';
 import { getCurrentRoute, initRouter, installLinkInterceptor, onRouteChange, type Route } from './router';
 import { renderHomePage } from './pages/home';
-import { renderConvertPage } from './pages/convert';
 import { renderRemoveBackgroundPage } from './pages/remove-background';
-import { renderOptimizePage } from './pages/optimize';
 import { renderAboutPage } from './pages/about';
 import { renderConverterPage } from './pages/converter';
 import { renderNotFoundPage } from './pages/not-found';
@@ -31,14 +29,8 @@ export function mountApp(root: HTMLElement): void {
     removePageListeners(); // the previous page's paste-to-upload handlers must not outlive it
     let page: HTMLElement;
     switch (route) {
-      case 'convert':
-        page = renderConvertPage();
-        break;
       case 'remove-background':
         page = renderRemoveBackgroundPage();
-        break;
-      case 'optimize':
-        page = renderOptimizePage();
         break;
       case 'about':
         page = renderAboutPage();
