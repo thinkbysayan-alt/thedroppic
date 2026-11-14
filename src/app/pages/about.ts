@@ -30,6 +30,10 @@ const ABOUT_FAQ = [
 function renderAboutHero(): HTMLElement {
   const hero = document.createElement('section');
   hero.className = 'about-hero';
+  // On desktop with motion, the second paragraph and the closing line wait for the scroll (see initAboutHero).
+  if (typeof window !== 'undefined' && !/HappyDOM/i.test(navigator.userAgent) && window.matchMedia('(min-width: 1000px)').matches && !window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
+    hero.classList.add('about-hero--intro');
+  }
   hero.innerHTML = `
     <div class="about-hero__copy">
       <p class="about-hero__eyebrow">About</p>

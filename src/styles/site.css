@@ -991,7 +991,12 @@ html {
   mask-image: linear-gradient(to bottom, #000 82%, transparent 100%);
 }
 .about-hero__img--shout {
+  visibility: hidden; /* swapped in for the calm picture on scroll */
+}
+.about-hero--intro .about-hero__agitation--second,
+.about-hero--intro .about-hero__solution {
   opacity: 0;
+  visibility: hidden;
 }
 .about-hero .breadcrumb {
   justify-content: flex-start;
@@ -1513,6 +1518,93 @@ html.has-custom-cursor, html.has-custom-cursor *:not(input):not(textarea):not(se
   margin: var(--space-4) 0 0;
 }
 
+/* ---------- Home scroll opening (see app/home-intro.ts) ---------- */
+.character__cam {
+  position: absolute;
+  inset: 0;
+  will-change: transform;
+}
+.character--intro .character__cam {
+  opacity: 0; /* the close-up arrives at the end of the opening */
+}
+.intro {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  opacity: 0; /* blank until the opening is ready (it fades in) */
+}
+.intro__bodybox {
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 3cqh;
+  height: 86cqh;
+  display: flex;
+  justify-content: center;
+}
+.intro__body {
+  height: 100%;
+  width: auto;
+  max-width: none;
+}
+.intro__fly {
+  position: absolute;
+  left: 0;
+  top: 0;
+  overflow: visible;
+}
+.intro__fly-wing ellipse {
+  fill: rgba(190, 205, 230, 0.7);
+  stroke: rgba(30, 38, 60, 0.85);
+  stroke-width: 0.8;
+}
+.intro__fly-wing {
+  animation: fly-flap 0.07s linear infinite alternate;
+}
+.intro__fly-wing--a {
+  transform-origin: 20px 18px;
+}
+.intro__fly-wing--b {
+  transform-origin: 20px 18px;
+  animation-delay: -0.035s;
+}
+@keyframes fly-flap {
+  from {
+    transform: scaleY(1);
+  }
+  to {
+    transform: scaleY(0.35);
+  }
+}
+.intro__hint {
+  position: absolute;
+  right: 8%;
+  bottom: 2cqh;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 6px;
+  font: 500 11px/1 var(--font-mono, monospace);
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: rgba(0, 0, 0, 0.45);
+}
+.intro__hint i {
+  width: 1px;
+  height: 22px;
+  background: currentColor;
+  transform-origin: top;
+  animation: hint-line 1.6s ease-in-out infinite;
+}
+@keyframes hint-line {
+  0%, 100% {
+    transform: scaleY(0.25);
+  }
+  50% {
+    transform: scaleY(1);
+  }
+}
+
 /* ---------- Speech bubble over the home-page character ---------- */
 .home__bubble {
   position: absolute;
@@ -1579,6 +1671,57 @@ html.has-custom-cursor, html.has-custom-cursor *:not(input):not(textarea):not(se
     width: 12px;
     height: 12px;
   }
+}
+
+/* The standing figure's shadow on the ground (see app/home-intro.ts); it fades out as the camera pushes in. */
+.intro__shadow {
+  position: absolute;
+  left: 50%;
+  bottom: 0.9cqh;
+  width: 54cqh;
+  height: 6.5cqh;
+  margin-left: -27cqh;
+  border-radius: 50%;
+  background: radial-gradient(ellipse at center, rgba(18, 20, 40, 0.38) 0%, rgba(18, 20, 40, 0.16) 42%, rgba(18, 20, 40, 0) 72%);
+  filter: blur(3px);
+  transform-origin: center;
+}
+.intro__floor {
+  position: absolute;
+  left: 50%;
+  bottom: -2cqh;
+  width: min(96cqw, 130cqh);
+  height: 16cqh;
+  margin-left: calc(min(96cqw, 130cqh) / -2);
+  border-radius: 50%;
+  background: radial-gradient(ellipse at center, rgba(18, 20, 40, 0.07) 0%, rgba(18, 20, 40, 0) 70%);
+}
+
+/* The home page's scroll opening (app/home-intro.ts) reads the wheel, touch and keys itself; the page never scrolls. */
+html.home-intro-on {
+  overscroll-behavior: none;
+}
+html.home-intro-on .app-shell {
+  touch-action: none;
+}
+.character__blowimg {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  max-width: none;
+  opacity: 0;
+  pointer-events: none;
+}
+.home__sub {
+  display: inline-block;
+}
+.home--intro .home__sub,
+.home--intro .home__lead,
+.home--intro .home__text,
+.home--intro .home__actions {
+  opacity: 0; /* each line comes in as he scrolls */
+  visibility: hidden;
 }
 
 /* Section links land just below the menu instead of under it. */

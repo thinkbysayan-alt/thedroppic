@@ -2,11 +2,11 @@
  * The home-page character: a still picture with live eyes. The picture's own
  * pupils are covered by a patch of eye-white, and a new iris, pupil and
  * highlight (clipped to the eye opening) follow the pointer. All coordinates
- * are in the picture's own 1254 x 1254 space, so the overlay scales with it.
+ * are in the picture's own 1000 x 1000 space, so the overlay scales with it.
  */
-const SIZE = 1254;
+export const SIZE = 1000;
 
-interface EyeSpec {
+export interface EyeSpec {
   /** Centre and radii of the visible eye-white. */
   cx: number;
   cy: number;
@@ -22,9 +22,9 @@ interface EyeSpec {
   reachY: number;
 }
 
-const EYES: EyeSpec[] = [
-  { cx: 579, cy: 534, rx: 76, ry: 62, rotate: 4, restX: 617, restY: 509, iris: 28, reachX: 42, reachY: 30 },
-  { cx: 804, cy: 502, rx: 60, ry: 60, rotate: 8, restX: 826, restY: 477, iris: 27, reachX: 30, reachY: 30 },
+export const EYES: EyeSpec[] = [
+  { cx: 402, cy: 553, rx: 68, ry: 58, rotate: 0, restX: 414, restY: 556, iris: 38, reachX: 28, reachY: 20 },
+  { cx: 613, cy: 539, rx: 68, ry: 58, rotate: 0, restX: 575, restY: 547, iris: 38, reachX: 28, reachY: 20 },
 ];
 
 
@@ -48,21 +48,39 @@ function eyeMarkup(e: EyeSpec, i: number): string {
         <circle r="${e.iris * 0.52}" fill="#0b0a0c"/>
         <ellipse cx="${e.iris * 0.22}" cy="${-e.iris * 0.24}" rx="${e.iris * 0.15}" ry="${e.iris * 0.14}" fill="#fff"/>
       </g>
+      <ellipse class="character__lid" data-lid="top" data-eye="${i}" cx="${e.cx}" cy="${e.cy - e.ry - 14}" rx="${e.rx + 16}" ry="0" fill="#eda47e" stroke="#c07a58" stroke-width="3.5"/>
+      <ellipse class="character__lid" data-lid="bottom" data-eye="${i}" cx="${e.cx}" cy="${e.cy + e.ry + 14}" rx="${e.rx + 16}" ry="0" fill="#f1ab86" stroke="#cf8a66" stroke-width="2.5"/>
       <ellipse cx="${e.cx}" cy="${e.cy - e.ry * 0.9}" rx="${e.rx * 1.05}" ry="${e.ry * 0.45}" fill="#6b4a4a" opacity="0.16"/>
     </g>`;
 }
+
 
 /** Builds the picture plus its eye overlay. */
 export function renderCharacter(): HTMLElement {
   const wrap = document.createElement('div');
   wrap.className = 'character';
   wrap.innerHTML = `
-    <div class="character__stage">
-      <img class="character__img" src="/art/character-cut.webp" width="1000" height="1000" alt="Illustrated character with round glasses, looking at your cursor" fetchpriority="high" decoding="async" />
-      <svg class="character__eyes" viewBox="0 0 ${SIZE} ${SIZE}" aria-hidden="true" focusable="false">${EYES.map(eyeMarkup).join('')}</svg>
+    <div class="character__cam">
+      <div class="character__stage">
+        <img class="character__img" src="/art/character-front.webp" width="1064" height="1064" alt="Illustrated character with round glasses and a small smile, looking at you" fetchpriority="high" decoding="async" />
+        <svg class="character__eyes" viewBox="0 0 ${SIZE} ${SIZE}" aria-hidden="true" focusable="false">${EYES.map(eyeMarkup).join('')}</svg>
+      </div>
     </div>
   `;
   return wrap;
+}
+
+/**
+ * Screws the face up in annoyance, 0 (calm) to 1 (fully irritated): the lids close in on the eyes here, and the hair
+ * canvas (hair.ts) reads the same number to pull the brows down and the corners of the mouth down.
+ */
+export function setClench(wrap: HTMLElement, k: number): void {
+  wrap.dataset.clench = k.toFixed(3);
+  wrap.querySelectorAll<SVGEllipseElement>('.character__lid').forEach((lid) => {
+    const e = EYES[Number(lid.dataset.eye)]!;
+    // Each lid is a big ellipse parked outside the eye whose reach into it grows with k, so its edge is curved.
+    lid.setAttribute('ry', String(k * (lid.dataset.lid === 'top' ? e.ry * 0.62 + 14 : e.ry * 0.3 + 14)));
+  });
 }
 
 /** Makes the eyes follow the pointer. Stops by itself once the picture leaves the page. */
@@ -98,6 +116,10 @@ export function trackEyes(wrap: HTMLElement): void {
   // move must not count as "the page is gone"; only stop listening after it has been shown and then removed.
   let seen = false;
   const frame = (): void => {
+    if (wrap.dataset.gaze) {
+      raf = 0; // the opening's fly is steering the eyes (home-intro.ts)
+      return;
+    }
     if (!wrap.isConnected) {
       raf = 0;
       if (seen) {

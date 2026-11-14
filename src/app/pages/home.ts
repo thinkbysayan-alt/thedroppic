@@ -2,6 +2,7 @@ import { pathForRoute } from '../router';
 import { renderCharacter, trackEyes } from '../character';
 import { trackHair } from '../hair';
 import { trackBubble } from '../bubble';
+import { buildHomeIntro, introWanted } from '../home-intro';
 
 /**
  * The home page, from the Figma design: a two-part headline (the problem in
@@ -16,7 +17,7 @@ export function renderHomePage(): HTMLElement {
   const copy = document.createElement('div');
   copy.className = 'home__copy';
   copy.innerHTML = `
-    <h1 class="home__title"><strong>Wrong format?</strong> Not for long.</h1>
+    <h1 class="home__title"><strong>Wrong format?</strong> <span class="home__sub">Not for long.</span></h1>
     <p class="home__lead">Drop in the picture that won't cooperate. Get back the one you actually needed.</p>
     <p class="home__text">JPG, PNG, WebP, HEIC, and background removal too. It all happens right here in your browser, in about the time it takes to blink.</p>
     <div class="home__actions">
@@ -41,6 +42,7 @@ export function renderHomePage(): HTMLElement {
   section.appendChild(art);
   trackEyes(character);
   trackHair(character);
+  if (introWanted()) buildHomeIntro(character, bubble)();
 
   return section;
 }

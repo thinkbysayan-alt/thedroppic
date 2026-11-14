@@ -211,83 +211,188 @@ export async function initScrollMotion(root: HTMLElement, route: string): Promis
 let aboutCleanup: (() => void) | null = null;
 
 /**
- * About hero: the screen stays put while you scroll a little. The calm picture snaps into the shouting
- * one and the solution line appears (a quick timed change, not tied to scroll distance). Without motion nothing is hidden.
+ * About hero. Desktop: the page holds still at the top while two wheel notches (or a swipe, or the arrow keys) play
+ * a short change: the second paragraph arrives, the mouth opens (the calm picture swaps for the shouting one in a
+ * single step, so the two never show together) and the closing line appears; after that the page scrolls normally.
+ * Phones and small windows: the same change plays on its own when the hero scrolls into view. Without motion nothing
+ * is hidden.
  */
 export async function initAboutHero(root: HTMLElement, route: string): Promise<void> {
   aboutCleanup?.();
   aboutCleanup = null;
   const hero = root.querySelector<HTMLElement>('.about-hero');
-  if (route !== 'about' || !hero || prefersReducedMotion() || /HappyDOM/i.test(navigator.userAgent)) return;
+  if (route !== 'about' || !hero || prefersReducedMotion() || /HappyDOM/i.test(navigator.userAgent)) {
+    hero?.classList.remove('about-hero--intro');
+    return;
+  }
 
   try {
     const [gsap, st] = await Promise.all([loadGsap(), import('gsap/ScrollTrigger')]);
-    if (!gsap || !hero.isConnected) return;
+    if (!gsap || !hero.isConnected) {
+      hero.classList.remove('about-hero--intro');
+      return;
+    }
     gsap.registerPlugin(st.ScrollTrigger);
-    const calm = hero.querySelector<HTMLElement>('.about-hero__img--calm');
-    const shout = hero.querySelector<HTMLElement>('.about-hero__img--shout');
+    const calm = hero.querySelector<HTMLImageElement>('.about-hero__img--calm');
+    const shout = hero.querySelector<HTMLImageElement>('.about-hero__img--shout');
     const line = hero.querySelector<HTMLElement>('.about-hero__solution');
-    const header = document.querySelector<HTMLElement>('.site-header');
-    if (!calm || !shout || !line || !header) return;
+    if (!calm || !shout || !line) {
+      hero.classList.remove('about-hero--intro');
+      return;
+    }
+    const second = hero.querySelector<HTMLElement>('.about-hero__agitation--second');
+    const copy = hero.querySelector<HTMLElement>('.about-hero__copy');
 
-    // A quick, sharp change that plays on its own as soon as you scroll a little (and reverses when you scroll
-    // back to the top): the shouting picture snaps in over the calm one, then the calm one drops out beneath it,
-    // so at the end only the shouting character is left (no double image).
-    const snap = gsap.timeline({ paused: true, defaults: { ease: 'power3.out' } });
-    snap
-      .to(shout, { opacity: 1, duration: 0.26 }, 0)
-      .to(calm, { opacity: 0, duration: 0.14 }, 0.14)
-      .to(line, { opacity: 1, y: 0, duration: 0.32 }, 0.05);
-    const toggle = (on: boolean): void => {
-      if (on) snap.play();
-      else snap.reverse();
+    // The change itself: the calm picture and the shouting picture are the same size and place, and the page swaps
+    // from one to the other in a single step (never both on screen), so nothing ghosts or overlaps.
+    let isOpen = false;
+    const setOpen = (open: boolean): void => {
+      if (open === isOpen) return;
+      isOpen = open;
+      calm.style.visibility = open ? 'hidden' : '';
+      shout.style.visibility = open ? 'visible' : 'hidden';
     };
 
     const mm = gsap.matchMedia();
     mm.add('(min-width: 1000px)', () => {
-      // The menu stays in view (sticky on this page); the hero fills the rest of the screen and is held in place
-      // for just a short scroll while the change plays.
+      // Desktop: the hero fills the screen under the menu and the page holds still at the top while two wheel notches
+      // (or a swipe, or the arrow keys) play the change; after that the page scrolls normally. Nothing is pinned, so
+      // there is no jump: the scroll is read directly and eased, exactly like the home page.
       const fit = (): void => {
         hero.style.height = `${Math.max(460, window.innerHeight - (hero.getBoundingClientRect().top + window.scrollY))}px`;
       };
       fit();
-      window.addEventListener('resize', fit);
-      gsap.set(shout, { opacity: 0 });
-      gsap.set(line, { opacity: 0, y: 14 });
-      const trigger = st.ScrollTrigger.create({
-        trigger: hero,
-        start: () => `top ${Math.round(hero.getBoundingClientRect().top + window.scrollY)}px`,
-        end: '+=28%',
-        pin: true,
-        anticipatePin: 1,
-        invalidateOnRefresh: true,
-        onUpdate: (self) => toggle(self.progress > 0.1),
-      });
-      void document.fonts?.ready.then(() => st.ScrollTrigger.refresh());
+      hero.classList.add('about-hero--intro');
+      gsap.set([second, line].filter(Boolean), { autoAlpha: 0, y: 16 });
+
+      // How much room the two hidden paragraphs take, so the visible text can start centred and settle as they arrive.
+      let hidden = { second: 0, line: 0 };
+      const measure = (): void => {
+        const size = (el: HTMLElement | null): number => {
+          if (!el) return 0;
+          const style = getComputedStyle(el);
+          return el.offsetHeight + parseFloat(style.marginTop || '0');
+        };
+        hidden = { second: size(second), line: size(line) };
+      };
+      measure();
+
+      const NOTCHES = 2;
+      const smooth = (x: number): number => x * x * (3 - 2 * x);
+      const span = (p: number, from: number, to: number): number => Math.min(1, Math.max(0, (p - from) / (to - from)));
+      let target = 0;
+      let current = 0;
+
+      const render = (): void => {
+        const p = current;
+        const s2 = smooth(span(p, 0.04, 0.42)); // the second paragraph
+        const s3 = smooth(span(p, 0.56, 0.94)); // "That's the whole thing."
+        if (second) gsap.set(second, { autoAlpha: s2, y: 16 * (1 - s2) });
+        if (line) gsap.set(line, { autoAlpha: s3, y: 16 * (1 - s3) });
+        // The words start centred on the screen with only the first paragraph, and drift up as the others arrive.
+        if (copy) gsap.set(copy, { y: (hidden.second * (1 - s2) + hidden.line * (1 - s3)) / 2 });
+        // Halfway through the scroll the mouth opens, in one step.
+        setOpen(p >= 0.5);
+      };
+      render();
+
+      const atTop = (): boolean => window.scrollY <= 1;
+      const move = (delta: number): void => {
+        target = Math.min(1, Math.max(0, target + delta));
+      };
+      // Reads the scroll only while it is the hero's turn: at the top of the page, going down before the change has
+      // played, or going up after it has. Otherwise the page scrolls natively.
+      const wants = (down: boolean): boolean => atTop() && (down ? target < 1 : target > 0);
+      const onWheel = (e: WheelEvent): void => {
+        if (e.ctrlKey) return;
+        const px = e.deltaMode === 1 ? e.deltaY * 33 : e.deltaMode === 2 ? e.deltaY * window.innerHeight : e.deltaY;
+        if (!px || !wants(px > 0)) return;
+        e.preventDefault();
+        move(px / (100 * NOTCHES));
+      };
+      let touchY: number | null = null;
+      const onTouchStart = (e: TouchEvent): void => {
+        touchY = e.touches[0]?.clientY ?? null;
+      };
+      const onTouchMove = (e: TouchEvent): void => {
+        const y = e.touches[0]?.clientY;
+        if (y === undefined || touchY === null) return;
+        const dy = touchY - y;
+        touchY = y;
+        if (!dy || !wants(dy > 0)) return;
+        move(dy / 500);
+        e.preventDefault();
+      };
+      const onKey = (e: KeyboardEvent): void => {
+        if (e.altKey || e.ctrlKey || e.metaKey) return;
+        const tag = (e.target as HTMLElement | null)?.tagName ?? '';
+        if (/^(INPUT|TEXTAREA|SELECT)$/.test(tag)) return;
+        const down = e.key === 'ArrowDown' || e.key === 'PageDown' || (e.key === ' ' && !e.shiftKey && tag !== 'A' && tag !== 'BUTTON');
+        const up = e.key === 'ArrowUp' || e.key === 'PageUp' || (e.key === ' ' && e.shiftKey);
+        if ((down && wants(true)) || (up && wants(false))) {
+          e.preventDefault();
+          move((down ? 1 : -1) / NOTCHES);
+        }
+      };
+      const loop = (_t: number, deltaMs: number): void => {
+        if (current === target) return; // nothing to draw while it is at rest
+        const dt = Math.min(0.1, deltaMs / 1000);
+        current += (target - current) * (1 - Math.exp(-dt * 5));
+        if (Math.abs(target - current) < 0.0004) current = target;
+        render();
+      };
+      const onResize = (): void => {
+        fit();
+        measure();
+        render();
+      };
+      window.addEventListener('wheel', onWheel, { passive: false });
+      window.addEventListener('touchstart', onTouchStart, { passive: true });
+      window.addEventListener('touchmove', onTouchMove, { passive: false });
+      window.addEventListener('keydown', onKey);
+      window.addEventListener('resize', onResize);
+      gsap.ticker.add(loop);
+      void document.fonts?.ready.then(onResize);
+
       return () => {
-        trigger.kill();
-        window.removeEventListener('resize', fit);
+        gsap.ticker.remove(loop);
+        window.removeEventListener('wheel', onWheel);
+        window.removeEventListener('touchstart', onTouchStart);
+        window.removeEventListener('touchmove', onTouchMove);
+        window.removeEventListener('keydown', onKey);
+        window.removeEventListener('resize', onResize);
+        hero.classList.remove('about-hero--intro');
         hero.style.height = '';
-        snap.progress(0).pause();
-        gsap.set([calm, shout, line], { clearProps: 'opacity,transform' });
+        setOpen(false);
+        gsap.set([line, second, copy].filter(Boolean), { clearProps: 'opacity,visibility,y,transform' });
       };
     });
     mm.add('(max-width: 999px)', () => {
-      gsap.set(shout, { opacity: 0 });
+      // Phones and small windows: the mouth opens and the closing line appears on their own as the hero scrolls in.
+      hero.classList.remove('about-hero--intro');
       gsap.set(line, { opacity: 0, y: 14 });
       const trigger = st.ScrollTrigger.create({
         trigger: hero,
         start: 'top 55%',
-        onToggle: (self) => toggle(self.isActive),
+        onToggle: (self) => {
+          setOpen(self.isActive);
+          gsap.to(line, { opacity: self.isActive ? 1 : 0, y: self.isActive ? 0 : 14, duration: 0.4, ease: 'power2.out' });
+        },
       });
       return () => {
         trigger.kill();
-        snap.progress(0).pause();
-        gsap.set([calm, shout, line], { clearProps: 'opacity,transform' });
+        gsap.killTweensOf(line);
+        setOpen(false);
+        gsap.set(line, { clearProps: 'opacity,transform' });
       };
     });
-    aboutCleanup = () => mm.revert();
+    aboutCleanup = () => {
+      mm.revert();
+      calm.style.visibility = '';
+      shout.style.visibility = '';
+    };
   } catch {
     // Motion failed to load: the calm picture and all the copy stay visible.
+    hero.classList.remove('about-hero--intro');
   }
 }

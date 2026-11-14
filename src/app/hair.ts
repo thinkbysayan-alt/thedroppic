@@ -18,23 +18,35 @@ varying vec2 uv;
 uniform sampler2D tex;
 uniform vec2 sway;
 uniform float time;
+uniform float clench;
+
+float ell(vec2 p, vec2 c, vec2 r) {
+  return 1.0 - smoothstep(0.55, 1.0, length((p - c) / r));
+}
 
 float hairMask(vec2 p) {
-  float top = 1.0 - smoothstep(0.20, 0.27, p.y);
-  float left = (1.0 - smoothstep(0.28, 0.34, p.x)) * (1.0 - smoothstep(0.35, 0.41, p.y));
-  float right = smoothstep(0.76, 0.80, p.x) * (1.0 - smoothstep(0.24, 0.30, p.y));
+  float top = 1.0 - smoothstep(0.30, 0.38, p.y);
+  float left = (1.0 - smoothstep(0.20, 0.27, p.x)) * (1.0 - smoothstep(0.50, 0.60, p.y));
+  float right = smoothstep(0.80, 0.85, p.x) * (1.0 - smoothstep(0.42, 0.52, p.y));
   return max(top, max(left, right));
 }
 
 void main() {
   float m = hairMask(uv);
   // Hair further from the scalp moves more than the roots.
-  float lever = pow(clamp(length(uv - vec2(0.52, 0.28)) / 0.5, 0.0, 1.0), 1.4);
+  float lever = pow(clamp(length(uv - vec2(0.5, 0.2)) / 0.55, 0.0, 1.0), 1.4);
   float w = m * lever;
   vec2 d = sway * w;
   // Soft travelling ripple so strands bend smoothly rather than wobble.
   d.x += 0.002 * w * sin(time * 1.3 + uv.y * 6.0 + uv.x * 3.5) * (0.65 + 0.35 * sin(time * 0.5));
   d.y += 0.001 * w * sin(time * 1.0 + uv.x * 5.0 + 1.7);
+  // Annoyance: brows drop with their inner ends lowest, and the corners of the mouth turn down.
+  float mL = ell(uv, vec2(0.378, 0.429), vec2(0.11, 0.07));
+  d.y += clench * 0.034 * mL * (0.4 + 0.6 * clamp((uv.x - 0.32) / 0.12, 0.0, 1.0));
+  float mR = ell(uv, vec2(0.585, 0.389), vec2(0.11, 0.07));
+  d.y += clench * 0.034 * mR * (0.4 + 0.6 * clamp((0.65 - uv.x) / 0.11, 0.0, 1.0));
+  float mm = ell(uv, vec2(0.50, 0.683), vec2(0.10, 0.045));
+  d.y += clench * 0.009 * mm * smoothstep(0.0, 0.06, abs(uv.x - 0.50));
   gl_FragColor = texture2D(tex, uv - d);
 }`;
 
@@ -101,6 +113,7 @@ export function trackHair(wrap: HTMLElement): void {
 
     const uSway = gl.getUniformLocation(program, 'sway');
     const uTime = gl.getUniformLocation(program, 'time');
+    const uClench = gl.getUniformLocation(program, 'clench');
 
     let visible = true;
     let lastDraw = 0;
@@ -122,6 +135,7 @@ export function trackHair(wrap: HTMLElement): void {
       gl.clear(gl.COLOR_BUFFER_BIT);
       gl.uniform2f(uSway, g.x, g.y);
       gl.uniform1f(uTime, t);
+      gl.uniform1f(uClench, parseFloat(wrap.dataset.clench ?? '0') || 0);
       gl.drawArrays(gl.TRIANGLE_STRIP, 0, 4);
     };
 
