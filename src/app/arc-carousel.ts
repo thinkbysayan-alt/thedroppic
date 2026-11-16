@@ -34,7 +34,7 @@ export function renderArcCarousel(items: ArcItem[], label = 'Tools'): HTMLElemen
       <span class="arc-card__body">
         <span class="arc-card__name"></span>
         <span class="arc-card__hint"></span>
-        <span class="arc-card__foot"><span class="arc-card__go" aria-hidden="true">Let's go &rarr;</span><img class="arc-card__logo" src="/logo-white.webp" width="760" height="192" alt="" loading="lazy" decoding="async" /></span>
+        <span class="arc-card__foot"><span class="arc-card__go" aria-hidden="true">Let's go &rarr;</span><img class="arc-card__logo" src="/logo-white.webp" width="760" height="158" alt="" loading="lazy" decoding="async" /></span>
       </span>`;
     a.querySelector('.arc-card__name')!.textContent = item.name;
     a.querySelector('.arc-card__hint')!.textContent = item.hint;

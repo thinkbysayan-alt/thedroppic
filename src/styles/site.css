@@ -135,7 +135,7 @@ input[type='range'], input[type='checkbox'] {
 }
 .brand__logo {
   display: block;
-  height: max(34px, calc(64 * var(--uh)));
+  height: max(28px, calc(52 * var(--uh)));
   width: auto;
 }
 
@@ -885,7 +885,7 @@ html {
   font-size: max(11px, calc(var(--arc-card-w) * 0.056));
 }
 .arc-card__logo {
-  height: calc(var(--arc-card-w) * 0.07);
+  height: calc(var(--arc-card-w) * 0.062);
   width: auto;
 }
 .arc-card:hover .arc-card__art, .arc-card:focus-visible .arc-card__art, .arc-card:hover .arc-card__body, .arc-card:focus-visible .arc-card__body {

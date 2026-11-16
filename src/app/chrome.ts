@@ -23,7 +23,7 @@ export function mountChrome(root: HTMLElement): { viewRoot: HTMLElement } {
     <div class="app-shell">
       <header class="site-header">
         <div class="container site-header__bar">
-          <a href="/" class="brand" aria-label="thedroppic home"><img class="brand__logo" src="/logo.webp" width="760" height="192" alt="" decoding="async" /></a>
+          <a href="/" class="brand" aria-label="thedroppic home"><img class="brand__logo" src="/logo.webp" width="760" height="158" alt="" decoding="async" /></a>
           <nav class="site-header__nav" id="site-header-nav" aria-label="Primary">
             ${NAV_ITEMS.map(navLink).join('')}
           </nav>
