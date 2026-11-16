@@ -135,11 +135,8 @@ input[type='range'], input[type='checkbox'] {
 }
 .brand__logo {
   display: block;
-  height: max(40px, calc(66 * var(--uh)));
+  height: max(34px, calc(64 * var(--uh)));
   width: auto;
-}
-.logo__accent {
-  fill: var(--color-cta);
 }
 
 .site-header__nav {
@@ -888,9 +885,8 @@ html {
   font-size: max(11px, calc(var(--arc-card-w) * 0.056));
 }
 .arc-card__logo {
-  height: calc(var(--arc-card-w) * 0.1);
+  height: calc(var(--arc-card-w) * 0.07);
   width: auto;
-  color: #fff;
 }
 .arc-card:hover .arc-card__art, .arc-card:focus-visible .arc-card__art, .arc-card:hover .arc-card__body, .arc-card:focus-visible .arc-card__body {
   background: var(--color-cta);
