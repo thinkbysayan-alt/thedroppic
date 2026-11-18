@@ -129,10 +129,13 @@ function start(root: HTMLElement, stage: HTMLElement, cards: HTMLElement[]): voi
   root.addEventListener('focusin', () => (paused = true));
   root.addEventListener('focusout', () => (paused = false));
   if (typeof ResizeObserver !== 'undefined') {
-    new ResizeObserver(() => {
-      measure();
-      layout();
-    }).observe(root);
+    // (deferred a frame so re-laying out never feeds straight back into the observer)
+    new ResizeObserver(() =>
+      requestAnimationFrame(() => {
+        measure();
+        layout();
+      }),
+    ).observe(root);
   }
   if (typeof IntersectionObserver !== 'undefined') {
     new IntersectionObserver((entries) => {

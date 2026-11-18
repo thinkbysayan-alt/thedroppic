@@ -77,7 +77,8 @@ export async function initCtaPointer(root: HTMLElement): Promise<void> {
   // line under it, and the page font arriving (which makes that line wider than it first measured).
   let ro: ResizeObserver | null = null;
   if (typeof ResizeObserver !== 'undefined') {
-    ro = new ResizeObserver(place);
+    // (deferred a frame so re-measuring never feeds back into the observer, which browsers report as a loop warning)
+    ro = new ResizeObserver(() => requestAnimationFrame(place));
     for (const el of [conv, inner, button, band.querySelector<HTMLElement>('.conv-cta__action p')]) if (el) ro.observe(el);
   }
   void document.fonts?.ready.then(place);

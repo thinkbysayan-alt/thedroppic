@@ -147,10 +147,12 @@ export function trackHair(wrap: HTMLElement): void {
     img.insertAdjacentElement('afterend', canvas);
     img.style.opacity = '0';
     if (typeof ResizeObserver !== 'undefined') {
-      new ResizeObserver(() => {
-        size();
-        draw(performance.now());
-      }).observe(stage);
+      new ResizeObserver(() =>
+        requestAnimationFrame(() => {
+          size();
+          draw(performance.now());
+        }),
+      ).observe(stage);
     }
     if (typeof IntersectionObserver !== 'undefined') {
       new IntersectionObserver((entries) => {
