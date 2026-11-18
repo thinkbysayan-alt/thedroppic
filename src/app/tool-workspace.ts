@@ -75,6 +75,8 @@ export function createToolWorkspace(config: ToolWorkspaceConfig) {
   /** Set when more files were chosen than fit, so the batch view can say so (the drop box is gone by then). */
   let overflowNote: string | null = null;
   let batchIdCounter = 0;
+  /** True while "Convert All" is working through the batch, so the button can say so and not be pressed twice. */
+  let batchRunning = false;
 
   function collectUrls(view: View): Set<string> {
     const urls = new Set<string>();
@@ -188,6 +190,26 @@ export function createToolWorkspace(config: ToolWorkspaceConfig) {
     const view = store.get();
     if (view.kind !== 'batch') return;
     setView({ kind: 'batch', items: view.items.map((item) => (item.id === id ? { id, state: next } : item)) });
+  }
+
+  /** Converts every image in the batch that is still waiting, one after the other (kind to phones and to the cut-out model). */
+  async function runBatchAll(): Promise<void> {
+    if (batchRunning) return;
+    const view = store.get();
+    if (view.kind !== 'batch') return;
+    batchRunning = true;
+    try {
+      store.set(store.get()); // show the working state on the button
+      for (const item of view.items) {
+        const now = store.get();
+        if (now.kind !== 'batch') break; // the person chose different images meanwhile
+        const current = now.items.find((it) => it.id === item.id);
+        if (current?.state.status === 'ready') await runBatchItemConversion(item.id);
+      }
+    } finally {
+      batchRunning = false;
+      store.set(store.get());
+    }
   }
 
   async function runBatchItemConversion(id: string): Promise<void> {
@@ -612,6 +634,17 @@ export function createToolWorkspace(config: ToolWorkspaceConfig) {
       doneCount === view.items.length ? `All ${view.items.length} done. Not bad for a browser.` : `${view.items.length} images: ${doneCount} of ${view.items.length} done`;
     wrap.appendChild(heading);
 
+    // One button for the whole batch, at the top where it is always in view (each picture keeps its own format and quality choices).
+    if (view.items.some((it) => it.state.status === 'ready') || batchRunning) {
+      const convertAllBtn = document.createElement('button');
+      convertAllBtn.type = 'button';
+      convertAllBtn.className = 'btn btn-primary btn-block';
+      convertAllBtn.textContent = batchRunning ? 'Working on it…' : config.forceRemoveBackground ? 'Remove All Backgrounds' : 'Convert All';
+      convertAllBtn.disabled = batchRunning;
+      convertAllBtn.addEventListener('click', () => void runBatchAll());
+      wrap.appendChild(convertAllBtn);
+    }
+
     const grid = document.createElement('div');
     grid.className = 'batch-grid';
     for (const item of view.items) grid.appendChild(renderBatchItem(item));
@@ -689,12 +722,7 @@ export function createToolWorkspace(config: ToolWorkspaceConfig) {
         );
       }
 
-      const convertBtn = document.createElement('button');
-      convertBtn.type = 'button';
-      convertBtn.className = 'btn btn-primary btn-block batch-item__action';
-      convertBtn.textContent = config.convertLabel ?? (config.forceRemoveBackground ? 'Remove background' : 'Convert image');
-      convertBtn.addEventListener('click', () => void runBatchItemConversion(item.id));
-      card.appendChild(convertBtn);
+      // (no button per picture: the single "Convert All" button at the top converts the whole batch)
     } else if (item.state.status === 'converting') {
       const status = document.createElement('p');
       status.className = 'status-line batch-item__action';
