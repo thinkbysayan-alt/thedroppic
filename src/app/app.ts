@@ -9,7 +9,6 @@ import { applySeo } from './seo';
 import { removePageListeners } from '../components/upload/upload';
 import { initScrollReveal } from '../utils/reveal';
 import { initCtaPointer } from '../utils/cta-pointer';
-import { stopHomeIntro } from './home-intro';
 import { bindMicroInteractions, initAboutHero, initScrollMotion, transitionPage, warmMotion } from '../utils/motion';
 
 /**
@@ -54,7 +53,6 @@ export function mountApp(root: HTMLElement): void {
         break;
     }
     const swap = (): void => {
-      if (route !== 'home') stopHomeIntro();
       viewRoot.replaceChildren();
       viewRoot.appendChild(page);
       setActiveNavRoute(root, route);
