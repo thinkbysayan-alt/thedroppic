@@ -14,6 +14,11 @@ const NAV_ITEMS: Array<{ route: PageRoute; label: string }> = [
   { route: 'about', label: 'About' },
 ];
 
+/** Product Hunt badge (the picture is hosted here, so the page's cross-origin isolation is not affected). */
+const PRODUCT_HUNT_URL = 'https://www.producthunt.com/products/thedroppic?embed=true&utm_source=badge-featured&utm_medium=badge&utm_campaign=badge-thedroppic';
+const productHuntBadge = (className: string): string =>
+  `<a class="ph-badge ${className}" href="${PRODUCT_HUNT_URL}" target="_blank" rel="noopener noreferrer"><img src="/product-hunt-badge.svg" width="250" height="54" alt="thedroppic - Fix any image format right in your browser. | Product Hunt" decoding="async" /></a>`;
+
 const navLink = (item: { route: PageRoute; label: string }): string =>
   `<a href="${pathForRoute(item.route)}" data-route="${item.route}">${item.label}</a>`;
 
@@ -28,6 +33,7 @@ export function mountChrome(root: HTMLElement): { viewRoot: HTMLElement } {
             ${NAV_ITEMS.map(navLink).join('')}
           </nav>
           <div class="site-header__end">
+            ${productHuntBadge('ph-badge--bar')}
             <button type="button" class="mobile-nav-toggle" id="mobile-nav-toggle" aria-label="Open menu" aria-expanded="false" aria-controls="mobile-nav-panel">
               <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" aria-hidden="true"><path d="M4 7h16M4 12h16M4 17h16" stroke-linecap="square"/></svg>
             </button>
@@ -35,6 +41,7 @@ export function mountChrome(root: HTMLElement): { viewRoot: HTMLElement } {
         </div>
         <div class="mobile-nav-panel" id="mobile-nav-panel" hidden>
           ${NAV_ITEMS.map(navLink).join('')}
+          ${productHuntBadge('ph-badge--panel')}
         </div>
       </header>
       <main id="main" class="app-main">

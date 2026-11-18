@@ -201,7 +201,7 @@ input[type='range'], input[type='checkbox'] {
   background: #fff;
   border-block: 1px solid #000;
 }
-.mobile-nav-panel a {
+.mobile-nav-panel > a:not(.ph-badge) {
   display: flex;
   align-items: center;
   min-height: 56px;
@@ -211,15 +211,50 @@ input[type='range'], input[type='checkbox'] {
   font-weight: 300;
   text-decoration: none;
 }
-.mobile-nav-panel a:last-child {
-  border-bottom: 0;
-}
-.mobile-nav-panel a[aria-current='page'] {
+.mobile-nav-panel > a[aria-current='page'] {
   color: var(--color-cta);
   font-weight: 500;
 }
 
+/* Product Hunt badge: in the bar on wide screens, at the foot of the menu on small ones. */
+.site-header__end {
+  display: flex;
+  align-items: center;
+  margin-left: calc(40 * var(--uh));
+}
+.ph-badge {
+  display: inline-block;
+  line-height: 0;
+}
+.ph-badge img {
+  display: block;
+  width: auto;
+}
+.ph-badge--bar img {
+  height: max(34px, calc(46 * var(--uh)));
+}
+.ph-badge--panel {
+  display: none;
+  align-self: flex-start;
+  margin-top: var(--space-4);
+}
+.ph-badge--panel img {
+  height: 44px;
+}
+.mobile-nav-panel > a:not(.ph-badge):nth-last-of-type(2) {
+  border-bottom: 0;
+}
+
 @media (max-width: 999px) {
+  .ph-badge--bar {
+    display: none;
+  }
+  .ph-badge--panel {
+    display: inline-block;
+  }
+  .site-header__end {
+    margin-left: 0;
+  }
   .site-header__bar {
     min-height: 72px;
     padding-block: 14px;
