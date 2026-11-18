@@ -6,7 +6,7 @@ import { renderUploadCard, listenForClipboardPaste, TOO_MANY_FILES_MESSAGE, MAX_
 import { renderPreview } from '../components/preview/image-preview';
 import { renderFormatSelector } from '../components/format-selector/format-selector';
 import { renderQualityControl } from '../components/quality-control/quality-slider';
-import { isBackgroundRemovalReady, preloadBackgroundRemoval } from '../conversion/background-removal';
+import { getBackgroundModelProgress, isBackgroundRemovalReady, preloadBackgroundRemoval } from '../conversion/background-removal';
 import { renderBackgroundRemovalToggle } from '../components/quality-control/background-removal-toggle';
 import { renderCropper } from '../components/cropper/cropper';
 import { renderResultPanel } from '../components/result/result-panel';
@@ -77,6 +77,11 @@ export function createToolWorkspace(config: ToolWorkspaceConfig) {
   let batchIdCounter = 0;
   /** True while "Convert All" is working through the batch, so the button can say so and not be pressed twice. */
   let batchRunning = false;
+
+  /** The download button's words: a cut-out that came back as WebP says it is ready to share on the web. */
+  function grabLabel(format: OutputFormat): string {
+    return config.forceRemoveBackground && format === 'webp' ? 'Grab it, web-ready WebP' : 'Grab it';
+  }
 
   function collectUrls(view: View): Set<string> {
     const urls = new Set<string>();
@@ -575,7 +580,22 @@ export function createToolWorkspace(config: ToolWorkspaceConfig) {
       // Only while the model is still getting ready (its first-ever load on this device).
       const firstRun = document.createElement('p');
       firstRun.className = 'result-note';
-      firstRun.textContent = "Warming up the scissors. This only takes a moment the first time, then it's quick.";
+      const waiting = "Warming up the scissors. This only takes a moment the first time, then it's quick.";
+      const describe = (percent: number): string =>
+        percent >= 99
+          ? 'Downloaded. Setting the model up now: this last part can take a minute on slower devices, and only happens once.'
+          : percent > 0 && percent < 100
+            ? `Getting the cut-out model ready, once only (about 94 MB): ${percent}%. After this it's quick.`
+            : waiting;
+      firstRun.textContent = describe(getBackgroundModelProgress());
+      const onProgress = (event: Event): void => {
+        if (!firstRun.isConnected) {
+          window.removeEventListener('background-model-progress', onProgress);
+          return;
+        }
+        firstRun.textContent = describe((event as CustomEvent<number>).detail);
+      };
+      window.addEventListener('background-model-progress', onProgress);
       panel.appendChild(firstRun);
     }
 
@@ -597,6 +617,7 @@ export function createToolWorkspace(config: ToolWorkspaceConfig) {
           outputFormat: view.outputFormat,
           originalByteLength: view.image.file.size,
           growthNote: config.fixedOutputFormat || config.forceRemoveBackground ? null : undefined,
+          downloadLabel: grabLabel(view.outputFormat),
         },
         {
           onDownload: () => downloadBlob(view.resultBlob, view.resultFilename),
@@ -747,7 +768,7 @@ export function createToolWorkspace(config: ToolWorkspaceConfig) {
       const downloadBtn = document.createElement('button');
       downloadBtn.type = 'button';
       downloadBtn.className = 'btn btn-primary btn-block batch-item__action';
-      downloadBtn.textContent = 'Grab it';
+      downloadBtn.textContent = grabLabel(resultState.outputFormat);
       downloadBtn.addEventListener('click', () => downloadBlob(resultState.resultBlob, resultState.resultFilename));
       card.appendChild(downloadBtn);
     }

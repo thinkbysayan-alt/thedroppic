@@ -19,6 +19,12 @@ export interface BackgroundRemovalReady {
   kind: 'ready';
 }
 
+/** Sent while the model file downloads (0 to 100), so the page can show real progress. */
+export interface BackgroundRemovalProgress {
+  kind: 'progress';
+  percent: number;
+}
+
 export type BackgroundRemovalMessage = BackgroundRemovalRequest | BackgroundRemovalWarmup;
 
 export interface BackgroundRemovalTimings {

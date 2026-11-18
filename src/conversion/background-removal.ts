@@ -1,6 +1,7 @@
 import { AppError } from '../types';
 import type {
   BackgroundRemovalMessage,
+  BackgroundRemovalProgress,
   BackgroundRemovalReady,
   BackgroundRemovalRequest,
   BackgroundRemovalResponse,
@@ -23,6 +24,12 @@ import type {
 let worker: Worker | null = null;
 let nextId = 1;
 let ready = false;
+let modelPercent = 0;
+
+/** How much of the model file has downloaded so far (0 to 100); 0 until it starts or when it is already cached. */
+export function getBackgroundModelProgress(): number {
+  return modelPercent;
+}
 
 /** True once the model has loaded and warmed up (or a cut-out has finished), so the next one starts quickly. */
 export function isBackgroundRemovalReady(): boolean {
@@ -33,9 +40,15 @@ const pending = new Map<number, { resolve: (v: BackgroundRemovalResponse) => voi
 function getWorker(): Worker {
   if (!worker) {
     worker = new Worker(new URL('../workers/background-removal.worker.ts', import.meta.url), { type: 'module' });
-    worker.onmessage = (event: MessageEvent<BackgroundRemovalResponse | BackgroundRemovalReady>) => {
+    worker.onmessage = (event: MessageEvent<BackgroundRemovalResponse | BackgroundRemovalReady | BackgroundRemovalProgress>) => {
       if ('kind' in event.data) {
-        ready = true;
+        if (event.data.kind === 'progress') {
+          modelPercent = event.data.percent;
+          window.dispatchEvent(new CustomEvent('background-model-progress', { detail: modelPercent }));
+        } else {
+          ready = true;
+          modelPercent = 100;
+        }
         return;
       }
       const entry = pending.get(event.data.id);

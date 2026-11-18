@@ -36,7 +36,12 @@ import type { BackgroundRemovalMessage, BackgroundRemovalRequest, BackgroundRemo
  * still never uploaded anywhere — inference still runs entirely on-device.
  */
 const MODEL_ID = 'studioludens/birefnet-lite-512';
-const SEGMENT_TIMEOUT_MS = 90_000; // Larger budget than MODNet's: this model is a much bigger download/graph.
+const SEGMENT_TIMEOUT_MS = 90_000; // Budget for one cut-out once the model is loaded.
+/** Loading gives up only when nothing has happened for this long (a stalled download), not after a fixed time, so slow connections can finish. */
+const LOAD_STALL_MS = 120_000;
+/** ...and never keeps a person waiting longer than this overall. */
+const LOAD_MAX_MS = 12 * 60_000;
+let lastLoadActivity = Date.now();
 
 const ctx = self as unknown as DedicatedWorkerGlobalScope;
 
@@ -64,8 +69,36 @@ async function hasWorkingWebGpu(): Promise<boolean> {
   }
 }
 
+/** Reports how much of the model file has arrived so the page can show it (and so a slow-but-moving download is not cut off). */
+const fileProgress = new Map<string, { loaded: number; total: number }>();
+function onModelProgress(info: { status?: string; file?: string; loaded?: number; total?: number }): void {
+  lastLoadActivity = Date.now();
+  if (info.status !== 'progress' || !info.file || !info.total) return;
+  fileProgress.set(info.file, { loaded: info.loaded ?? 0, total: info.total });
+  let loaded = 0;
+  let total = 0;
+  for (const f of fileProgress.values()) {
+    loaded += f.loaded;
+    total += f.total;
+  }
+  ctx.postMessage({ kind: 'progress', percent: Math.max(0, Math.min(99, Math.round((loaded / total) * 100))) });
+}
+
+/** Removes this model's files from the browser cache, in case a half-finished download left something unusable behind. */
+async function clearModelCache(): Promise<void> {
+  try {
+    const cache = await caches.open('transformers-cache');
+    for (const request of await cache.keys()) {
+      if (request.url.includes(MODEL_ID)) await cache.delete(request);
+    }
+  } catch {
+    // Nothing to clear (cache unavailable): the retry just downloads again.
+  }
+}
+
 async function loadSegmenter(): Promise<Segmenter> {
   const { pipeline, env } = await import('@huggingface/transformers');
+  lastLoadActivity = Date.now();
 
   // The ONNX Runtime WASM binary is still self-hosted (small, and lets us
   // pin the WebGPU-capable build) — only the model weights themselves come
@@ -78,7 +111,7 @@ async function loadSegmenter(): Promise<Segmenter> {
 
   if (await hasWorkingWebGpu()) {
     try {
-      const segmenter = await pipeline('background-removal', MODEL_ID, { device: 'webgpu', dtype: 'fp16' });
+      const segmenter = await pipeline('background-removal', MODEL_ID, { device: 'webgpu', dtype: 'fp16', progress_callback: onModelProgress });
       activeDevice = 'webgpu';
       return finishLoad(segmenter);
     } catch {
@@ -88,7 +121,7 @@ async function loadSegmenter(): Promise<Segmenter> {
     }
   }
 
-  const segmenter = await pipeline('background-removal', MODEL_ID, { device: 'wasm', dtype: 'fp16' });
+  const segmenter = await pipeline('background-removal', MODEL_ID, { device: 'wasm', dtype: 'fp16', progress_callback: onModelProgress });
   activeDevice = 'wasm';
   return finishLoad(segmenter);
 }
@@ -99,9 +132,60 @@ function finishLoad(segmenter: unknown): Segmenter {
   return segmenter as Segmenter;
 }
 
+/** One automatic second attempt with a clean cache: fixes a download that was cut off half way, without the person doing anything. */
+async function loadWithRetry(): Promise<Segmenter> {
+  try {
+    return await loadSegmenter();
+  } catch (first) {
+    console.warn('[background-removal] model load failed, retrying once with a clean cache', first);
+    await clearModelCache();
+    fileProgress.clear();
+    return loadSegmenter();
+  }
+}
+
+/** Waits for the model, but only gives up if the download stalls (or takes unreasonably long overall). */
+function loadWithStallGuard(): Promise<Segmenter> {
+  const started = Date.now();
+  return new Promise((resolve, reject) => {
+    const timer = setInterval(() => {
+      if (Date.now() - lastLoadActivity > LOAD_STALL_MS) fail(new Error('Loading the background removal model stalled'));
+      else if (Date.now() - started > LOAD_MAX_MS) fail(new Error('Loading the background removal model timed out'));
+    }, 2000);
+    const fail = (err: Error): void => {
+      clearInterval(timer);
+      reject(err);
+    };
+    getSegmenter().then(
+      (value) => {
+        clearInterval(timer);
+        resolve(value);
+      },
+      fail,
+    );
+  });
+}
+
+/** Turns whatever went wrong into a sentence that says what to do about it. */
+function friendlyError(err: unknown): AppError {
+  if (err instanceof AppError) return err;
+  const text = String((err as { message?: string })?.message ?? err).toLowerCase();
+  console.error('[background-removal] failed', err);
+  if (/stalled|model timed out|loading the background removal model/.test(text) || /failed to fetch|networkerror|network error|load failed|could not locate|unable to get|err_|cors|offline|(http|status)[^a-z0-9]{0,3}[45]\d\d/.test(text)) {
+    return new AppError('conversion-failed', "We couldn't download the cut-out model (about 94 MB, only needed once). Check your internet connection and try again. It keeps what it already got.");
+  }
+  if (/out of memory|allocation failed|memory/.test(text)) {
+    return new AppError('conversion-failed', 'That photo is too big for this device to cut out. Try a smaller photo.');
+  }
+  if (/removal timed out|warm-up timed out/.test(text)) {
+    return new AppError('conversion-failed', 'That took too long. Try a smaller photo, or try again.');
+  }
+  return new AppError('conversion-failed', ERROR_MESSAGES['conversion-failed']);
+}
+
 function getSegmenter(): Promise<Segmenter> {
   if (!segmenterPromise) {
-    segmenterPromise = loadSegmenter().catch((err) => {
+    segmenterPromise = loadWithRetry().catch((err) => {
       segmenterPromise = null; // allow retrying with a fresh load on the next call instead of caching a failure forever
       throw err;
     });
@@ -157,7 +241,7 @@ async function downscaleForModel(rgba: Uint8ClampedArray, width: number, height:
 async function runSegmentation(req: BackgroundRemovalRequest): Promise<BackgroundRemovalResponse> {
   try {
     const t0 = performance.now();
-    const segmenter = await withTimeout(getSegmenter(), SEGMENT_TIMEOUT_MS, 'Loading the background removal model timed out');
+    const segmenter = await loadWithStallGuard();
     const t1 = performance.now();
 
     // The photo's own RGB stays untouched; only its alpha channel is replaced by the model's matte.
@@ -186,7 +270,7 @@ async function runSegmentation(req: BackgroundRemovalRequest): Promise<Backgroun
     };
     return { id: req.id, ok: true, data: rgba.buffer, width: req.width, height: req.height, timings };
   } catch (err) {
-    const appErr = err instanceof AppError ? err : new AppError('conversion-failed', ERROR_MESSAGES['conversion-failed']);
+    const appErr = friendlyError(err);
     return { id: req.id, ok: false, errorCode: appErr.code, message: appErr.message };
   }
 }

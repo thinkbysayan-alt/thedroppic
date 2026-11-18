@@ -19,6 +19,8 @@ export interface ResultInfo {
   originalByteLength?: number;
   /** Overrides the default "this file got bigger" note: a string replaces it, `null` hides it. */
   growthNote?: string | null;
+  /** Text for the download button (default "Grab it"). */
+  downloadLabel?: string;
 }
 
 /** Post-conversion panel: preview, download, and next-step actions. */
@@ -72,7 +74,7 @@ export function renderResultPanel(info: ResultInfo, handlers: ResultPanelHandler
   const downloadBtn = document.createElement('button');
   downloadBtn.type = 'button';
   downloadBtn.className = 'btn btn-primary btn-block';
-  downloadBtn.textContent = 'Grab it';
+  downloadBtn.textContent = info.downloadLabel ?? 'Grab it';
   downloadBtn.addEventListener('click', handlers.onDownload);
   actions.appendChild(downloadBtn);
 
